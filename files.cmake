@@ -1,9 +1,11 @@
 set(SRC_FILES
-    App.cpp
+    AppUpdate.cpp
+    AppStart.cpp
 )
 
 set(INCLUDE_FILES
-    App.hpp
+    AppUpdate.hpp
+    AppStart.hpp
 )
 
 set(TEST_FILES
