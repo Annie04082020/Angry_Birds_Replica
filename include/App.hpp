@@ -3,6 +3,7 @@
 
 #include "pch.hpp" // IWYU pragma: export
 #include "Character.hpp"
+#include "BackgroundImage.hpp"
 #include "Util/Renderer.hpp"
 
 
@@ -26,8 +27,10 @@ private:
     void ValidTask();
 
 private:
+    //Put things you need here
     State m_CurrentState = State::START;
     std::shared_ptr<Character> m_bird;
+    std::shared_ptr<BackgroundImage> m_background;
     Util::Renderer m_Root;
 
 

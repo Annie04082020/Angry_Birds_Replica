@@ -6,8 +6,12 @@
 void App::Start() {
     LOG_TRACE("Start");
     m_bird = std::make_shared<Character>(RESOURCE_DIR "/temp/R.png");
+    m_bird->SetVisible(false);
+    m_background = std::make_shared<BackgroundImage>();
 
-    
+    m_Root.AddChild(m_background);
+    m_Root.AddChild(m_bird);
+
     m_CurrentState = State::UPDATE;
     
 }

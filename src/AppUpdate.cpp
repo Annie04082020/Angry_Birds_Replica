@@ -6,8 +6,7 @@
 void App::Update() {
     
     //TODO: do your things here and delete this line <3
-
-    
+    m_Root.Update();
     /*
      * Do not touch the code below as they serve the purpose for
      * closing the window.
