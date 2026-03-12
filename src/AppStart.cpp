@@ -5,7 +5,7 @@
 
 void App::Start() {
     LOG_TRACE("Start");
-
+    m_bird = std::make_shared<Character>(RESOURCE_DIR "/temp/R.png");
 
     
     m_CurrentState = State::UPDATE;
