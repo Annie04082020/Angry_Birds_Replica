@@ -4,6 +4,7 @@
 #include "BGM.hpp"
 #include "BackgroundImage.hpp"
 #include "Character.hpp"
+#include "SoundEffect.hpp"
 #include "Util/Renderer.hpp"
 #include "pch.hpp" // IWYU pragma: export
 
@@ -32,6 +33,7 @@ private:
   std::shared_ptr<Character> m_bird;
   std::shared_ptr<BackgroundImage> m_background;
   std::shared_ptr<BackgroundMusic> m_BGM;
+  std::shared_ptr<SoundEffect> m_SFX;
   Util::Renderer m_Root;
 };
 

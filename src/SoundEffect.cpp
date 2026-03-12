@@ -1,4 +1,4 @@
-#include "Util/SFX.hpp"
+#include "SoundEffect.hpp"
 
 SoundEffect::SoundEffect() : m_SFX(RESOURCE_DIR "/Audio/sfx/bird_launch.wav") {}
 
