@@ -495,5 +495,3 @@ lib/
 # Doxygen generated files
 docs/html/
 
-# Syncing shell scripts
-.sync_progress.sh
