@@ -3,6 +3,7 @@
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
+#include "Resource.hpp"
 
 void App::Start()
 {
@@ -10,7 +11,7 @@ void App::Start()
 
   // 初始化 Splash 背景 (靜止圖)
   m_splashBackground = std::make_shared<BackgroundImage>(
-      RESOURCE_DIR "/Image/title/SPLASHES_SHEET_1.png");
+      Resource::SPLASH_IMAGE);
   m_splashBackground->SetVisible(true);
   m_splashBackground->SetZIndex(100); // 確保在最上層
 
@@ -21,22 +22,22 @@ void App::Start()
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
 
-  m_bird = std::make_shared<Character>(RESOURCE_DIR "/temp/R.png");
+  m_bird = std::make_shared<Character>(Resource::BIRD_R);
   m_bird->SetVisible(false);
 
   m_BGM = std::make_shared<BackgroundMusic>();
   m_BGM->Stop_BGM();
 
-  m_playbutton = std::make_shared<Character>(RESOURCE_DIR "/temp/Y.png");
+  m_playbutton = std::make_shared<Character>(Resource::BIRD_Y);
   m_playbutton->SetZIndex(50);
   m_playbutton->SetVisible(true);
 
-  m_exitbutton = std::make_shared<Character>(RESOURCE_DIR "/temp/B.png");
+  m_exitbutton = std::make_shared<Character>(Resource::BIRD_B);
   m_exitbutton->SetZIndex(50);
   m_exitbutton->SetPosition({-1000, -550});
   m_exitbutton->SetVisible(true);
 
-  m_settingbutton = std::make_shared<Character>(RESOURCE_DIR "/temp/B.png");
+  m_settingbutton = std::make_shared<Character>(Resource::BIRD_B);
   m_settingbutton->SetZIndex(50);
   m_settingbutton->SetPosition({1000, -550});
   m_settingbutton->SetVisible(true);

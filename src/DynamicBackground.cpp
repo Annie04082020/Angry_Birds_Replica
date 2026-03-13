@@ -1,11 +1,12 @@
 #include "DynamicBackground.hpp"
 #include "Util/Time.hpp"
 #include "config.hpp"
+#include "Resource.hpp"
 
 DynamicBackground::DynamicBackground() {
   // 創建兩個背景實例，使用相同的圖片
-  m_BG1 = std::make_shared<BackgroundImage>(RESOURCE_DIR "/temp/test_bg.png");
-  m_BG2 = std::make_shared<BackgroundImage>(RESOURCE_DIR "/temp/test_bg.png");
+  m_BG1 = std::make_shared<BackgroundImage>(Resource::MOVING_BG_IMAGE);
+  m_BG2 = std::make_shared<BackgroundImage>(Resource::MOVING_BG_IMAGE);
 
   // 初始佈局：背景1在原點，背景2緊接在右側（螢幕寬度處）
   // 這樣兩張圖就拼接成了一個兩倍寬度的長條

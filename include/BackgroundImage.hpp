@@ -5,13 +5,14 @@
 #include "Util/GameObject.hpp"
 #include "Util/Image.hpp"
 #include "config.hpp"
+#include "Resource.hpp"
 #include <string>
 
 class BackgroundImage : public Util::GameObject {
 
 public:
   BackgroundImage()
-      : BackgroundImage(RESOURCE_DIR "/Image/backgrounds/SPLASHES_SHEET_1.png") {}
+      : BackgroundImage(Resource::SPLASH_IMAGE) {}
 
   BackgroundImage(const std::string &path)
       : GameObject(std::make_unique<Util::Image>(path), -10) {
@@ -32,8 +33,7 @@ public:
   glm::vec2 GetPosition() const { return m_Transform.translation; }
 
 private:
-  std::string m_ImagePath =
-      RESOURCE_DIR "/Image/backgrounds/SPLASHES_SHEET_1.png";
+  std::string m_ImagePath = Resource::SPLASH_IMAGE;
 };
 
 #endif // BACKGROUND_IMAGE_HPP
