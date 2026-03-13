@@ -2,27 +2,47 @@
 
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
+#include "Util/Time.hpp"
 
 void App::Start() {
   LOG_TRACE("Start");
+
+  // 初始化 Splash 背景 (靜止圖)
+  m_splashBackground = std::make_shared<BackgroundImage>(
+      RESOURCE_DIR "/Image/backgrounds/SPLASHES_SHEET_1.png");
+  m_splashBackground->SetVisible(true);
+  m_splashBackground->SetZIndex(100); // 確保在最上層
+
+  // 初始化移動背景 (動態滾動)
+  m_movingBackground = std::make_shared<DynamicBackground>();
+  m_movingBackground->SetVisible(false); // 初始先隱藏
+
+  // 紀錄啟動時間
+  m_startTime = Util::Time::GetElapsedTimeMs();
+
   m_bird = std::make_shared<Character>(RESOURCE_DIR "/temp/R.png");
   m_bird->SetVisible(false);
-  m_background = std::make_shared<BackgroundImage>();
+
   m_BGM = std::make_shared<BackgroundMusic>();
-  m_BGM->Play_BGM();
+  m_BGM->Stop_BGM();
+
   m_playbutton = std::make_shared<Character>(RESOURCE_DIR "/temp/Y.png");
-  m_playbutton->SetZIndex(50); // Ensure it renders on top of everything
+  m_playbutton->SetZIndex(50);
   m_playbutton->SetVisible(true);
+
   m_exitbutton = std::make_shared<Character>(RESOURCE_DIR "/temp/B.png");
-  m_exitbutton->SetZIndex(50); // Ensure it renders on top of everything
+  m_exitbutton->SetZIndex(50);
   m_exitbutton->SetPosition({-1000, -550});
   m_exitbutton->SetVisible(true);
+
   m_settingbutton = std::make_shared<Character>(RESOURCE_DIR "/temp/B.png");
-  m_settingbutton->SetZIndex(50); // Ensure it renders on top of everything
+  m_settingbutton->SetZIndex(50);
   m_settingbutton->SetPosition({1000, -550});
   m_settingbutton->SetVisible(true);
 
-  m_Root.AddChild(m_background);
+  // 將兩個背景都加入 Renderer，順序決定渲染層級
+  m_Root.AddChild(m_splashBackground);
+  m_Root.AddChild(m_movingBackground);
   m_Root.AddChild(m_bird);
   m_Root.AddChild(m_exitbutton);
   m_Root.AddChild(m_settingbutton);

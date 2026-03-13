@@ -2,7 +2,7 @@
 #define APP_HPP
 
 #include "BGM.hpp"
-#include "BackgroundImage.hpp"
+#include "DynamicBackground.hpp"
 #include "Character.hpp"
 #include "SoundEffect.hpp"
 #include "Util/Renderer.hpp"
@@ -34,9 +34,12 @@ private:
   std::shared_ptr<Character> m_playbutton;
   std::shared_ptr<Character> m_exitbutton;
   std::shared_ptr<Character> m_settingbutton;
-  std::shared_ptr<BackgroundImage> m_background;
+  std::shared_ptr<BackgroundImage> m_splashBackground;
+  std::shared_ptr<DynamicBackground> m_movingBackground;
   std::shared_ptr<BackgroundMusic> m_BGM;
   std::shared_ptr<SoundEffect> m_SFX;
+  float m_startTime = 0.0f;
+  bool m_isSplashDone = false;
   Util::Renderer m_Root;
 };
 

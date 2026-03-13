@@ -2,10 +2,25 @@
 
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Util/Time.hpp"
 
 void App::Update() {
+  // 使用絕對時間差來判斷是否過了 2 秒
+  if (!m_isSplashDone) {
+    if (Util::Time::GetElapsedTimeMs() - m_startTime >= 2000.0f) {
+      m_splashBackground->SetVisible(false);
+      m_movingBackground->SetVisible(true);
+      m_BGM->Play_BGM();
+      m_isSplashDone = true;
+    }
+  }
 
-  // Play button interaction logic
+  // 只有在 Splash 結束後或是需要時才更新移動背景
+  if (m_isSplashDone) {
+    m_movingBackground->Update();
+  }
+
+  // 按鈕互動邏輯
   if (m_CurrentState == State::UPDATE) {
     auto mousePos = Util::Input::GetCursorPosition();
 

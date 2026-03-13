@@ -8,6 +8,8 @@ class BackgroundMusic : public Util::GameObject {
 public:
   BackgroundMusic();
   void Play_BGM();
+  void Stop_BGM();
+  void Resume_BGM();
 
 private:
   Util::BGM m_BGM;

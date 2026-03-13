@@ -33,6 +33,10 @@ public:
     m_Transform.translation = Position;
   }
 
+  void SetScale(const glm::vec2 &Scale) { m_Transform.scale = Scale; }
+
+  void SetRotation(float Rotation) { m_Transform.rotation = Rotation; }
+
   // TODO: Implement the collision detection
   [[nodiscard]] bool IfCollides(const std::shared_ptr<Character> &other) const {
     // (void) other;
@@ -68,14 +72,13 @@ public:
            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
   }
 
-    void UpdateHoverScale(const glm::vec2 &mousePos, float scaleAmount = 1.2f)
-    {
-        if (IsHovering(mousePos)) {
-            m_Transform.scale = {scaleAmount, scaleAmount};
-        } else {
-            m_Transform.scale = {1.0f, 1.0f};
-        }
+  void UpdateHoverScale(const glm::vec2 &mousePos, float scaleAmount = 1.2f) {
+    if (IsHovering(mousePos)) {
+      m_Transform.scale = {scaleAmount, scaleAmount};
+    } else {
+      m_Transform.scale = {1.0f, 1.0f};
     }
+  }
   // TODO: Add and implement more methods and properties as needed to finish
   // Giraffe Adventure.
 
