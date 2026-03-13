@@ -496,4 +496,4 @@ lib/
 docs/html/
 
 # Syncing shell scripts
-sync_progress.sh
+./sync_progress.sh
