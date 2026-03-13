@@ -5,6 +5,7 @@
 #include "Util/GameObject.hpp"
 #include "Util/Image.hpp"
 #include "config.hpp"
+#include <string>
 
 class BackgroundImage : public Util::GameObject {
 
@@ -19,17 +20,14 @@ public:
     m_Transform.scale = {scale_x, scale_y};
   }
 
-  void NextPhase(const int phase) {
+  void SetImage(const std::string &path) {
     auto temp = std::dynamic_pointer_cast<Util::Image>(m_Drawable);
-    temp->SetImage(ImagePath(phase));
+    temp->SetImage(path);
   }
 
 private:
-  inline std::string ImagePath(const int phase) {
-    // return RESOURCE_DIR"/Image/Background/phase" + std::to_string(phase) +
-    // ".png";
-    return RESOURCE_DIR "/Image/backgrounds/SPLASHES_SHEET_1.png";
-  }
+  std::string m_ImagePath =
+      RESOURCE_DIR "/Image/backgrounds/SPLASHES_SHEET_1.png";
 };
 
 #endif // BACKGROUND_IMAGE_HPP

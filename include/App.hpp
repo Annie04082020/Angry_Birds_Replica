@@ -31,6 +31,9 @@ private:
   // Put things you need here
   State m_CurrentState = State::START;
   std::shared_ptr<Character> m_bird;
+  std::shared_ptr<Character> m_playbutton;
+  std::shared_ptr<Character> m_exitbutton;
+  std::shared_ptr<Character> m_settingbutton;
   std::shared_ptr<BackgroundImage> m_background;
   std::shared_ptr<BackgroundMusic> m_BGM;
   std::shared_ptr<SoundEffect> m_SFX;

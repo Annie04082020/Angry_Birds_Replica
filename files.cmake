@@ -4,6 +4,7 @@ set(SRC_FILES
     Character.cpp
     BGM.cpp
     SoundEffect.cpp
+    DynamicBackground.cpp
 )
 
 set(INCLUDE_FILES
@@ -13,6 +14,7 @@ set(INCLUDE_FILES
     Character.hpp
     BGM.hpp
     SoundEffect.hpp
+    DynamicBackground.hpp
 )
 
 set(TEST_FILES
