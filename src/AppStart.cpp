@@ -4,12 +4,13 @@
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
 
-void App::Start() {
+void App::Start()
+{
   LOG_TRACE("Start");
 
   // 初始化 Splash 背景 (靜止圖)
   m_splashBackground = std::make_shared<BackgroundImage>(
-      RESOURCE_DIR "/Image/backgrounds/SPLASHES_SHEET_1.png");
+      RESOURCE_DIR "/Image/title/SPLASHES_SHEET_1.png");
   m_splashBackground->SetVisible(true);
   m_splashBackground->SetZIndex(100); // 確保在最上層
 
@@ -52,6 +53,7 @@ void App::Start() {
   m_CurrentState = State::UPDATE;
 }
 
-void App::End() { // NOLINT(this method will mutate members in the future)
+void App::End()
+{ // NOLINT(this method will mutate members in the future)
   LOG_TRACE("End");
 }
