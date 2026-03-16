@@ -22,7 +22,7 @@ DynamicBackground::DynamicBackground() {
 }
 
 void DynamicBackground::Update() {
-  float dt = Util::Time::GetDeltaTime();
+  float dt = Util::Time::GetDeltaTimeMs() / 1000.0f; // Since speed is usually per second, we convert MS to S
   float movement = m_Speed * dt;
 
   // 獲取當前兩張圖的位置

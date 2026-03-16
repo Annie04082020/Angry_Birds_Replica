@@ -6,7 +6,7 @@
 
 class BackgroundMusic : public Util::GameObject {
 public:
-  BackgroundMusic();
+  BackgroundMusic(const std::string &bgmPath);
   void Play_BGM();
   void Stop_BGM();
   void Resume_BGM();

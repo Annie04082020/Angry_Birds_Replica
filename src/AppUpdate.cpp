@@ -22,24 +22,14 @@ void App::Update() {
 
   // 按鈕互動邏輯
   if (m_CurrentState == State::UPDATE) {
-    auto mousePos = Util::Input::GetCursorPosition();
-
-    m_playbutton->UpdateHoverScale(mousePos);
-    if (m_playbutton->IfClicked(mousePos)) {
-      m_playbutton->SetVisible(false);
-      m_bird->SetVisible(true);
+    if (m_playbutton->GetVisibility()) {
+      m_playbutton->Update();
     }
-
-    m_settingbutton->UpdateHoverScale(mousePos);
-    if (m_settingbutton->IfClicked(mousePos)) {
-      m_settingbutton->SetVisible(false);
-      m_bird->SetVisible(true);
+    if (m_settingbutton->GetVisibility()) {
+      m_settingbutton->Update();
     }
-
-    m_exitbutton->UpdateHoverScale(mousePos);
-    if (m_exitbutton->IfClicked(mousePos)) {
-      m_exitbutton->SetVisible(false);
-      m_bird->SetVisible(true);
+    if (m_exitbutton->GetVisibility()) {
+      m_exitbutton->Update();
     }
   }
 

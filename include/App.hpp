@@ -6,6 +6,7 @@
 #include "Character.hpp"
 #include "SoundEffect.hpp"
 #include "Util/Renderer.hpp"
+#include "Button.hpp"
 #include "pch.hpp" // IWYU pragma: export
 
 class App {
@@ -31,9 +32,9 @@ private:
   // Put things you need here
   State m_CurrentState = State::START;
   std::shared_ptr<Character> m_bird;
-  std::shared_ptr<Character> m_playbutton;
-  std::shared_ptr<Character> m_exitbutton;
-  std::shared_ptr<Character> m_settingbutton;
+  std::shared_ptr<Button> m_playbutton;
+  std::shared_ptr<Button> m_exitbutton;
+  std::shared_ptr<Button> m_settingbutton;
   std::shared_ptr<BackgroundImage> m_splashBackground;
   std::shared_ptr<DynamicBackground> m_movingBackground;
   std::shared_ptr<BackgroundMusic> m_BGM;

@@ -6,7 +6,7 @@
 
 class SoundEffect : public Util::GameObject {
 public:
-  SoundEffect();
+  SoundEffect(const std::string &sfxPath);
   void Play_SFX();
 
 private:

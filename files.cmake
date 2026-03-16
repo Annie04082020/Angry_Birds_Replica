@@ -5,6 +5,7 @@ set(SRC_FILES
     BGM.cpp
     SoundEffect.cpp
     DynamicBackground.cpp
+    Button.cpp
 )
 
 set(INCLUDE_FILES
@@ -15,6 +16,7 @@ set(INCLUDE_FILES
     BGM.hpp
     SoundEffect.hpp
     DynamicBackground.hpp
+    Button.hpp
 )
 
 set(TEST_FILES
