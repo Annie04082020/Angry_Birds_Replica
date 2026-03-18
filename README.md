@@ -1,24 +1,23 @@
-# PTSD Template
+# Project Introduction
 
-This is a [PTSD](https://github.com/ntut-open-source-club/practical-tools-for-simple-design) framework template for students taking OOPL2024s.
+這是一個使用 C++ 實作的課程專案，目標是 1:1 完全復刻 Angry Birds 遊戲
 
-## Quick Start
+# Developing Time
 
-1. Use this template to create a new repository
-   ![github screenshot](https://github.com/ntut-rick/ptsd-template/assets/126899559/ef62242f-03ed-481d-b858-12b730c09beb)
+2026 Department of Computer Science and Information Engineering, National Taipei University of Technology
 
-2. Clone your repository
+OOPL 2026 Spring Semester
 
-   ```bash
-   git clone YOUR_GIT_URL --recursive
-   ```
+# Team Member
 
-3. Build your project
+- 111310452 黃安華
+- 113590039 許兆雲 
 
-  > [!WARNING]
-  > Please build your project in `Debug` because our `Release` path is broken D:
-   
-   ```sh
-   cmake -DCMAKE_BUILD_TYPE=Debug -B build # -G Ninja
-   ```
-   better read [PTSD README](https://github.com/ntut-open-source-club/practical-tools-for-simple-design)
+# Game Introduction
+Angry Birds 是一款 2D 多關卡益智遊戲，玩家透過彈弓發射不同種類的 Angry Bird 來攻擊豬的防禦堡壘。豬會用木頭、石頭、冰塊等不同材料建造防禦，而不同種類的 Angry Bird 也各有獨特的異能和特效，玩家需要策略性地選擇使用。
+
+[遊戲連結](https://www.angrybirds.com/)
+[遊玩畫面](https://www.youtube.com/watch?v=tmcG-vbI6DQ)
+
+# [Development Timeline Planning](./Proposal.md)
+
