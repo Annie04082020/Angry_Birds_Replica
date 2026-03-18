@@ -6,6 +6,7 @@ set(SRC_FILES
     SoundEffect.cpp
     DynamicBackground.cpp
     Button.cpp
+    Scene.cpp
 )
 
 set(INCLUDE_FILES
@@ -17,6 +18,7 @@ set(INCLUDE_FILES
     SoundEffect.hpp
     DynamicBackground.hpp
     Button.hpp
+    Scene.hpp
 )
 
 set(TEST_FILES

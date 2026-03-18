@@ -1,6 +1,7 @@
 #include "App.hpp"
 
 #include "Resource.hpp"
+#include "Scene.hpp"
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
@@ -15,7 +16,8 @@ void App::Start() {
   m_splashBackground->SetZIndex(100); // 確保在最上層
 
   // 初始化移動背景 (動態滾動)
-  m_movingBackground = std::make_shared<DynamicBackground>();
+  m_movingBackground =
+      std::make_shared<DynamicBackground>(Resource::MOVING_BG_IMAGE);
   m_movingBackground->SetVisible(false); // 初始先隱藏
 
   // 紀錄啟動時間

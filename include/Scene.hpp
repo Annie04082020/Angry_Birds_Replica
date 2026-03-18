@@ -1,22 +1,32 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include "BackgroundImage.hpp"
+#include "BGM.hpp"
 #include "Button.hpp"
+#include "Character.hpp"
 #include "DynamicBackground.hpp"
+#include "Util/GameObject.hpp"
 #include "Util/Image.hpp"
-#include "Util/Renderer.hpp"
-#include "Util/Scene.hpp"
+// #include "Util/Renderer.hpp"
 #include "Util/Transform.hpp"
+#include <memory>
+#include <vector>
 
-class Scene : public Util::Scene {
+class Scene {
 public:
-  Scene() = default;
+  Scene(std::shared_ptr<Util::GameObject> background)
+      : m_Background(background) {}
   ~Scene() = default;
 
-  void Init() override;
-  void Update() override;
-  void Render() override;
+  void Init();
+  void Update();
+  void Render();
+  void AddGameObject(std::shared_ptr<Util::GameObject> gameObject);
 
 private:
+  std::shared_ptr<BackgroundMusic> m_BGM;
+  std::shared_ptr<Util::GameObject> m_Background;
+  std::vector<std::shared_ptr<Util::GameObject>> m_GameObjects;
 };
+
+#endif // SCENE_HPP
