@@ -2,6 +2,13 @@
 
 這是一個使用 C++ 實作的課程專案，目標是 1:1 完全復刻 Angry Birds 遊戲
 
+# Notice:
+Please change `PTSD/cmake/Dependencies.cmake` file in line 93 and 94 to turn on the sound:
+
+```cmake
+set(SDL2MIXER_OGG ON)
+set(SDL2MIXER_VORBIS STB)
+```
 # Developing Time
 
 2026 Department of Computer Science and Information Engineering, National Taipei University of Technology
