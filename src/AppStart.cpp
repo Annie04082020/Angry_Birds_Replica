@@ -1,34 +1,34 @@
 #include "App.hpp"
-
 #include "Resource.hpp"
 #include "Scene.hpp"
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
+#include <memory>
 
 void App::Start() {
   LOG_TRACE("Start");
 
-  // 初始化 Splash 背景 (靜止圖)
-  m_splashBackground =
-      std::make_shared<BackgroundImage>(Resource::SPLASH_IMAGE);
-  m_splashBackground->SetVisible(true);
-  m_splashBackground->SetZIndex(100); // 確保在最上層
+  m_loadingScene = std::make_shared<Scene>(
+      std::make_shared<BackgroundImage>(Resource::SPLASH_IMAGE));
+  m_loadingScene->SetZIndex(100);
+  m_loadingScene->SetVisible(true);
 
   // 初始化移動背景 (動態滾動)
-  m_movingBackground =
+  auto movingBg =
       std::make_shared<DynamicBackground>(Resource::MOVING_BG_IMAGE);
-  m_movingBackground->SetVisible(false); // 初始先隱藏
+  m_introScene = std::make_shared<Scene>(movingBg);
+  m_introScene->SetVisible(false); // 初始先隱藏
+  m_introScene->SetZIndex(50);
+  m_introScene->SetOnUpdate([movingBg]() { movingBg->Update(); });
+  m_bird = std::make_shared<Character>(Resource::BIRD_R);
+  m_bird->SetVisible(false);
+  m_introScene->AddElements(m_bird);
+  m_introScene->SetBGM(
+      std::make_shared<BackgroundMusic>(Resource::TITLE_THEME));
 
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
-
-  m_bird = std::make_shared<Character>(Resource::BIRD_R);
-  m_bird->SetVisible(false);
-
-  m_BGM = std::make_shared<BackgroundMusic>(Resource::TITLE_THEME);
-  m_BGM->Stop_BGM();
-
   m_playbutton = std::make_shared<Button>(Resource::Play_Button);
   m_playbutton->SetZIndex(50);
   m_playbutton->SetVisible(true);
@@ -53,13 +53,11 @@ void App::Start() {
   m_settingbutton->SetSFX(Resource::SETTING_SFX);
   m_settingbutton->SetOnClickFunction([this]() { m_bird->SetVisible(true); });
 
-  // 將兩個背景都加入 Renderer，順序決定渲染層級
-  m_Root.AddChild(m_splashBackground);
-  m_Root.AddChild(m_movingBackground);
+  m_Root.AddChild(m_loadingScene);
+  m_Root.AddChild(m_introScene);
   m_Root.AddChild(m_bird);
   m_Root.AddChild(m_exitbutton);
   m_Root.AddChild(m_settingbutton);
-  m_Root.AddChild(m_BGM);
   m_Root.AddChild(m_playbutton);
 
   m_CurrentState = State::UPDATE;
