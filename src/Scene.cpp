@@ -13,4 +13,7 @@ void Scene::Update() {
   if (m_OnUpdate) {
     m_OnUpdate();
   }
+  for (auto &element : m_Elements) {
+    element->Update();
+  }
 }

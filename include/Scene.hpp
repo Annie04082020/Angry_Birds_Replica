@@ -25,8 +25,8 @@ public:
   }
   ~Scene() = default;
 
-  void Init();
-  void Update();
+  void Init() override;
+  void Update() override;
   void SetVisible(bool visible) { m_Background->SetVisible(visible); }
   void SetZIndex(float index) { m_Background->SetZIndex(index); }
   void SetBGM(std::shared_ptr<BackgroundMusic> bgm) { m_BGM = bgm; }

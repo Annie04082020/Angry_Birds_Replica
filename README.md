@@ -9,6 +9,13 @@ Please change `PTSD/cmake/Dependencies.cmake` file in line 93 and 94 to turn on 
 set(SDL2MIXER_OGG ON)
 set(SDL2MIXER_VORBIS STB)
 ```
+Add 
+```hpp
+    virtual void Init() override {};
+    virtual void Update() override {};
+```
+to `PTSD/include/Util/GameObject.hpp` in public section
+
 # Developing Time
 
 2026 Department of Computer Science and Information Engineering, National Taipei University of Technology

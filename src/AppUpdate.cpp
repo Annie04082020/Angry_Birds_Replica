@@ -20,18 +20,7 @@ void App::Update() {
     m_introScene->Update();
   }
 
-  // 按鈕互動邏輯
-  if (m_CurrentState == State::UPDATE) {
-    if (m_playbutton->GetVisibility()) {
-      m_playbutton->Update();
-    }
-    if (m_settingbutton->GetVisibility()) {
-      m_settingbutton->Update();
-    }
-    if (m_exitbutton->GetVisibility()) {
-      m_exitbutton->Update();
-    }
-  }
+  // 按鈕的互動邏輯現在已由 m_introScene 內部自動管理！
 
   m_Root.Update();
   /*

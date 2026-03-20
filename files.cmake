@@ -7,6 +7,7 @@ set(SRC_FILES
     DynamicBackground.cpp
     Button.cpp
     Scene.cpp
+    IntroScene.cpp
 )
 
 set(INCLUDE_FILES
@@ -19,6 +20,7 @@ set(INCLUDE_FILES
     DynamicBackground.hpp
     Button.hpp
     Scene.hpp
+    IntroScene.hpp
 )
 
 set(TEST_FILES
