@@ -4,7 +4,6 @@
 #include "BGM.hpp"
 #include "Util/GameObject.hpp"
 #include <functional>
-
 #include <memory>
 #include <vector>
 
@@ -24,12 +23,28 @@ public:
 
   void Init() override;
   void Update() override;
-  void SetVisible(bool visible) { m_Background->SetVisible(visible); }
-  void SetZIndex(float index) { m_Background->SetZIndex(index); }
+  void SetVisible(bool visible)
+  {
+    if (m_Background)
+    {
+      m_Background->SetVisible(visible);
+    }
+  }
+  void SetZIndex(float index)
+  {
+    if (m_Background)
+    {
+      m_Background->SetZIndex(index);
+    }
+  }
   void SetBGM(std::shared_ptr<BackgroundMusic> bgm) { m_BGM = bgm; }
   void SetOnUpdate(std::function<void()> onUpdate) { m_OnUpdate = onUpdate; }
   void AddElements(std::shared_ptr<Util::GameObject> element)
   {
+    if (!element)
+    {
+      return;
+    }
     m_Elements.push_back(element);
     AddChild(element);
   }

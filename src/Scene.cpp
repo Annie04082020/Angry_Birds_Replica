@@ -1,19 +1,33 @@
 #include "Scene.hpp"
 
-void Scene::Init() {
-  if (m_BGM) {
+void Scene::Init()
+{
+  if (m_BGM)
+  {
     m_BGM->Play_BGM();
   }
-  for (auto &element : m_Elements) {
+  if (m_Background)
+  {
+    m_Background->Init();
+  }
+  for (auto &element : m_Elements)
+  {
     element->Init();
   }
 }
 
-void Scene::Update() {
-  if (m_OnUpdate) {
+void Scene::Update()
+{
+  if (m_OnUpdate)
+  {
     m_OnUpdate();
   }
-  for (auto &element : m_Elements) {
+  if (m_Background)
+  {
+    m_Background->Update();
+  }
+  for (auto &element : m_Elements)
+  {
     element->Update();
   }
 }
