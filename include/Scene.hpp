@@ -2,14 +2,9 @@
 #define SCENE_HPP
 
 #include "BGM.hpp"
-// #include "Button.hpp"
-// #include "Character.hpp"
-// #include "DynamicBackground.hpp"
 #include "Util/GameObject.hpp"
-// #include "Util/Image.hpp"
 #include <functional>
 
-// #include "Util/Transform.hpp"
 #include <memory>
 #include <vector>
 
