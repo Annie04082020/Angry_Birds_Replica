@@ -5,7 +5,11 @@
 std::shared_ptr<IntroScene> IntroScene::Create()
 {
     auto bg = std::make_shared<DynamicBackground>(Resource::MOVING_BG_IMAGE);
-    return std::shared_ptr<IntroScene>(new IntroScene(bg));
+    struct Enabler : public IntroScene
+    {
+        Enabler(std::shared_ptr<DynamicBackground> bg) : IntroScene(bg) {}
+    };
+    return std::make_shared<Enabler>(bg);
 }
 
 IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)

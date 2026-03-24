@@ -13,7 +13,6 @@ set(SRC_FILES
 set(INCLUDE_FILES
     App.hpp
     BackgroundImage.hpp
-    BackgroundManager.hpp
     Character.hpp
     BGM.hpp
     SoundEffect.hpp
