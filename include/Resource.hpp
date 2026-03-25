@@ -8,10 +8,10 @@ namespace Resource {
 // Backgrounds
 const std::string SPLASH_IMAGE =
     RESOURCE_DIR "/Image/title/SPLASHES_SHEET_1.png";
-const std::string MOVING_BG_IMAGE = RESOURCE_DIR "/temp/test_bg.png";
+const std::string MOVING_BG_IMAGE = RESOURCE_DIR "/temp/background.png";
 
 // Characters
-const std::string BIRD_R = RESOURCE_DIR "/temp/R.png";
+const std::string BIRD_R = RESOURCE_DIR "/Image/birds/red_birds/sprite_003.png";
 const std::string BIRD_Y = RESOURCE_DIR "/temp/Y.png";
 const std::string BIRD_B = RESOURCE_DIR "/temp/B.png";
 
@@ -26,6 +26,9 @@ const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.ogg";
 // Audio - SFX
 const std::string BIRD_LAUNCH_SFX = RESOURCE_DIR "/Audio/sfx/bird_launch.wav";
 const std::string SETTING_SFX = RESOURCE_DIR "/Audio/SFX/menu_confirm.wav";
+
+// Level Data
+const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
 } // namespace Resource
 
 #endif // RESOURCE_HPP

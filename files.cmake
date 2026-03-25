@@ -6,17 +6,22 @@ set(SRC_FILES
     SoundEffect.cpp
     DynamicBackground.cpp
     Button.cpp
+    Scene.cpp
+    IntroScene.cpp
+    LevelManager.cpp
 )
 
 set(INCLUDE_FILES
     App.hpp
     BackgroundImage.hpp
-    BackgroundManager.hpp
     Character.hpp
     BGM.hpp
     SoundEffect.hpp
     DynamicBackground.hpp
     Button.hpp
+    Scene.hpp
+    IntroScene.hpp
+    LevelManager.hpp
 )
 
 set(TEST_FILES
