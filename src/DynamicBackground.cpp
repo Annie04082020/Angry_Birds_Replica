@@ -1,12 +1,12 @@
 #include "DynamicBackground.hpp"
 #include "Util/Time.hpp"
 #include "config.hpp"
-#include "Resource.hpp"
 
-DynamicBackground::DynamicBackground() {
+DynamicBackground::DynamicBackground(const std::string &path)
+{
   // 創建兩個背景實例，使用相同的圖片
-  m_BG1 = std::make_shared<BackgroundImage>(Resource::MOVING_BG_IMAGE);
-  m_BG2 = std::make_shared<BackgroundImage>(Resource::MOVING_BG_IMAGE);
+  m_BG1 = std::make_shared<BackgroundImage>(path);
+  m_BG2 = std::make_shared<BackgroundImage>(path);
 
   // 初始佈局：背景1在原點，背景2緊接在右側（螢幕寬度處）
   // 這樣兩張圖就拼接成了一個兩倍寬度的長條
@@ -21,8 +21,10 @@ DynamicBackground::DynamicBackground() {
   m_Speed = 200.0f;
 }
 
-void DynamicBackground::Update() {
-  float dt = Util::Time::GetDeltaTimeMs() / 1000.0f; // Since speed is usually per second, we convert MS to S
+void DynamicBackground::Update()
+{
+  float dt = Util::Time::GetDeltaTimeMs() /
+             1000.0f; // Since speed is usually per second, we convert MS to S
   float movement = m_Speed * dt;
 
   // 獲取當前兩張圖的位置
@@ -36,13 +38,15 @@ void DynamicBackground::Update() {
   // --- 無限循環邏輯 (你的想法在這裡實現) ---
 
   // 如果背景1完全移出螢幕左側
-  if (pos1.x <= -static_cast<float>(WINDOW_WIDTH)) {
+  if (pos1.x <= -static_cast<float>(WINDOW_WIDTH))
+  {
     // 將它「傳送」到背景2的右邊，重新開始拼接
     pos1.x = pos2.x + static_cast<float>(WINDOW_WIDTH);
   }
 
   // 如果背景2完全移出螢幕左側
-  if (pos2.x <= -static_cast<float>(WINDOW_WIDTH)) {
+  if (pos2.x <= -static_cast<float>(WINDOW_WIDTH))
+  {
     // 將它「傳送」到背景1的右邊，重新開始拼接
     pos2.x = pos1.x + static_cast<float>(WINDOW_WIDTH);
   }

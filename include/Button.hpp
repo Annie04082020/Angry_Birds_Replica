@@ -1,8 +1,8 @@
 #ifndef Button_HPP
 #define Button_HPP
 
-#include <glm/gtc/matrix_transform.hpp>
 #include <functional>
+#include <glm/gtc/matrix_transform.hpp>
 #include <string>
 
 #include "SoundEffect.hpp"
@@ -69,7 +69,8 @@ public:
     }
 
     // 處理 Click 邏輯
-    bool isClickedNow = IsHovering(mousePos) && Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
+    bool isClickedNow =
+        IsHovering(mousePos) && Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
 
     if (isClickedNow && !m_IsPressed) {
       if (m_SFX) {
@@ -85,6 +86,7 @@ public:
     m_SFXPath = SFXPath;
     m_SFX = std::make_shared<SoundEffect>(m_SFXPath);
   }
+  void Init() override { m_Transform.scale = {1.0f, 1.0f}; }
 
 private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }
