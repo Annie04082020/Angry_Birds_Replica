@@ -16,6 +16,10 @@ int main(int, char**) {
                 app.Update();
                 break;
 
+            case App::State::GAME:
+                app.Update();
+                break;
+
             case App::State::END:
                 app.End();
                 context->SetExit(true);

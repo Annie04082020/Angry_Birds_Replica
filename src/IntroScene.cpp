@@ -28,7 +28,11 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_playbutton->SetOnClickFunction([this]()
                                      {
         m_playbutton->SetVisible(false);
-        m_bird->SetVisible(true); });
+        m_bird->SetVisible(true);
+        if (m_onPlayClick) {
+            m_onPlayClick();
+        }
+    });
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);

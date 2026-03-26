@@ -8,6 +8,7 @@ set(SRC_FILES
     Button.cpp
     Scene.cpp
     IntroScene.cpp
+    LevelManager.cpp
 )
 
 set(INCLUDE_FILES
@@ -20,6 +21,7 @@ set(INCLUDE_FILES
     Button.hpp
     Scene.hpp
     IntroScene.hpp
+    LevelManager.hpp
 )
 
 set(TEST_FILES
