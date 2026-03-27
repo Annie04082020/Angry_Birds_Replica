@@ -5,6 +5,7 @@
 #include "Button.hpp"
 #include "Character.hpp"
 #include "DynamicBackground.hpp"
+#include "GameScene.hpp"
 #include "IntroScene.hpp"
 #include "LevelManager.hpp"
 #include "Scene.hpp"
@@ -12,9 +13,11 @@
 #include "Util/Renderer.hpp"
 #include "pch.hpp" // IWYU pragma: export
 
-class App {
+class App
+{
 public:
-  enum class State {
+  enum class State
+  {
     START,
     UPDATE,
     GAME,
@@ -39,7 +42,7 @@ private:
   State m_CurrentState = State::START;
   std::shared_ptr<Scene> m_loadingScene;
   std::shared_ptr<IntroScene> m_introScene;
-  std::shared_ptr<LevelManager> m_levelManager;
+  std::shared_ptr<GameScene> m_gameScene;
   float m_startTime = 0.0f;
   bool m_isSplashDone = false;
   Util::Renderer m_Root;

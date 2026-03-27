@@ -13,9 +13,13 @@ namespace Resource
 
     // Characters
     const std::string BIRD_R = RESOURCE_DIR "/Image/birds/red_birds/sprite_003.png";
-    const std::string BIRD_Y = RESOURCE_DIR "/temp/Y.png";
-    const std::string BIRD_B = RESOURCE_DIR "/temp/B.png";
+    const std::string BIRD_Y = RESOURCE_DIR "/Image/birds/yellow_birds/sprite_000.png";
+    const std::string BIRD_B = RESOURCE_DIR "/Image/birds/blue_birds/sprite_070.png";
+    const std::string SLINGSHOT_1 = RESOURCE_DIR "/Image/assets/sprite_147.png";
+    const std::string SLINGSHOT_2 = RESOURCE_DIR "/Image/assets/sprite_154.png";
 
+    // Pigs
+    const std::string PIG_SMALL = RESOURCE_DIR "/Image/pigs/pig_small/sprite_001.png";
     // Wood 1 to 4: complete to broken
     const std::string WOOD_stage = RESOURCE_DIR "/Image/wood/sprite_013.png";
     const std::string WOOD_ball_1 = RESOURCE_DIR "/Image/wood/sprite_161.png";
@@ -87,6 +91,7 @@ namespace Resource
     const std::string STONE_21x20_3 = RESOURCE_DIR "/Image/stone/sprite_109.png";
 
     // ice 1 to 4: complete to broken
+    const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
 
     // UI
     const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
