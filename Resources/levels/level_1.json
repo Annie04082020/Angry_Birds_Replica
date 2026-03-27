@@ -9,35 +9,211 @@
     "BIRD_RED": "Image/birds/red_birds/sprite_003.png",
     "BIRD_YELLOW": "Image/birds/yellow_birds/sprite_000.png",
     "BIRD_BLUE": "Image/birds/blue_birds/sprite_070.png",
-    "WOOD_089": "Image/wood/sprite_089.png",
-    "WOOD_013": "Image/wood/sprite_013.png",
-    "WOOD_113": "Image/wood/sprite_113.png",
+    "WOOD_41x20": "Image/wood/sprite_089.png",
+    "WOOD_stage": "Image/wood/sprite_013.png",
+    "WOOD_205": "Image/wood/sprite_113.png",
     "ICE_005": "Image/ice/sprite_005.png",
-    "WOOD_075": "Image/wood/sprite_075.png",
+    "WOOD_83x20": "Image/wood/sprite_075.png",
     "PIG_SMALL": "Image/pigs/pig_small/sprite_001.png"
   },
   "objects": [
-    { "type": "SLINGSHOT", "imageId": "SLINGSHOT_1", "x": -483.0, "y": -85.0, "scaleX": 0.5, "scaleY": 0.5, "rotation": 0.0 },
-    { "type": "SLINGSHOT", "imageId": "SLINGSHOT_2", "x": -470.0, "y": -108.0, "scaleX": 0.5, "scaleY": 0.5, "rotation": 0.0 },
-    { "type": "BIRD", "imageId": "BIRD_RED", "x": -560.0, "y": -190.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "BIRD", "imageId": "BIRD_YELLOW", "x": -520.0, "y": -220.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "BIRD", "imageId": "BIRD_BLUE", "x": -540.0, "y": -250.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "WOOD", "imageId": "WOOD_089", "x": 590.0, "y": -95.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_089", "x": 265.0, "y": -95.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_013", "x": 517.0, "y": -138.0, "scaleX": 1.0, "scaleY": 1.0, "rotation": 0.0 },
-    { "type": "WOOD", "imageId": "WOOD_013", "x": 340.0, "y": -138.0, "scaleX": 1.0, "scaleY": 1.0, "rotation": 0.0 },
-    { "type": "WOOD", "imageId": "WOOD_113", "x": 500.0, "y": -30.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_113", "x": 355.0, "y": -30.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_113", "x": 425.0, "y": 60.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "ICE", "imageId": "ICE_005", "x": 402.0, "y": -60.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "ICE", "imageId": "ICE_005", "x": 450.0, "y": -60.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_075", "x": 428.0, "y": -102.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "WOOD", "imageId": "WOOD_075", "x": 426.0, "y": -19.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "WOOD", "imageId": "WOOD_113", "x": 398.0, "y": 150.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_113", "x": 454.0, "y": 150.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_075", "x": 426.0, "y": 240.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "WOOD", "imageId": "WOOD_089", "x": 425.0, "y": 265.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 1.6 },
-    { "type": "WOOD", "imageId": "WOOD_089", "x": 428.0, "y": 78.0, "scaleX": 0.8, "scaleY": 0.8, "rotation": 0.0 },
-    { "type": "PIG", "imageId": "PIG_SMALL", "x": 428.0, "y": 103.0, "scaleX": 0.7, "scaleY": 0.7, "rotation": 0.0 }
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_1",
+      "x": -483.0,
+      "y": -85.0,
+      "scaleX": 0.5,
+      "scaleY": 0.5,
+      "rotation": 0.0
+    },
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_2",
+      "x": -470.0,
+      "y": -108.0,
+      "scaleX": 0.5,
+      "scaleY": 0.5,
+      "rotation": 0.0
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "x": -560.0,
+      "y": -190.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_YELLOW",
+      "x": -520.0,
+      "y": -220.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_BLUE",
+      "x": -540.0,
+      "y": -250.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_089",
+      "x": 590.0,
+      "y": -95.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_089",
+      "x": 265.0,
+      "y": -95.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_013",
+      "x": 517.0,
+      "y": -138.0,
+      "scaleX": 1.0,
+      "scaleY": 1.0,
+      "rotation": 0.0
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_013",
+      "x": 340.0,
+      "y": -138.0,
+      "scaleX": 1.0,
+      "scaleY": 1.0,
+      "rotation": 0.0
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_113",
+      "x": 500.0,
+      "y": -30.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_113",
+      "x": 355.0,
+      "y": -30.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_113",
+      "x": 425.0,
+      "y": 60.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_005",
+      "x": 402.0,
+      "y": -60.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_005",
+      "x": 450.0,
+      "y": -60.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_075",
+      "x": 428.0,
+      "y": -102.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_075",
+      "x": 426.0,
+      "y": -19.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_113",
+      "x": 398.0,
+      "y": 150.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_113",
+      "x": 454.0,
+      "y": 150.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_075",
+      "x": 426.0,
+      "y": 240.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_089",
+      "x": 425.0,
+      "y": 265.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 1.6
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_089",
+      "x": 428.0,
+      "y": 78.0,
+      "scaleX": 0.8,
+      "scaleY": 0.8,
+      "rotation": 0.0
+    },
+    {
+      "type": "PIG",
+      "imageId": "PIG_SMALL",
+      "x": 428.0,
+      "y": 103.0,
+      "scaleX": 0.7,
+      "scaleY": 0.7,
+      "rotation": 0.0
+    }
   ]
 }
