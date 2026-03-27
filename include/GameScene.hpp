@@ -31,6 +31,7 @@ private:
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
     bool m_IsHoldingBackground = false;
     bool m_IsDraggingBackground = false;
+    float m_WorldOffsetX = 0.0f;
     glm::vec2 m_DragStartMousePos{0.0f, 0.0f};
     glm::vec2 m_LastMousePos{0.0f, 0.0f};
 };

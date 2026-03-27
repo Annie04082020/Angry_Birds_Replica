@@ -1,5 +1,8 @@
 #include "GameScene.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 #include "SDL.h"
 #include "SDL_image.h"
 #include "config.hpp"
@@ -98,6 +101,8 @@ namespace
 
 bool GameScene::LoadLevel(const std::string &levelPath)
 {
+    m_WorldOffsetX = 0.0f;
+
     if (!m_LevelManager || !m_LevelManager->LoadLevel(levelPath))
     {
         return false;
@@ -161,21 +166,35 @@ void GameScene::HandleBackgroundDrag()
         if (!m_IsDraggingBackground)
         {
             const glm::vec2 dragFromStart = mousePos - m_DragStartMousePos;
-            if (glm::length(dragFromStart) >= dragStartThreshold)
+            if (std::abs(dragFromStart.x) >= dragStartThreshold)
             {
                 m_IsDraggingBackground = true;
             }
         }
 
-        const glm::vec2 delta = mousePos - m_LastMousePos;
+        if (!m_IsDraggingBackground)
+        {
+            m_LastMousePos = mousePos;
+            return;
+        }
+
+        const float rawDeltaX = mousePos.x - m_LastMousePos.x;
+        const float minWorldOffsetX = -static_cast<float>(WINDOW_WIDTH);
+        const float maxWorldOffsetX = static_cast<float>(WINDOW_WIDTH);
+        const float clampedWorldOffsetX =
+            std::clamp(m_WorldOffsetX + rawDeltaX, minWorldOffsetX, maxWorldOffsetX);
+        const float appliedDeltaX = clampedWorldOffsetX - m_WorldOffsetX;
+        m_WorldOffsetX = clampedWorldOffsetX;
+
+        const glm::vec2 delta{appliedDeltaX, 0.0f};
 
         // Move whole world as a camera-pan effect: background + all level objects.
-        if (m_DynamicBackground)
+        if (m_DynamicBackground && appliedDeltaX != 0.0f)
         {
             m_DynamicBackground->Translate(delta);
         }
 
-        if (m_LevelManager)
+        if (m_LevelManager && appliedDeltaX != 0.0f)
         {
             const auto &objects = m_LevelManager->GetGameObjects();
             for (const auto &obj : objects)
