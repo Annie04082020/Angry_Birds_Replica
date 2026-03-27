@@ -19,11 +19,14 @@ public:
   // 設定整體背景容器的位置
   void SetPosition(const glm::vec2 &position)
   {
-    m_Transform.translation = position;
+    Translate(position - m_Transform.translation);
   }
 
   // 獲取整體背景容器的位置
   glm::vec2 GetPosition() const { return m_Transform.translation; }
+
+  // 平移背景（兩張圖一起移動）
+  void Translate(const glm::vec2 &delta);
 
 private:
   std::shared_ptr<BackgroundImage> m_BG1; // 第一張背景圖（初始在螢幕內）
