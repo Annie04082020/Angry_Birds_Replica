@@ -9,6 +9,7 @@ set(SRC_FILES
     Scene.cpp
     IntroScene.cpp
     LevelManager.cpp
+    Resource.cpp
 )
 
 set(INCLUDE_FILES

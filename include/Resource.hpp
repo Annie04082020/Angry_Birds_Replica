@@ -104,4 +104,11 @@ namespace Resource
     const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
 } // namespace Resource
 
+#include <string>
+namespace Resource
+{
+    // Return the resource path for a global resource id, or empty string if not found
+    std::string GetPath(const std::string &id);
+}
+
 #endif // RESOURCE_HPP

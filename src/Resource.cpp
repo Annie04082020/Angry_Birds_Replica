@@ -1,0 +1,106 @@
+#include "Resource.hpp"
+#include <unordered_map>
+
+namespace Resource
+{
+
+    std::string GetPath(const std::string &id)
+    {
+        static const std::unordered_map<std::string, std::string> map = {
+            {"SPLASH_IMAGE", SPLASH_IMAGE},
+            {"MOVING_BG_IMAGE", MOVING_BG_IMAGE},
+            {"BIRD_R", BIRD_R},
+            {"BIRD_Y", BIRD_Y},
+            {"BIRD_B", BIRD_B},
+            // Aliases used by level JSON ids
+            {"BIRD_RED", RESOURCE_DIR "/Image/birds/red_birds/sprite_003.png"},
+            {"BIRD_YELLOW", RESOURCE_DIR "/Image/birds/yellow_birds/sprite_000.png"},
+            {"BIRD_BLUE", RESOURCE_DIR "/Image/birds/blue_birds/sprite_070.png"},
+            {"SLINGSHOT_1", RESOURCE_DIR "/Image/assets/sprite_147.png"},
+            {"SLINGSHOT_2", RESOURCE_DIR "/Image/assets/sprite_154.png"},
+            {"ICE_005", RESOURCE_DIR "/Image/ice/sprite_005.png"},
+            {"PIG_SMALL", RESOURCE_DIR "/Image/pigs/pig_small/sprite_001.png"},
+            {"WOOD_stage", WOOD_stage},
+            {"WOOD_205", WOOD_205_1},
+            {"WOOD_83x20", WOOD_83x20_1},
+            {"WOOD_41x20", WOOD_41x20_1},
+            {"WOOD_ball_1", WOOD_ball_1},
+            {"WOOD_ball_2", WOOD_ball_2},
+            {"WOOD_ball_3", WOOD_ball_3},
+            {"WOOD_ball_4", WOOD_ball_4},
+            {"WOOD_sqr_1", WOOD_sqr_1},
+            {"WOOD_sqr_2", WOOD_sqr_2},
+            {"WOOD_sqr_3", WOOD_sqr_3},
+            {"WOOD_sqr_4", WOOD_sqr_4},
+            {"WOOD_tri_empty_1", WOOD_tri_empty_1},
+            {"WOOD_tri_empty_2", WOOD_tri_empty_2},
+            {"WOOD_tri_empty_3", WOOD_tri_empty_3},
+            {"WOOD_tri_empty_4", WOOD_tri_empty_4},
+            {"WOOD_tri_1", WOOD_tri_1},
+            {"WOOD_tri_2", WOOD_tri_2},
+            {"WOOD_tri_3", WOOD_tri_3},
+            {"WOOD_tri_4", WOOD_tri_4},
+            {"WOOD_205_1", WOOD_205_1},
+            {"WOOD_205_2", WOOD_205_2},
+            {"WOOD_205_3", WOOD_205_3},
+            {"WOOD_205_4", WOOD_205_4},
+            {"WOOD_168_1", WOOD_168_1},
+            {"WOOD_168_2", WOOD_168_2},
+            {"WOOD_168_3", WOOD_168_3},
+            {"WOOD_83x20_1", WOOD_83x20_1},
+            {"WOOD_83x20_2", WOOD_83x20_2},
+            {"WOOD_83x20_3", WOOD_83x20_3},
+            {"WOOD_83x20_4", WOOD_83x20_4},
+            {"WOOD_83x41_1", WOOD_83x41_1},
+            {"WOOD_83x41_2", WOOD_83x41_2},
+            {"WOOD_83x41_3", WOOD_83x41_3},
+            {"WOOD_83x41_4", WOOD_83x41_4},
+            {"WOOD_41x20_1", WOOD_41x20_1},
+            {"WOOD_41x20_2", WOOD_41x20_2},
+            {"WOOD_41x20_3", WOOD_41x20_3},
+            {"WOOD_21x20_1", WOOD_21x20_1},
+            {"WOOD_21x20_2", WOOD_21x20_2},
+            {"WOOD_21x20_3", WOOD_21x20_3},
+            {"WOOD_21x20_4", WOOD_21x20_4},
+            // Stone entries (matching updated Resource.hpp)
+            {"STONE_ball_b_1", STONE_ball_b_1},
+            {"STONE_ball_b_2", STONE_ball_b_2},
+            {"STONE_ball_b_3", STONE_ball_b_3},
+            {"STONE_ball_b_4", STONE_ball_b_4},
+            {"STONE_ball_s_1", STONE_ball_s_1},
+            {"STONE_ball_s_2", STONE_ball_s_2},
+            {"STONE_ball_s_3", STONE_ball_s_3},
+            {"STONE_ball_s_4", STONE_ball_s_4},
+            {"STONE_205_1", STONE_205_1},
+            {"STONE_205_2", STONE_205_2},
+            {"STONE_205_3", STONE_205_3},
+            {"STONE_205_4", STONE_205_4},
+            {"STONE_168_1", STONE_168_1},
+            {"STONE_168_2", STONE_168_2},
+            {"STONE_168_3", STONE_168_3},
+            {"STONE_168_4", STONE_168_4},
+            {"STONE_83x41_1", STONE_83x41_1},
+            {"STONE_83x41_2", STONE_83x41_2},
+            {"STONE_83x41_3", STONE_83x41_3},
+            {"STONE_83x41_4", STONE_83x41_4},
+            {"STONE_42x41_1", STONE_42x41_1},
+            {"STONE_42x41_2", STONE_42x41_2},
+            {"STONE_42x41_3", STONE_42x41_3},
+            {"STONE_21x20_1", STONE_21x20_1},
+            {"STONE_21x20_2", STONE_21x20_2},
+            {"STONE_21x20_3", STONE_21x20_3},
+            // UI and audio
+            {"Play_Button", Play_Button},
+            {"Exit_Button", Exit_Button},
+            {"Setting_Button", Setting_Button},
+            {"TITLE_THEME", TITLE_THEME},
+            {"BIRD_LAUNCH_SFX", BIRD_LAUNCH_SFX},
+            {"SETTING_SFX", SETTING_SFX}};
+
+        auto it = map.find(id);
+        if (it != map.end())
+            return it->second;
+        return std::string();
+    }
+
+} // namespace Resource

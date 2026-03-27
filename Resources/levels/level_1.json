@@ -3,19 +3,6 @@
   "name": "Level 1",
   "background": "Image/background.png",
   "birds": 3,
-  "resources": {
-    "SLINGSHOT_1": "Image/assets/sprite_147.png",
-    "SLINGSHOT_2": "Image/assets/sprite_154.png",
-    "BIRD_RED": "Image/birds/red_birds/sprite_003.png",
-    "BIRD_YELLOW": "Image/birds/yellow_birds/sprite_000.png",
-    "BIRD_BLUE": "Image/birds/blue_birds/sprite_070.png",
-    "WOOD_41x20": "Image/wood/sprite_089.png",
-    "WOOD_stage": "Image/wood/sprite_013.png",
-    "WOOD_205": "Image/wood/sprite_113.png",
-    "ICE_005": "Image/ice/sprite_005.png",
-    "WOOD_83x20": "Image/wood/sprite_075.png",
-    "PIG_SMALL": "Image/pigs/pig_small/sprite_001.png"
-  },
   "objects": [
     {
       "type": "SLINGSHOT",
@@ -64,7 +51,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_089",
+      "imageId": "WOOD_41x20",
       "x": 590.0,
       "y": -95.0,
       "scaleX": 0.8,
@@ -73,7 +60,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_089",
+      "imageId": "WOOD_41x20",
       "x": 265.0,
       "y": -95.0,
       "scaleX": 0.8,
@@ -82,7 +69,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_013",
+      "imageId": "WOOD_stage",
       "x": 517.0,
       "y": -138.0,
       "scaleX": 1.0,
@@ -91,7 +78,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_013",
+      "imageId": "WOOD_stage",
       "x": 340.0,
       "y": -138.0,
       "scaleX": 1.0,
@@ -100,7 +87,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_113",
+      "imageId": "WOOD_205",
       "x": 500.0,
       "y": -30.0,
       "scaleX": 0.8,
@@ -109,7 +96,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_113",
+      "imageId": "WOOD_205",
       "x": 355.0,
       "y": -30.0,
       "scaleX": 0.8,
@@ -118,7 +105,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_113",
+      "imageId": "WOOD_205",
       "x": 425.0,
       "y": 60.0,
       "scaleX": 0.8,
@@ -145,7 +132,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_075",
+      "imageId": "WOOD_83x20",
       "x": 428.0,
       "y": -102.0,
       "scaleX": 0.8,
@@ -154,7 +141,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_075",
+      "imageId": "WOOD_83x20",
       "x": 426.0,
       "y": -19.0,
       "scaleX": 0.8,
@@ -163,7 +150,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_113",
+      "imageId": "WOOD_205",
       "x": 398.0,
       "y": 150.0,
       "scaleX": 0.8,
@@ -172,7 +159,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_113",
+      "imageId": "WOOD_205",
       "x": 454.0,
       "y": 150.0,
       "scaleX": 0.8,
@@ -181,7 +168,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_075",
+      "imageId": "WOOD_83x20",
       "x": 426.0,
       "y": 240.0,
       "scaleX": 0.8,
@@ -190,7 +177,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_089",
+      "imageId": "WOOD_41x20",
       "x": 425.0,
       "y": 265.0,
       "scaleX": 0.8,
@@ -199,7 +186,7 @@
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_089",
+      "imageId": "WOOD_41x20",
       "x": 428.0,
       "y": 78.0,
       "scaleX": 0.8,
