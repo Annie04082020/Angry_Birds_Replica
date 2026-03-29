@@ -6,11 +6,39 @@
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
+#include "SDL.h"
+#include "SDL_image.h"
+#include "config.hpp"
 #include <memory>
+
+namespace
+{
+  void ApplyStartupHandCursor()
+  {
+    static SDL_Cursor *defaultHandCursor = nullptr;
+    if (defaultHandCursor == nullptr)
+    {
+      SDL_Surface *surface = IMG_Load(RESOURCE_DIR "/Image/hand/sprite_002.png");
+      if (surface != nullptr)
+      {
+        defaultHandCursor = SDL_CreateColorCursor(surface, 8, 8);
+        SDL_FreeSurface(surface);
+      }
+    }
+
+    if (defaultHandCursor != nullptr)
+    {
+      SDL_SetCursor(defaultHandCursor);
+      SDL_ShowCursor(SDL_ENABLE);
+    }
+  }
+}
 
 void App::Start()
 {
   LOG_TRACE("Start");
+
+  ApplyStartupHandCursor();
 
   m_loadingScene = std::make_shared<Scene>(
       std::make_shared<BackgroundImage>(Resource::SPLASH_IMAGE));
