@@ -29,8 +29,6 @@ void App::Update()
     m_gameScene->Update();
   }
 
-  // 按鈕的互動邏輯現在已由 m_introScene 內部自動管理！
-
   m_Root.Update();
 
   /*

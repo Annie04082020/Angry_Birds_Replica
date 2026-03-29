@@ -2,11 +2,12 @@
 #include "Character.hpp"
 #include "Resource.hpp"
 #include "Util/LoadTextFile.hpp"
+#include "SDL.h"
+#include "config.hpp"
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <cmath>
-#include <filesystem>
 // Forward-declare Resource::GetPath in case header is not visible to compiler
 namespace Resource
 {
@@ -178,6 +179,63 @@ namespace
 
         return result;
     }
+
+    float GetRuntimeLevelScale()
+    {
+        static bool initialized = false;
+        static float cachedScale = 1.0f;
+
+        if (initialized)
+        {
+            return cachedScale;
+        }
+        initialized = true;
+
+        SDL_Window *window = SDL_GL_GetCurrentWindow();
+        if (window == nullptr)
+        {
+            window = SDL_GetKeyboardFocus();
+        }
+        if (window == nullptr)
+        {
+            window = SDL_GetMouseFocus();
+        }
+
+        int windowW = static_cast<int>(WINDOW_WIDTH);
+        int windowH = static_cast<int>(WINDOW_HEIGHT);
+        int drawableW = windowW;
+        int drawableH = windowH;
+
+        if (window != nullptr)
+        {
+            SDL_GetWindowSize(window, &windowW, &windowH);
+            SDL_GL_GetDrawableSize(window, &drawableW, &drawableH);
+        }
+
+        const int effectiveW = drawableW > 0 ? drawableW : windowW;
+        const int effectiveH = drawableH > 0 ? drawableH : windowH;
+
+        if (effectiveW <= 0 || effectiveH <= 0)
+        {
+            std::cerr << "LevelManager: failed to query drawable size, using scale=1.0" << std::endl;
+            return cachedScale;
+        }
+
+        const float scaleX = static_cast<float>(effectiveW) / static_cast<float>(WINDOW_WIDTH);
+        const float scaleY = static_cast<float>(effectiveH) / static_cast<float>(WINDOW_HEIGHT);
+
+        // Use uniform scale to preserve aspect and avoid stretching the layout.
+        cachedScale = std::min(scaleX, scaleY);
+        if (cachedScale <= 0.0f)
+        {
+            cachedScale = 1.0f;
+        }
+
+        std::cout << "LevelManager: runtime window=" << windowW << "x" << windowH
+                  << ", drawable=" << effectiveW << "x" << effectiveH
+                  << ", levelScale=" << cachedScale << std::endl;
+        return cachedScale;
+    }
 }
 
 bool LevelManager::LoadLevel(const std::string &levelPath)
@@ -244,6 +302,8 @@ std::unordered_map<std::string, std::string> LevelManager::ExtractResourceMap(co
 
 bool LevelManager::ParseLevelJson(const std::string &jsonStr)
 {
+    const float runtimeScale = GetRuntimeLevelScale();
+
     // Extract level metadata
     m_levelName = ExtractJsonString(jsonStr, "name");
     m_backgroundImage = ExtractJsonString(jsonStr, "background");
@@ -373,21 +433,15 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
                 if (scaleY <= 0.0f)
                     scaleY = 1.0f;
 
+                // Apply runtime scaling so level appears proportionally similar
+                // across machines with different display resolutions.
+                posX *= runtimeScale;
+                posY *= runtimeScale;
+                scaleX *= runtimeScale;
+                scaleY *= runtimeScale;
+
                 // Prepare resource path
                 std::string fullPath = PrepareResourcePath(resourcePath);
-
-                // Debug: print resource lookup results and whether the file exists on disk
-                std::cout << "LevelManager: imageId='" << imageId << "' -> path='" << fullPath << "'";
-                try
-                {
-                    bool exists = std::filesystem::exists(fullPath);
-                    std::cout << " exists=" << (exists ? "yes" : "no");
-                }
-                catch (...)
-                {
-                    std::cout << " (filesystem check failed)";
-                }
-                std::cout << std::endl;
 
                 // Create character directly
                 auto character = std::make_shared<Character>(fullPath);
