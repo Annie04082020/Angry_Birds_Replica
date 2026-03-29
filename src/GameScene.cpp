@@ -10,6 +10,7 @@
 #include "Character.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Util/TransformUtils.hpp"
 
 namespace
 {
@@ -129,6 +130,15 @@ bool GameScene::LoadLevel(const std::string &levelPath)
 void GameScene::Update()
 {
     HandleBackgroundDrag();
+
+    // Handle mouse wheel zoom
+    if (Util::Input::IfScroll())
+    {
+        const glm::vec2 scrollDist = Util::Input::GetScrollDistance();
+        const float zoomDelta = scrollDist.y > 0 ? 1.05f : 0.95f;
+        const float newZoom = Util::GetCameraZoom() * zoomDelta;
+        Util::SetCameraZoom(newZoom);
+    }
 
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
 
