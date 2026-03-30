@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+class Character; // forward declaration to avoid include dependency
+
 class Scene : public Util::GameObject
 {
 public:
@@ -49,11 +51,23 @@ public:
     AddChild(element);
   }
 
+  // Set a Character to be controlled by keyboard for testing.
+  void SetControlledCharacter(const std::shared_ptr<Character> &ch) { m_Controlled = ch; }
+  const std::shared_ptr<Character> &GetControlledCharacter() const { return m_Controlled; }
+
+protected:
+  // Runs a generic collision detection pass for children of this Scene.
+  // Scenes may override `HandleCollision` to react to collisions.
+  virtual void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
+                               const std::shared_ptr<Util::GameObject> &b) {}
+  void RunCollisionDetection();
+
 private:
   std::function<void()> m_OnUpdate = nullptr;
   std::shared_ptr<BackgroundMusic> m_BGM;
   std::shared_ptr<Util::GameObject> m_Background;
   std::vector<std::shared_ptr<Util::GameObject>> m_Elements;
+  std::shared_ptr<Character> m_Controlled = nullptr;
 };
 
 #endif // SCENE_HPP

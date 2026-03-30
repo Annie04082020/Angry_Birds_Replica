@@ -7,8 +7,10 @@ set(SRC_FILES
     DynamicBackground.cpp
     Button.cpp
     Scene.cpp
+    GameScene.cpp
     IntroScene.cpp
     LevelManager.cpp
+    Resource.cpp
 )
 
 set(INCLUDE_FILES
@@ -20,6 +22,7 @@ set(INCLUDE_FILES
     DynamicBackground.hpp
     Button.hpp
     Scene.hpp
+    GameScene.hpp
     IntroScene.hpp
     LevelManager.hpp
 )

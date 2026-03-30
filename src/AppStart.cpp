@@ -1,14 +1,44 @@
 #include "App.hpp"
+#include "GameScene.hpp"
 #include "IntroScene.hpp"
 #include "Resource.hpp"
 #include "Scene.hpp"
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
+#include "SDL.h"
+#include "SDL_image.h"
+#include "config.hpp"
 #include <memory>
 
-void App::Start() {
+namespace
+{
+  void ApplyStartupHandCursor()
+  {
+    static SDL_Cursor *defaultHandCursor = nullptr;
+    if (defaultHandCursor == nullptr)
+    {
+      SDL_Surface *surface = IMG_Load(RESOURCE_DIR "/Image/hand/sprite_002.png");
+      if (surface != nullptr)
+      {
+        defaultHandCursor = SDL_CreateColorCursor(surface, 8, 8);
+        SDL_FreeSurface(surface);
+      }
+    }
+
+    if (defaultHandCursor != nullptr)
+    {
+      SDL_SetCursor(defaultHandCursor);
+      SDL_ShowCursor(SDL_ENABLE);
+    }
+  }
+}
+
+void App::Start()
+{
   LOG_TRACE("Start");
+
+  ApplyStartupHandCursor();
 
   m_loadingScene = std::make_shared<Scene>(
       std::make_shared<BackgroundImage>(Resource::SPLASH_IMAGE));
@@ -16,10 +46,8 @@ void App::Start() {
   m_loadingScene->SetVisible(true);
 
   m_introScene = IntroScene::Create();
-  m_introScene->SetOnPlayClickCallback([this]() { this->TransitionToGame(); });
-
-  // Initialize the level manager
-  m_levelManager = std::make_shared<LevelManager>();
+  m_introScene->SetOnPlayClickCallback([this]()
+                                       { this->TransitionToGame(); });
 
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
@@ -30,26 +58,37 @@ void App::Start() {
   m_CurrentState = State::UPDATE;
 }
 
-void App::TransitionToGame() {
+void App::TransitionToGame()
+{
+  if (m_CurrentState == State::GAME)
+  {
+    return;
+  }
+
   LOG_DEBUG("Transitioning to GAME state");
-  
-  // Load level 1
-  if (m_levelManager && m_levelManager->LoadLevel(Resource::LEVEL_1_DATA)) {
+
+  m_gameScene = std::make_shared<GameScene>(
+      std::make_shared<DynamicBackground>(Resource::MOVING_BG_IMAGE));
+
+  // Load level 1 through GameScene
+  if (m_gameScene && m_gameScene->LoadLevel(Resource::LEVEL_1_DATA))
+  {
     LOG_DEBUG("Level 1 loaded successfully");
     m_loadingScene->SetVisible(false);
     m_introScene->SetVisible(false);
-    
-    // Add all game objects to renderer
-    for (const auto& obj : m_levelManager->GetGameObjects()) {
-      m_Root.AddChild(obj);
-    }
-    
+
+    m_Root.AddChild(m_gameScene);
+    m_gameScene->Init();
+
     m_CurrentState = State::GAME;
-  } else {
+  }
+  else
+  {
     LOG_ERROR("Failed to load level 1");
   }
 }
 
-void App::End() { // NOLINT(this method will mutate members in the future)
+void App::End()
+{ // NOLINT(this method will mutate members in the future)
   LOG_TRACE("End");
 }

@@ -21,6 +21,16 @@ DynamicBackground::DynamicBackground(const std::string &path)
   m_Speed = 200.0f;
 }
 
+void DynamicBackground::Translate(const glm::vec2 &delta)
+{
+  m_Transform.translation += delta;
+
+  auto pos1 = m_BG1->GetPosition();
+  auto pos2 = m_BG2->GetPosition();
+  m_BG1->SetPosition(pos1 + delta);
+  m_BG2->SetPosition(pos2 + delta);
+}
+
 void DynamicBackground::Update()
 {
   float dt = Util::Time::GetDeltaTimeMs() /
