@@ -59,7 +59,11 @@ protected:
   // Runs a generic collision detection pass for children of this Scene.
   // Scenes may override `HandleCollision` to react to collisions.
   virtual void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                               const std::shared_ptr<Util::GameObject> &b) {}
+                               const std::shared_ptr<Util::GameObject> &b)
+  {
+    (void)a;
+    (void)b;
+  }
   void RunCollisionDetection();
 
 private:

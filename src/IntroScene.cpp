@@ -2,6 +2,8 @@
 #include "BGM.hpp"
 #include "Resource.hpp"
 #include "Util/Image.hpp"
+#include "Util/Input.hpp"
+#include <cmath>
 
 std::shared_ptr<IntroScene> IntroScene::Create()
 {
@@ -44,21 +46,25 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_exitbutton->SetVisible(false);
         m_bird->SetVisible(true); });
 
+    constexpr glm::vec2 settingPosition = {520.0f, -300.0f};
+    constexpr glm::vec2 settingScale = {0.8f, 0.8f};
+
     m_settingbutton = std::make_shared<Button>(Resource::Setting_Button_Base);
     m_settingbutton->SetZIndex(50);
-    m_settingbutton->SetPosition({450, -300});
+    m_settingbutton->SetPosition(settingPosition);
+    m_settingbutton->SetScale(settingScale);
     m_settingbutton->SetVisible(true);
     m_settingbutton->SetSFX(Resource::SETTING_SFX);
-    m_settingbutton->SetOnClickFunction([this]()
-                                        { 
+    m_settingbutton->SetOnClickFunction([this]() {
         m_bird->SetVisible(true);
-        m_isRotating = true;
-        m_targetRotation = m_overlayRotation + 180.0f;
+        m_settingOverlayTargetRotation -= 3.14159265f;
+        m_settingOverlayIsAnimating = true;
     });
 
     m_settingOverlay = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Button_Overlay), 51);
-    m_settingOverlay->m_Transform.translation = {450, -293};
+    m_settingOverlay->m_Transform.translation = settingPosition + glm::vec2{0.0f, 6.0f};
+    m_settingOverlay->m_Transform.scale = settingScale;
     m_settingOverlay->SetVisible(true);
 
     AddElements(m_bird);
@@ -70,19 +76,30 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
 void IntroScene::Update()
 {
-    // Update rotation animation
-    if (m_isRotating) {
-        m_overlayRotation += m_rotationSpeed;
-        if (m_overlayRotation >= m_targetRotation) {
-            m_overlayRotation = m_targetRotation;
-            m_isRotating = false;
+    if (m_settingOverlayIsAnimating && m_settingOverlay)
+    {
+        float &rotation = m_settingOverlay->m_Transform.rotation;
+        const float delta = 0.2f;
+        float remaining = m_settingOverlayTargetRotation - rotation;
+        if (std::fabs(remaining) <= delta)
+        {
+            rotation = m_settingOverlayTargetRotation;
+            m_settingOverlayIsAnimating = false;
+        }
+        else
+        {
+            rotation += (remaining > 0 ? delta : -delta);
         }
     }
-    m_settingOverlay->m_Transform.rotation = glm::radians(m_overlayRotation);
-    
-    // Sync setting overlay scale with button
-    m_settingOverlay->m_Transform.scale = m_settingbutton->m_Transform.scale;
-    
+
+    // Hover scale for settings button overlay (030) when hovering base (068)
+    auto mousePos = Util::Input::GetCursorPosition();
+    if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos)) {
+        m_settingOverlay->m_Transform.scale = {0.9f, 0.9f};
+    } else if (m_settingOverlay) {
+        m_settingOverlay->m_Transform.scale = {0.8f, 0.8f};
+    }
+
     m_movingBg->Update();
     Scene::Update();
 }

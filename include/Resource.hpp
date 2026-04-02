@@ -97,6 +97,8 @@ namespace Resource
     const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
     const std::string Exit_Button = RESOURCE_DIR "/Image/ui/button/sprite_070.png";
     const std::string Setting_Button = RESOURCE_DIR "/Image/ui/button/setting.png";
+    const std::string Setting_Button_Base = RESOURCE_DIR "/Image/ui/button/sprite_068.png";
+    const std::string Setting_Button_Overlay = RESOURCE_DIR "/Image/ui/button/sprite_030.png";
 
     // Audio - Music
     const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.ogg";

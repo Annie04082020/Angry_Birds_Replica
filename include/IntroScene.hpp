@@ -28,13 +28,9 @@ private:
     std::shared_ptr<Button> m_exitbutton;
     std::shared_ptr<Button> m_settingbutton;
     std::shared_ptr<Util::GameObject> m_settingOverlay;
+    float m_settingOverlayTargetRotation = 0.0f;
+    bool m_settingOverlayIsAnimating = false;
     std::function<void()> m_onPlayClick = nullptr;
-    
-    float m_overlayRotation = 0.0f;
-    bool m_isRotating = false;
-    float m_rotationSpeed = 10.0f; // degrees per frame
-    float m_targetRotation = 0.0f;
-    
 };
 
 #endif // INTRO_SCENE_HPP
