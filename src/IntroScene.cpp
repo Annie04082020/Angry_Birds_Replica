@@ -34,8 +34,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_bird->SetVisible(true);
         if (m_onPlayClick) {
             m_onPlayClick();
-        }
-    });
+        } });
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);
@@ -49,18 +48,27 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     constexpr glm::vec2 settingPosition = {520.0f, -300.0f};
     constexpr glm::vec2 settingScale = {0.8f, 0.8f};
 
+    // 使用底圖與覆層分開的按鈕：底圖保留光影設計，覆層（齒輪）單獨旋轉
     m_settingbutton = std::make_shared<Button>(Resource::Setting_Button_Base);
     m_settingbutton->SetZIndex(50);
     m_settingbutton->SetPosition(settingPosition);
     m_settingbutton->SetScale(settingScale);
     m_settingbutton->SetVisible(true);
     m_settingbutton->SetSFX(Resource::SETTING_SFX);
-    m_settingbutton->SetOnClickFunction([this]() {
+    m_settingbutton->SetOnClickFunction([this]()
+                                        {
         m_bird->SetVisible(true);
-        m_settingOverlayTargetRotation -= 3.14159265f;
-        m_settingOverlayIsAnimating = true;
-    });
+        // 切換 180° 與回復
+        if (!m_settingOverlayToggled) {
+            m_settingOverlayTargetRotation = -3.14159265f;
+            m_settingOverlayToggled = true;
+        } else {
+            m_settingOverlayTargetRotation = 0.0f;
+            m_settingOverlayToggled = false;
+        }
+        m_settingOverlayIsAnimating = true; });
 
+    // 建立覆層（齒輪），比底圖 z-index 高一層
     m_settingOverlay = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Button_Overlay), 51);
     m_settingOverlay->m_Transform.translation = settingPosition + glm::vec2{0.0f, 6.0f};
@@ -76,6 +84,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
 void IntroScene::Update()
 {
+    // 只旋轉覆層（齒輪），底圖保留原樣
     if (m_settingOverlayIsAnimating && m_settingOverlay)
     {
         float &rotation = m_settingOverlay->m_Transform.rotation;
@@ -92,11 +101,14 @@ void IntroScene::Update()
         }
     }
 
-    // Hover scale for settings button overlay (030) when hovering base (068)
+    // Hover scale: 當滑鼠停在底圖上時，讓覆層放大
     auto mousePos = Util::Input::GetCursorPosition();
-    if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos)) {
+    if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos))
+    {
         m_settingOverlay->m_Transform.scale = {0.9f, 0.9f};
-    } else if (m_settingOverlay) {
+    }
+    else if (m_settingOverlay)
+    {
         m_settingOverlay->m_Transform.scale = {0.8f, 0.8f};
     }
 
