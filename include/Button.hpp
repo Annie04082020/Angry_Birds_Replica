@@ -63,9 +63,9 @@ public:
 
     // 處理 Hover 縮放動畫
     if (IsHovering(mousePos)) {
-      m_Transform.scale = {1.2f, 1.2f};
+      m_Transform.scale = {0.9f, 0.9f};
     } else {
-      m_Transform.scale = {1.0f, 1.0f};
+      m_Transform.scale = {0.8f, 0.8f};
     }
 
     // 處理 Click 邏輯
@@ -86,7 +86,7 @@ public:
     m_SFXPath = SFXPath;
     m_SFX = std::make_shared<SoundEffect>(m_SFXPath);
   }
-  void Init() override { m_Transform.scale = {1.0f, 1.0f}; }
+  void Init() override { m_Transform.scale = {0.8f, 0.8f}; }
 
 private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }

@@ -13,8 +13,9 @@ class IntroScene : public Scene
 public:
     static std::shared_ptr<IntroScene> Create();
     void Update() override;
-    
-    void SetOnPlayClickCallback(std::function<void()> callback) {
+
+    void SetOnPlayClickCallback(std::function<void()> callback)
+    {
         m_onPlayClick = callback;
     }
 
@@ -27,6 +28,10 @@ private:
     std::shared_ptr<Button> m_playbutton;
     std::shared_ptr<Button> m_exitbutton;
     std::shared_ptr<Button> m_settingbutton;
+    std::shared_ptr<Util::GameObject> m_settingOverlay;
+    float m_settingOverlayTargetRotation = 0.0f;
+    bool m_settingOverlayIsAnimating = false;
+    bool m_settingOverlayToggled = false;
     std::function<void()> m_onPlayClick = nullptr;
 };
 
