@@ -64,27 +64,47 @@ void App::TransitionToGame()
   {
     return;
   }
-
   LOG_DEBUG("Transitioning to GAME state");
+
+  if (!LoadLevel(Resource::LEVEL_1_DATA))
+  {
+    LOG_ERROR("Failed to load level 1");
+  }
+}
+
+bool App::LoadLevel(const std::string &levelPath)
+{
+  // Unload any existing game scene first
+  UnloadCurrentGameScene();
 
   m_gameScene = std::make_shared<GameScene>(
       std::make_shared<DynamicBackground>(Resource::MOVING_BG_IMAGE));
 
-  // Load level 1 through GameScene
-  if (m_gameScene && m_gameScene->LoadLevel(Resource::LEVEL_1_DATA))
+  if (m_gameScene && m_gameScene->LoadLevel(levelPath))
   {
-    LOG_DEBUG("Level 1 loaded successfully");
+    LOG_DEBUG("Level loaded successfully: %s", levelPath.c_str());
     m_loadingScene->SetVisible(false);
-    m_introScene->SetVisible(false);
+    if (m_introScene)
+      m_introScene->SetVisible(false);
 
     m_Root.AddChild(m_gameScene);
     m_gameScene->Init();
 
     m_CurrentState = State::GAME;
+    return true;
   }
-  else
+
+  // cleanup on failure
+  m_gameScene.reset();
+  return false;
+}
+
+void App::UnloadCurrentGameScene()
+{
+  if (m_gameScene)
   {
-    LOG_ERROR("Failed to load level 1");
+    m_Root.RemoveChild(m_gameScene);
+    m_gameScene.reset();
   }
 }
 
