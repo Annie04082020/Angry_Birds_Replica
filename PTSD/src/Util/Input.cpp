@@ -10,7 +10,7 @@ namespace Util {
 SDL_Event Input::s_Event = SDL_Event();
 
 glm::vec2 Input::s_CursorPosition = glm::vec2(0.0F);
-glm::vec2 Input::s_ScrollDistance = glm::vec2(-1.0F, -1.0F);
+glm::vec2 Input::s_ScrollDistance = glm::vec2(0.0F, 0.0F);
 
 std::unordered_map<Keycode, std::pair<bool, bool>> Input::s_KeyState = {
     std::make_pair(Keycode::MOUSE_LB, std::make_pair(false, false)),
@@ -86,6 +86,7 @@ void Input::Update() {
         -(s_CursorPosition.y - static_cast<float>(WINDOW_HEIGHT) / 2);
 
     s_Scroll = s_MouseMoving = false;
+    s_ScrollDistance = glm::vec2(0.0F, 0.0F);
 
     for (auto &[_, i] : s_KeyState) {
         i.first = i.second;
@@ -108,8 +109,8 @@ void Input::Update() {
         s_Scroll = s_Event.type == SDL_MOUSEWHEEL || s_Scroll;
 
         if (s_Scroll) {
-            s_ScrollDistance.x = static_cast<float>(s_Event.wheel.x);
-            s_ScrollDistance.y = static_cast<float>(s_Event.wheel.y);
+            s_ScrollDistance.x += static_cast<float>(s_Event.wheel.x);
+            s_ScrollDistance.y += static_cast<float>(s_Event.wheel.y);
         }
         s_MouseMoving = s_Event.type == SDL_MOUSEMOTION || s_MouseMoving;
         s_Exit = s_Event.type == SDL_QUIT;

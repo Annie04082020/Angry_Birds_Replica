@@ -4,8 +4,8 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 namespace Util {
-constexpr float MIN_ZOOM = 0.1f;
-constexpr float MAX_ZOOM = 5.0f;
+constexpr float MIN_ZOOM = 0.5f;
+constexpr float MAX_ZOOM = 1.0f;
 
 static float g_CameraZoom = 1.0f;
 static glm::vec2 g_CameraPosition = {0.0f, 0.0f};

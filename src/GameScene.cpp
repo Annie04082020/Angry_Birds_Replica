@@ -103,6 +103,7 @@ namespace
 bool GameScene::LoadLevel(const std::string &levelPath)
 {
     m_WorldOffsetX = 0.0f;
+    m_ZoomScrollAccumulator = 0.0f;
 
     Util::SetCameraZoom(1.0f);
     Util::SetCameraPosition({0.0f, 0.0f});
@@ -140,26 +141,36 @@ void GameScene::Update()
         const glm::vec2 mousePos = Util::Input::GetCursorPosition();
         const float oldZoom = Util::GetCameraZoom();
         const glm::vec2 oldCameraPos = Util::GetCameraPosition();
-
-        // Calculate world position of mouse before zoom
-        const glm::vec2 worldMousePos = mousePos / oldZoom + oldCameraPos;
-
-        // Apply zoom
         const glm::vec2 scrollDist = Util::Input::GetScrollDistance();
-        constexpr float zoomStep = 0.02f;
-        const float zoomDelta = scrollDist.y > 0 ? (1.0f - zoomStep)
-                                                 : (1.0f + zoomStep);
-        const float newZoom = oldZoom * zoomDelta;
-        Util::SetCameraZoom(newZoom);
+        const float normalizedScroll = std::clamp(scrollDist.y, -1.0f, 1.0f);
+        m_ZoomScrollAccumulator += normalizedScroll;
 
-        // Get actual zoom after clamp
-        const float actualZoom = Util::GetCameraZoom();
-
-        // Only adjust camera position if zoom actually changed (not clamped)
-        if (actualZoom != oldZoom)
+        const int zoomSteps = static_cast<int>(m_ZoomScrollAccumulator);
+        if (zoomSteps != 0)
         {
-            const glm::vec2 newCameraPos = worldMousePos - mousePos / actualZoom;
-            Util::SetCameraPosition(newCameraPos);
+            m_ZoomScrollAccumulator -= static_cast<float>(zoomSteps);
+
+            // Calculate world position of mouse before zoom
+            const glm::vec2 worldMousePos = mousePos / oldZoom + oldCameraPos;
+
+            constexpr float zoomStep = 0.01f;
+            const float stepScale = zoomSteps > 0 ? (1.0f - zoomStep)
+                                                  : (1.0f + zoomStep);
+            const float newZoom = oldZoom * std::pow(stepScale, std::abs(zoomSteps));
+            Util::SetCameraZoom(newZoom);
+
+            // Get actual zoom after clamp
+            const float actualZoom = Util::GetCameraZoom();
+
+            // Only adjust camera position if zoom actually changed (not clamped)
+            if (actualZoom != oldZoom)
+            {
+                const glm::vec2 newCameraPos = worldMousePos - mousePos / actualZoom;
+                glm::vec2 clampedCameraPos = newCameraPos;
+                // Keep background bottom aligned with viewport bottom.
+                clampedCameraPos.y = 0.0f;
+                Util::SetCameraPosition(clampedCameraPos);
+            }
         }
     }
 
@@ -185,8 +196,50 @@ void GameScene::HandleBackgroundDrag()
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
     constexpr float dragStartThreshold = 2.0f;
 
+    const float currentZoom = Util::GetCameraZoom();
+    const float maxPanOffsetX = std::max(0.0f, (1.0f - currentZoom) * static_cast<float>(WINDOW_WIDTH));
+    const float minWorldOffsetX = -maxPanOffsetX;
+    const float maxWorldOffsetX = maxPanOffsetX;
+
+    // If zoom range shrinks, clamp world offset and apply correction immediately.
+    const float clampedOffsetX = std::clamp(m_WorldOffsetX, minWorldOffsetX, maxWorldOffsetX);
+    const float correctionDeltaX = clampedOffsetX - m_WorldOffsetX;
+    if (correctionDeltaX != 0.0f)
+    {
+        m_WorldOffsetX = clampedOffsetX;
+        const glm::vec2 correctionDelta{correctionDeltaX, 0.0f};
+
+        if (m_DynamicBackground)
+        {
+            m_DynamicBackground->Translate(correctionDelta);
+        }
+
+        if (m_LevelManager)
+        {
+            const auto &objects = m_LevelManager->GetGameObjects();
+            for (const auto &obj : objects)
+            {
+                auto character = std::dynamic_pointer_cast<Character>(obj);
+                if (!character)
+                {
+                    continue;
+                }
+                character->SetPosition(character->GetPosition() + correctionDelta);
+            }
+        }
+    }
+
     if (mousePressed)
     {
+        if (maxPanOffsetX <= 0.0f)
+        {
+            m_IsHoldingBackground = true;
+            m_IsDraggingBackground = false;
+            m_DragStartMousePos = mousePos;
+            m_LastMousePos = mousePos;
+            return;
+        }
+
         if (!m_IsHoldingBackground)
         {
             m_IsHoldingBackground = true;
@@ -212,8 +265,6 @@ void GameScene::HandleBackgroundDrag()
         }
 
         const float rawDeltaX = mousePos.x - m_LastMousePos.x;
-        const float minWorldOffsetX = -static_cast<float>(WINDOW_WIDTH);
-        const float maxWorldOffsetX = static_cast<float>(WINDOW_WIDTH);
         const float clampedWorldOffsetX =
             std::clamp(m_WorldOffsetX + rawDeltaX, minWorldOffsetX, maxWorldOffsetX);
         const float appliedDeltaX = clampedWorldOffsetX - m_WorldOffsetX;
