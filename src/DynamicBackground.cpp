@@ -1,5 +1,6 @@
 #include "DynamicBackground.hpp"
 #include "Util/Time.hpp"
+#include "Util/TransformUtils.hpp"
 #include "config.hpp"
 
 DynamicBackground::DynamicBackground(const std::string &path)
@@ -33,6 +34,10 @@ void DynamicBackground::Translate(const glm::vec2 &delta)
 
 void DynamicBackground::Update()
 {
+  // Apply camera zoom to background scale
+  float cameraZoom = Util::GetCameraZoom();
+  m_Transform.scale = {cameraZoom, cameraZoom};
+
   float dt = Util::Time::GetDeltaTimeMs() /
              1000.0f; // Since speed is usually per second, we convert MS to S
   float movement = m_Speed * dt;

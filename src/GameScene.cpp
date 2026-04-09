@@ -104,6 +104,9 @@ bool GameScene::LoadLevel(const std::string &levelPath)
 {
     m_WorldOffsetX = 0.0f;
 
+    Util::SetCameraZoom(1.0f);
+    Util::SetCameraPosition({0.0f, 0.0f});
+
     if (!m_LevelManager || !m_LevelManager->LoadLevel(levelPath))
     {
         return false;
@@ -143,13 +146,21 @@ void GameScene::Update()
 
         // Apply zoom
         const glm::vec2 scrollDist = Util::Input::GetScrollDistance();
-        const float zoomDelta = scrollDist.y > 0 ? 1.05f : 0.95f;
+        constexpr float zoomStep = 0.02f;
+        const float zoomDelta = scrollDist.y > 0 ? (1.0f - zoomStep)
+                                                 : (1.0f + zoomStep);
         const float newZoom = oldZoom * zoomDelta;
         Util::SetCameraZoom(newZoom);
 
-        // Adjust camera position so mouse position stays fixed
-        const glm::vec2 newCameraPos = worldMousePos - mousePos / newZoom;
-        Util::SetCameraPosition(newCameraPos);
+        // Get actual zoom after clamp
+        const float actualZoom = Util::GetCameraZoom();
+
+        // Only adjust camera position if zoom actually changed (not clamped)
+        if (actualZoom != oldZoom)
+        {
+            const glm::vec2 newCameraPos = worldMousePos - mousePos / actualZoom;
+            Util::SetCameraPosition(newCameraPos);
+        }
     }
 
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
