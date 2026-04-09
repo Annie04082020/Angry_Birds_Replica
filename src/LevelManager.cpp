@@ -16,6 +16,16 @@ namespace Resource
 
 namespace
 {
+    struct GroupAdjustment
+    {
+        float scaleMultiplier = 1.0f;
+        float offsetX = 0.0f;
+        float offsetY = 0.0f;
+        float scalePivotX = 0.0f;
+        float scalePivotY = 0.0f;
+        bool hasScalePivot = false;
+    };
+
     // Simple JSON parsing helpers
     [[maybe_unused]] std::string TrimWhitespace(const std::string &str)
     {
@@ -113,6 +123,11 @@ namespace
         return 0.0f;
     }
 
+    bool HasJsonKey(const std::string &json, const std::string &key)
+    {
+        return json.find("\"" + key + "\"") != std::string::npos;
+    }
+
     std::string PrepareResourcePath(const std::string &resourcePath)
     {
         // If path is empty or absolute, return as-is
@@ -178,6 +193,126 @@ namespace
         }
 
         return result;
+    }
+
+    std::unordered_map<std::string, GroupAdjustment> ExtractGroupAdjustments(const std::string &jsonStr)
+    {
+        std::unordered_map<std::string, GroupAdjustment> groups;
+
+        const size_t groupsStart = jsonStr.find("\"groups\"");
+        if (groupsStart == std::string::npos)
+        {
+            return groups;
+        }
+
+        const size_t arrayStart = jsonStr.find('[', groupsStart);
+        if (arrayStart == std::string::npos)
+        {
+            return groups;
+        }
+
+        size_t arrayEnd = arrayStart;
+        int arrayDepth = 0;
+        for (size_t i = arrayStart; i < jsonStr.length(); ++i)
+        {
+            if (jsonStr[i] == '[')
+            {
+                ++arrayDepth;
+            }
+            else if (jsonStr[i] == ']')
+            {
+                --arrayDepth;
+                if (arrayDepth == 0)
+                {
+                    arrayEnd = i;
+                    break;
+                }
+            }
+        }
+
+        if (arrayEnd <= arrayStart)
+        {
+            return groups;
+        }
+
+        const std::string groupsContent = jsonStr.substr(arrayStart + 1, arrayEnd - arrayStart - 1);
+
+        size_t objectStart = 0;
+        int braceCount = 0;
+        for (size_t i = 0; i < groupsContent.length(); ++i)
+        {
+            if (groupsContent[i] == '{')
+            {
+                if (braceCount == 0)
+                {
+                    objectStart = i;
+                }
+                ++braceCount;
+            }
+            else if (groupsContent[i] == '}')
+            {
+                --braceCount;
+                if (braceCount == 0)
+                {
+                    const std::string groupJson = groupsContent.substr(objectStart + 1, i - objectStart - 1);
+                    const std::string id = ExtractJsonString(groupJson, "id");
+                    if (id.empty())
+                    {
+                        continue;
+                    }
+
+                    GroupAdjustment adjustment;
+
+                    if (HasJsonKey(groupJson, "scaleMultiplier"))
+                    {
+                        adjustment.scaleMultiplier = ExtractJsonFloat(groupJson, "scaleMultiplier");
+                    }
+                    else if (HasJsonKey(groupJson, "sizeMultiplier"))
+                    {
+                        adjustment.scaleMultiplier = ExtractJsonFloat(groupJson, "sizeMultiplier");
+                    }
+                    else if (HasJsonKey(groupJson, "scale"))
+                    {
+                        adjustment.scaleMultiplier = ExtractJsonFloat(groupJson, "scale");
+                    }
+
+                    if (adjustment.scaleMultiplier <= 0.0f)
+                    {
+                        adjustment.scaleMultiplier = 1.0f;
+                    }
+
+                    if (HasJsonKey(groupJson, "offsetX"))
+                    {
+                        adjustment.offsetX = ExtractJsonFloat(groupJson, "offsetX");
+                    }
+                    else if (HasJsonKey(groupJson, "moveX"))
+                    {
+                        adjustment.offsetX = ExtractJsonFloat(groupJson, "moveX");
+                    }
+
+                    if (HasJsonKey(groupJson, "offsetY"))
+                    {
+                        adjustment.offsetY = ExtractJsonFloat(groupJson, "offsetY");
+                    }
+                    else if (HasJsonKey(groupJson, "moveY"))
+                    {
+                        adjustment.offsetY = ExtractJsonFloat(groupJson, "moveY");
+                    }
+
+                    // Parse scale pivot point (anchor for scaling)
+                    if (HasJsonKey(groupJson, "scalePivotX") && HasJsonKey(groupJson, "scalePivotY"))
+                    {
+                        adjustment.scalePivotX = ExtractJsonFloat(groupJson, "scalePivotX");
+                        adjustment.scalePivotY = ExtractJsonFloat(groupJson, "scalePivotY");
+                        adjustment.hasScalePivot = true;
+                    }
+
+                    groups[id] = adjustment;
+                }
+            }
+        }
+
+        return groups;
     }
 
     float GetRuntimeLevelScale()
@@ -303,6 +438,7 @@ std::unordered_map<std::string, std::string> LevelManager::ExtractResourceMap(co
 bool LevelManager::ParseLevelJson(const std::string &jsonStr)
 {
     const float runtimeScale = GetRuntimeLevelScale();
+    const auto groupAdjustments = ExtractGroupAdjustments(jsonStr);
 
     // Extract level metadata
     m_levelName = ExtractJsonString(jsonStr, "name");
@@ -362,6 +498,46 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
                 float scaleX = ExtractJsonFloat(entityJson, "scaleX");
                 float scaleY = ExtractJsonFloat(entityJson, "scaleY");
                 float rotation = ExtractJsonFloat(entityJson, "rotation");
+                const std::string groupId = ExtractJsonString(entityJson, "groupId");
+                const bool hasSizePercent = HasJsonKey(entityJson, "sizePercent") ||
+                                            HasJsonKey(entityJson, "scalePercent");
+                const bool hasWidthPercent = HasJsonKey(entityJson, "widthPercent") ||
+                                             HasJsonKey(entityJson, "scalePercentX");
+                const bool hasHeightPercent = HasJsonKey(entityJson, "heightPercent") ||
+                                              HasJsonKey(entityJson, "scalePercentY");
+                float sizePercent = 0.0f;
+                float widthPercent = 0.0f;
+                float heightPercent = 0.0f;
+                std::string sizeBase = ExtractJsonString(entityJson, "sizeBase");
+
+                if (sizeBase.empty())
+                {
+                    sizeBase = ExtractJsonString(entityJson, "scaleBase");
+                }
+                if (sizeBase.empty())
+                {
+                    sizeBase = "height";
+                }
+
+                if (hasSizePercent)
+                {
+                    sizePercent = HasJsonKey(entityJson, "sizePercent")
+                                      ? ExtractJsonFloat(entityJson, "sizePercent")
+                                      : ExtractJsonFloat(entityJson, "scalePercent");
+                }
+
+                if (hasWidthPercent)
+                {
+                    widthPercent = HasJsonKey(entityJson, "widthPercent")
+                                       ? ExtractJsonFloat(entityJson, "widthPercent")
+                                       : ExtractJsonFloat(entityJson, "scalePercentX");
+                }
+                if (hasHeightPercent)
+                {
+                    heightPercent = HasJsonKey(entityJson, "heightPercent")
+                                        ? ExtractJsonFloat(entityJson, "heightPercent")
+                                        : ExtractJsonFloat(entityJson, "scalePercentY");
+                }
 
                 // Get the resource ID from the object. Support both "imageId" and legacy "resourceId" keys.
                 std::string imageId = ExtractJsonString(entityJson, "imageId");
@@ -433,18 +609,103 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
                 if (scaleY <= 0.0f)
                     scaleY = 1.0f;
 
+                auto groupIt = groupAdjustments.find(groupId);
+                if (groupIt != groupAdjustments.end())
+                {
+                    posX += groupIt->second.offsetX;
+                    posY += groupIt->second.offsetY;
+                }
+
                 // Apply runtime scaling so level appears proportionally similar
                 // across machines with different display resolutions.
                 posX *= runtimeScale;
                 posY *= runtimeScale;
-                scaleX *= runtimeScale;
-                scaleY *= runtimeScale;
 
                 // Prepare resource path
                 std::string fullPath = PrepareResourcePath(resourcePath);
 
                 // Create character directly
                 auto character = std::make_shared<Character>(fullPath);
+                const glm::vec2 textureSize = character->GetSize();
+                const float viewportWidth = static_cast<float>(WINDOW_WIDTH) * runtimeScale;
+                const float viewportHeight = static_cast<float>(WINDOW_HEIGHT) * runtimeScale;
+
+                if (hasSizePercent)
+                {
+                    float uniformScale = 1.0f;
+                    if ((sizeBase == "height" || sizeBase == "h" || sizeBase == "y") &&
+                        textureSize.y > 0.0f && viewportHeight > 0.0f)
+                    {
+                        uniformScale = (viewportHeight * sizePercent / 100.0f) / textureSize.y;
+                    }
+                    else if (textureSize.x > 0.0f && viewportWidth > 0.0f)
+                    {
+                        uniformScale = (viewportWidth * sizePercent / 100.0f) / textureSize.x;
+                    }
+
+                    scaleX = uniformScale;
+                    scaleY = uniformScale;
+                }
+                else
+                {
+                    // If only one axis percent is provided, use uniform scale based on that axis.
+                    if (hasWidthPercent && !hasHeightPercent && textureSize.x > 0.0f && viewportWidth > 0.0f)
+                    {
+                        const float uniformScale = (viewportWidth * widthPercent / 100.0f) / textureSize.x;
+                        scaleX = uniformScale;
+                        scaleY = uniformScale;
+                    }
+                    else if (hasHeightPercent && !hasWidthPercent && textureSize.y > 0.0f && viewportHeight > 0.0f)
+                    {
+                        const float uniformScale = (viewportHeight * heightPercent / 100.0f) / textureSize.y;
+                        scaleX = uniformScale;
+                        scaleY = uniformScale;
+                    }
+                    else
+                    {
+                        if (hasWidthPercent)
+                        {
+                            if (textureSize.x > 0.0f && viewportWidth > 0.0f)
+                            {
+                                scaleX = (viewportWidth * widthPercent / 100.0f) / textureSize.x;
+                            }
+                        }
+                        else
+                        {
+                            scaleX *= runtimeScale;
+                        }
+
+                        if (hasHeightPercent)
+                        {
+                            if (textureSize.y > 0.0f && viewportHeight > 0.0f)
+                            {
+                                scaleY = (viewportHeight * heightPercent / 100.0f) / textureSize.y;
+                            }
+                        }
+                        else
+                        {
+                            scaleY *= runtimeScale;
+                        }
+                    }
+                }
+
+                if (groupIt != groupAdjustments.end())
+                {
+                    // If group has a scale pivot point, scale position relative to pivot
+                    if (groupIt->second.hasScalePivot && groupIt->second.scaleMultiplier != 1.0f)
+                    {
+                        float relX = posX - groupIt->second.scalePivotX;
+                        float relY = posY - groupIt->second.scalePivotY;
+                        relX *= groupIt->second.scaleMultiplier;
+                        relY *= groupIt->second.scaleMultiplier;
+                        posX = groupIt->second.scalePivotX + relX;
+                        posY = groupIt->second.scalePivotY + relY;
+                    }
+
+                    scaleX *= groupIt->second.scaleMultiplier;
+                    scaleY *= groupIt->second.scaleMultiplier;
+                }
+
                 character->SetPosition(glm::vec2(posX, posY));
                 character->SetScale(glm::vec2(scaleX, scaleY));
                 character->SetRotation(rotation);

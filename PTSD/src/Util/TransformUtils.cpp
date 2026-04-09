@@ -5,6 +5,7 @@
 
 namespace Util {
 static float g_CameraZoom = 1.0f;
+static glm::vec2 g_CameraPosition = {0.0f, 0.0f};
 
 void SetCameraZoom(float zoom) {
     g_CameraZoom = zoom > 0.1f ? zoom : 0.1f; // Clamp to prevent zoom <= 0
@@ -12,6 +13,14 @@ void SetCameraZoom(float zoom) {
 
 float GetCameraZoom() {
     return g_CameraZoom;
+}
+
+void SetCameraPosition(const glm::vec2 &position) {
+    g_CameraPosition = position;
+}
+
+glm::vec2 GetCameraPosition() {
+    return g_CameraPosition;
 }
 
 Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
@@ -24,10 +33,12 @@ Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
 
     auto projection =
         glm::ortho<float>(0.0F, 1.0F, 0.0F, 1.0F, nearClip, farClip);
-    // Apply global camera zoom to view matrix
-    auto view = glm::scale(eye, {1.F / WINDOW_WIDTH / g_CameraZoom,
-                                 1.F / WINDOW_HEIGHT / g_CameraZoom, 1.F}) *
-                glm::translate(eye, {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0});
+    // Apply global camera zoom and position to view matrix
+    auto view =
+        glm::scale(eye, {1.F / WINDOW_WIDTH / g_CameraZoom,
+                         1.F / WINDOW_HEIGHT / g_CameraZoom, 1.F}) *
+        glm::translate(eye, {WINDOW_WIDTH / 2 - g_CameraPosition.x,
+                             WINDOW_HEIGHT / 2 - g_CameraPosition.y, 0});
 
     // TODO: TRS comment
     auto model = glm::translate(eye, {transform.translation, zIndex}) *

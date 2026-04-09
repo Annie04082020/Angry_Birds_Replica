@@ -20,6 +20,17 @@ void SetCameraZoom(float zoom);
 float GetCameraZoom();
 
 /**
+ * @brief Set global camera position (pan/offset the view).
+ * @param position Camera position in world coordinates
+ */
+void SetCameraPosition(const glm::vec2 &position);
+
+/**
+ * @brief Get current global camera position.
+ */
+glm::vec2 GetCameraPosition();
+
+/**
  * @brief Converts a Transform object into uniform buffer data.
  *
  * Converts transform data in Core::UniformBuffer format.

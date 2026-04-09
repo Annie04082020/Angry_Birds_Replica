@@ -3,23 +3,35 @@
   "name": "Level 1",
   "background": "Image/background.png",
   "birds": 3,
+  "groups": [
+    {
+      "id": "slingshot",
+      "scaleMultiplier": 3,
+      "offsetX": 0.0,
+      "offsetY": 0.0,
+      "scalePivotX": -476.5,
+      "scalePivotY": -96.5
+    }
+  ],
   "objects": [
     {
       "type": "SLINGSHOT",
       "imageId": "SLINGSHOT_1",
+      "groupId": "slingshot",
       "x": -483.0,
       "y": -85.0,
-      "scaleX": 0.5,
-      "scaleY": 0.5,
+      "sizePercent": 4.592593,
+      "sizeBase": "height",
       "rotation": 0.0
     },
     {
       "type": "SLINGSHOT",
       "imageId": "SLINGSHOT_2",
+      "groupId": "slingshot",
       "x": -470.0,
       "y": -108.0,
-      "scaleX": 0.5,
-      "scaleY": 0.5,
+      "sizePercent": 7.370370,
+      "sizeBase": "height",
       "rotation": 0.0
     },
     {
@@ -27,8 +39,8 @@
       "imageId": "BIRD_RED",
       "x": -560.0,
       "y": -190.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 1.566667,
+      "heightPercent": 2.666667,
       "rotation": 0.0
     },
     {
@@ -36,8 +48,8 @@
       "imageId": "BIRD_YELLOW",
       "x": -520.0,
       "y": -220.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 2.266667,
+      "heightPercent": 3.081481,
       "rotation": 0.0
     },
     {
@@ -45,8 +57,8 @@
       "imageId": "BIRD_BLUE",
       "x": -540.0,
       "y": -250.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 1.000000,
+      "heightPercent": 1.718519,
       "rotation": 0.0
     },
     {
@@ -54,8 +66,8 @@
       "imageId": "WOOD_41x20",
       "x": 590.0,
       "y": -95.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 1.366667,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -63,8 +75,8 @@
       "imageId": "WOOD_41x20",
       "x": 265.0,
       "y": -95.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 1.366667,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -72,8 +84,8 @@
       "imageId": "WOOD_stage",
       "x": 517.0,
       "y": -138.0,
-      "scaleX": 1.0,
-      "scaleY": 1.0,
+      "widthPercent": 7.541667,
+      "heightPercent": 4.296296,
       "rotation": 0.0
     },
     {
@@ -81,8 +93,8 @@
       "imageId": "WOOD_stage",
       "x": 340.0,
       "y": -138.0,
-      "scaleX": 1.0,
-      "scaleY": 1.0,
+      "widthPercent": 7.541667,
+      "heightPercent": 4.296296,
       "rotation": 0.0
     },
     {
@@ -90,8 +102,8 @@
       "imageId": "WOOD_205",
       "x": 500.0,
       "y": -30.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 6.833333,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -99,8 +111,8 @@
       "imageId": "WOOD_205",
       "x": 355.0,
       "y": -30.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 6.833333,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -108,8 +120,8 @@
       "imageId": "WOOD_205",
       "x": 425.0,
       "y": 60.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 6.833333,
+      "heightPercent": 1.185185,
       "rotation": 0.0
     },
     {
@@ -117,8 +129,8 @@
       "imageId": "ICE_005",
       "x": 402.0,
       "y": -60.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 2.766667,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -126,8 +138,8 @@
       "imageId": "ICE_005",
       "x": 450.0,
       "y": -60.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 2.766667,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -135,8 +147,8 @@
       "imageId": "WOOD_83x20",
       "x": 428.0,
       "y": -102.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 2.766667,
+      "heightPercent": 1.185185,
       "rotation": 0.0
     },
     {
@@ -144,8 +156,8 @@
       "imageId": "WOOD_83x20",
       "x": 426.0,
       "y": -19.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 2.766667,
+      "heightPercent": 1.185185,
       "rotation": 0.0
     },
     {
@@ -153,8 +165,8 @@
       "imageId": "WOOD_205",
       "x": 398.0,
       "y": 150.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 6.833333,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -162,8 +174,8 @@
       "imageId": "WOOD_205",
       "x": 454.0,
       "y": 150.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 6.833333,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -171,8 +183,8 @@
       "imageId": "WOOD_83x20",
       "x": 426.0,
       "y": 240.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 2.766667,
+      "heightPercent": 1.185185,
       "rotation": 0.0
     },
     {
@@ -180,8 +192,8 @@
       "imageId": "WOOD_41x20",
       "x": 425.0,
       "y": 265.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 1.366667,
+      "heightPercent": 1.185185,
       "rotation": 1.6
     },
     {
@@ -189,8 +201,8 @@
       "imageId": "WOOD_41x20",
       "x": 428.0,
       "y": 78.0,
-      "scaleX": 0.8,
-      "scaleY": 0.8,
+      "widthPercent": 1.366667,
+      "heightPercent": 1.185185,
       "rotation": 0.0
     },
     {
@@ -198,8 +210,8 @@
       "imageId": "PIG_SMALL",
       "x": 428.0,
       "y": 103.0,
-      "scaleX": 0.7,
-      "scaleY": 0.7,
+      "widthPercent": 1.400000,
+      "heightPercent": 2.385185,
       "rotation": 0.0
     }
   ]

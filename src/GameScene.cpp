@@ -131,13 +131,25 @@ void GameScene::Update()
 {
     HandleBackgroundDrag();
 
-    // Handle mouse wheel zoom
+    // Handle mouse wheel zoom with mouse position as pivot
     if (Util::Input::IfScroll())
     {
+        const glm::vec2 mousePos = Util::Input::GetCursorPosition();
+        const float oldZoom = Util::GetCameraZoom();
+        const glm::vec2 oldCameraPos = Util::GetCameraPosition();
+
+        // Calculate world position of mouse before zoom
+        const glm::vec2 worldMousePos = mousePos / oldZoom + oldCameraPos;
+
+        // Apply zoom
         const glm::vec2 scrollDist = Util::Input::GetScrollDistance();
         const float zoomDelta = scrollDist.y > 0 ? 1.05f : 0.95f;
-        const float newZoom = Util::GetCameraZoom() * zoomDelta;
+        const float newZoom = oldZoom * zoomDelta;
         Util::SetCameraZoom(newZoom);
+
+        // Adjust camera position so mouse position stays fixed
+        const glm::vec2 newCameraPos = worldMousePos - mousePos / newZoom;
+        Util::SetCameraPosition(newCameraPos);
     }
 
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
