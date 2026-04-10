@@ -175,4 +175,5 @@ void BirdLaunchController::ActivateBirdByIndex(size_t index)
     m_BirdVelocity = {0.0f, 0.0f};
     m_IsHoldingBird = false;
     m_HasLaunchedBird = false;
+    m_ActiveBird->SetZIndex(0.0f);
 }

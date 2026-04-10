@@ -739,6 +739,14 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
                 character->SetScale(glm::vec2(scaleX, scaleY));
                 character->SetRotation(rotation);
                 character->SetVisible(true);
+                if (imageId == "SLINGSHOT_1")
+                {
+                    character->SetZIndex(1.0f);
+                }
+                else if (imageId == "SLINGSHOT_2")
+                {
+                    character->SetZIndex(-1.0f);
+                }
                 // If this is a wood/stone asset, ensure it is drawn above background
                 if (!imageId.empty())
                 {

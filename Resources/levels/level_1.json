@@ -47,8 +47,8 @@
     {
       "type": "BIRD",
       "imageId": "BIRD_RED",
-      "widthPercent": 1.566667,
-      "heightPercent": 2.666667,
+      "heightPercent": 4,
+      "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -23.333333,
       "yPercent": -14.074074
@@ -56,8 +56,8 @@
     {
       "type": "BIRD",
       "imageId": "BIRD_YELLOW",
-      "widthPercent": 2.266667,
-      "heightPercent": 3.081481,
+      "heightPercent": 4,
+      "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -21.666667,
       "yPercent": -16.296296
@@ -65,8 +65,8 @@
     {
       "type": "BIRD",
       "imageId": "BIRD_BLUE",
-      "widthPercent": 1.0,
-      "heightPercent": 1.718519,
+      "heightPercent": 3,
+      "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -22.5,
       "yPercent": -18.518519
