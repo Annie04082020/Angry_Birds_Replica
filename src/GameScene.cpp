@@ -1,6 +1,7 @@
 #include "GameScene.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 
 #include "SDL.h"
@@ -10,10 +11,19 @@
 #include "Character.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 
 namespace
 {
+    std::string ToLowerCopy(std::string value)
+    {
+        std::transform(value.begin(), value.end(), value.begin(),
+                       [](unsigned char c)
+                       { return static_cast<char>(std::tolower(c)); });
+        return value;
+    }
+
     enum class HandCursorMode
     {
         Default,
@@ -104,6 +114,12 @@ bool GameScene::LoadLevel(const std::string &levelPath)
 {
     m_WorldOffsetX = 0.0f;
     m_ZoomScrollAccumulator = 0.0f;
+    m_IsHoldingBird = false;
+    m_HasLaunchedBird = false;
+    m_BirdVelocity = {0.0f, 0.0f};
+    m_ActiveBird = nullptr;
+    m_BirdQueue.clear();
+    m_CurrentBirdIndex = 0;
 
     Util::SetCameraZoom(1.0f);
     Util::SetCameraPosition({0.0f, 0.0f});
@@ -114,18 +130,50 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     }
 
     const auto &objects = m_LevelManager->GetGameObjects();
+    std::vector<glm::vec2> slingshotPositions;
+
     for (const auto &obj : objects)
     {
         AddElements(obj);
+
+        auto character = std::dynamic_pointer_cast<Character>(obj);
+        if (!character)
+        {
+            continue;
+        }
+
+        const std::string pathLower = ToLowerCopy(character->GetImagePath());
+        // Match only actual bird asset directory, avoid false positives from
+        // workspace path names (e.g. Angry_Birds_Replica).
+        if (pathLower.find("/image/birds/") != std::string::npos)
+        {
+            m_BirdQueue.push_back(character);
+            continue;
+        }
+
+        if (pathLower.find("slingshot") != std::string::npos ||
+            pathLower.find("sprite_147") != std::string::npos ||
+            pathLower.find("sprite_154") != std::string::npos)
+        {
+            slingshotPositions.push_back(character->GetPosition());
+        }
     }
 
-    if (!objects.empty())
+    if (!slingshotPositions.empty())
     {
-        auto controlled = std::dynamic_pointer_cast<Character>(objects.front());
-        if (controlled)
+        glm::vec2 center{0.0f, 0.0f};
+        for (const auto &p : slingshotPositions)
         {
-            SetControlledCharacter(controlled);
+            center += p;
         }
+        center /= static_cast<float>(slingshotPositions.size());
+        // Place ready bird near the top of the slingshot.
+        m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f);
+    }
+
+    if (!m_BirdQueue.empty())
+    {
+        ActivateBirdByIndex(0);
     }
 
     return true;
@@ -133,7 +181,12 @@ bool GameScene::LoadLevel(const std::string &levelPath)
 
 void GameScene::Update()
 {
-    HandleBackgroundDrag();
+    const bool isBirdInteractionActive = HandleBirdLaunchPhysics();
+
+    if (!isBirdInteractionActive)
+    {
+        HandleBackgroundDrag();
+    }
 
     // Handle mouse wheel zoom with mouse position as pivot
     if (Util::Input::IfScroll())
@@ -177,7 +230,11 @@ void GameScene::Update()
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
 
     HandCursorMode cursorMode = HandCursorMode::Default;
-    if (mousePressed && m_IsDraggingBackground)
+    if (mousePressed && m_IsHoldingBird)
+    {
+        cursorMode = HandCursorMode::Dragging;
+    }
+    else if (mousePressed && m_IsDraggingBackground)
     {
         cursorMode = HandCursorMode::Dragging;
     }
@@ -188,6 +245,107 @@ void GameScene::Update()
 
     UpdateHandCursor(cursorMode);
     Scene::Update();
+}
+
+glm::vec2 GameScene::GetMouseWorldPosition() const
+{
+    const glm::vec2 mousePos = Util::Input::GetCursorPosition();
+    const float zoom = Util::GetCameraZoom();
+    const glm::vec2 cameraPos = Util::GetCameraPosition();
+    return mousePos / zoom + cameraPos;
+}
+
+bool GameScene::HandleBirdLaunchPhysics()
+{
+    if (!m_ActiveBird)
+    {
+        return false;
+    }
+
+    const float dt = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
+    const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
+    const glm::vec2 mouseWorldPos = GetMouseWorldPosition();
+
+    constexpr float maxPullDistance = 140.0f;
+    constexpr float launchPower = 5.8f;
+    constexpr float gravity = 700.0f;
+    constexpr float floorY = -320.0f;
+
+    if (!m_HasLaunchedBird)
+    {
+        if (mousePressed)
+        {
+            if (!m_IsHoldingBird && m_ActiveBird->IsHovering(mouseWorldPos))
+            {
+                m_IsHoldingBird = true;
+            }
+
+            if (m_IsHoldingBird)
+            {
+                glm::vec2 pull = mouseWorldPos - m_BirdAnchorPosition;
+                const float pullLength = glm::length(pull);
+                if (pullLength > maxPullDistance && pullLength > 0.0f)
+                {
+                    pull = pull / pullLength * maxPullDistance;
+                }
+
+                m_ActiveBird->SetPosition(m_BirdAnchorPosition + pull);
+                m_BirdVelocity = {0.0f, 0.0f};
+                return true;
+            }
+        }
+        else if (m_IsHoldingBird)
+        {
+            const glm::vec2 pullVector = m_ActiveBird->GetPosition() - m_BirdAnchorPosition;
+            m_BirdVelocity = -pullVector * launchPower;
+            m_IsHoldingBird = false;
+            m_HasLaunchedBird = true;
+            return true;
+        }
+
+        return m_IsHoldingBird;
+    }
+
+    m_BirdVelocity.y -= gravity * dt;
+    glm::vec2 nextPos = m_ActiveBird->GetPosition() + m_BirdVelocity * dt;
+
+    if (nextPos.y < floorY)
+    {
+        nextPos.y = floorY;
+        m_ActiveBird->SetPosition(nextPos);
+        m_BirdVelocity = {0.0f, 0.0f};
+        m_HasLaunchedBird = false;
+
+        if (m_CurrentBirdIndex + 1 < m_BirdQueue.size())
+        {
+            ActivateBirdByIndex(m_CurrentBirdIndex + 1);
+        }
+        return true;
+    }
+
+    m_ActiveBird->SetPosition(nextPos);
+    return true;
+}
+
+void GameScene::ActivateBirdByIndex(size_t index)
+{
+    if (index >= m_BirdQueue.size())
+    {
+        return;
+    }
+
+    m_CurrentBirdIndex = index;
+    m_ActiveBird = m_BirdQueue[index];
+    if (!m_ActiveBird)
+    {
+        return;
+    }
+
+    m_ActiveBird->SetPosition(m_BirdAnchorPosition);
+    m_BirdVelocity = {0.0f, 0.0f};
+    m_IsHoldingBird = false;
+    m_HasLaunchedBird = false;
+    SetControlledCharacter(m_ActiveBird);
 }
 
 void GameScene::HandleBackgroundDrag()

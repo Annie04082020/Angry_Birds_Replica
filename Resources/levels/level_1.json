@@ -15,7 +15,7 @@
     },
     {
       "id": "Environment",
-      "scaleMultiplier": 1.0,
+      "scaleMultiplier": 1,
       "scalePosition": true,
       "offsetXPercent": 0.0,
       "offsetYPercent": -7.407407,
