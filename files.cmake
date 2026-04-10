@@ -7,6 +7,8 @@ set(SRC_FILES
     DynamicBackground.cpp
     Button.cpp
     Scene.cpp
+    BirdLaunchController.cpp
+    SceneInputController.cpp
     GameScene.cpp
     IntroScene.cpp
     LevelManager.cpp
@@ -22,6 +24,8 @@ set(INCLUDE_FILES
     DynamicBackground.hpp
     Button.hpp
     Scene.hpp
+    BirdLaunchController.hpp
+    SceneInputController.hpp
     GameScene.hpp
     IntroScene.hpp
     LevelManager.hpp
