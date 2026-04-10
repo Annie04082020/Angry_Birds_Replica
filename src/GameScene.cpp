@@ -267,7 +267,7 @@ bool GameScene::HandleBirdLaunchPhysics()
     const glm::vec2 mouseWorldPos = GetMouseWorldPosition();
 
     constexpr float maxPullDistance = 140.0f;
-    constexpr float launchPower = 5.8f;
+    constexpr float launchPower = 7.0f;
     constexpr float gravity = 700.0f;
     constexpr float floorY = -320.0f;
 
