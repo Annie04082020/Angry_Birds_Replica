@@ -31,6 +31,12 @@ void SetCameraPosition(const glm::vec2 &position);
 glm::vec2 GetCameraPosition();
 
 /**
+ * @brief Get the current drawable viewport size.
+ * @return vec2(width, height) in pixels.
+ */
+glm::vec2 GetViewportSize();
+
+/**
  * @brief Converts a Transform object into uniform buffer data.
  *
  * Converts transform data in Core::UniformBuffer format.

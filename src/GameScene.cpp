@@ -197,7 +197,8 @@ void GameScene::HandleBackgroundDrag()
     constexpr float dragStartThreshold = 2.0f;
 
     const float currentZoom = Util::GetCameraZoom();
-    const float maxPanOffsetX = std::max(0.0f, (1.0f - currentZoom) * static_cast<float>(WINDOW_WIDTH));
+    const float viewportWidth = Util::GetViewportSize().x;
+    const float maxPanOffsetX = std::max(0.0f, (1.0f - currentZoom) * viewportWidth);
     const float minWorldOffsetX = -maxPanOffsetX;
     const float maxWorldOffsetX = maxPanOffsetX;
 

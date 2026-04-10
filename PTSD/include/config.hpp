@@ -12,6 +12,9 @@ constexpr int WINDOW_POS_Y = SDL_WINDOWPOS_UNDEFINED;
 
 constexpr unsigned int WINDOW_WIDTH = 2400;
 constexpr unsigned int WINDOW_HEIGHT = 1350;
+// Testing window size for dev
+// constexpr unsigned int WINDOW_WIDTH = 1280;
+// constexpr unsigned int WINDOW_HEIGHT = 720;
 
 constexpr Util::Logger::Level DEFAULT_LOG_LEVEL = Util::Logger::Level::DEBUG;
 

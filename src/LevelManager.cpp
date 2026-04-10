@@ -2,6 +2,7 @@
 #include "Character.hpp"
 #include "Resource.hpp"
 #include "Util/LoadTextFile.hpp"
+#include "Util/TransformUtils.hpp"
 #include "SDL.h"
 #include "config.hpp"
 #include <string>
@@ -24,6 +25,7 @@ namespace
         float scalePivotX = 0.0f;
         float scalePivotY = 0.0f;
         bool hasScalePivot = false;
+        bool scalePosition = true;
     };
 
     // Simple JSON parsing helpers
@@ -281,7 +283,11 @@ namespace
                         adjustment.scaleMultiplier = 1.0f;
                     }
 
-                    if (HasJsonKey(groupJson, "offsetX"))
+                    if (HasJsonKey(groupJson, "offsetXPercent"))
+                    {
+                        adjustment.offsetX = ExtractJsonFloat(groupJson, "offsetXPercent") * static_cast<float>(WINDOW_WIDTH) / 100.0f;
+                    }
+                    else if (HasJsonKey(groupJson, "offsetX"))
                     {
                         adjustment.offsetX = ExtractJsonFloat(groupJson, "offsetX");
                     }
@@ -290,7 +296,11 @@ namespace
                         adjustment.offsetX = ExtractJsonFloat(groupJson, "moveX");
                     }
 
-                    if (HasJsonKey(groupJson, "offsetY"))
+                    if (HasJsonKey(groupJson, "offsetYPercent"))
+                    {
+                        adjustment.offsetY = ExtractJsonFloat(groupJson, "offsetYPercent") * static_cast<float>(WINDOW_HEIGHT) / 100.0f;
+                    }
+                    else if (HasJsonKey(groupJson, "offsetY"))
                     {
                         adjustment.offsetY = ExtractJsonFloat(groupJson, "offsetY");
                     }
@@ -300,11 +310,22 @@ namespace
                     }
 
                     // Parse scale pivot point (anchor for scaling)
-                    if (HasJsonKey(groupJson, "scalePivotX") && HasJsonKey(groupJson, "scalePivotY"))
+                    if (HasJsonKey(groupJson, "scalePivotXPercent") && HasJsonKey(groupJson, "scalePivotYPercent"))
+                    {
+                        adjustment.scalePivotX = ExtractJsonFloat(groupJson, "scalePivotXPercent") * static_cast<float>(WINDOW_WIDTH) / 100.0f;
+                        adjustment.scalePivotY = ExtractJsonFloat(groupJson, "scalePivotYPercent") * static_cast<float>(WINDOW_HEIGHT) / 100.0f;
+                        adjustment.hasScalePivot = true;
+                    }
+                    else if (HasJsonKey(groupJson, "scalePivotX") && HasJsonKey(groupJson, "scalePivotY"))
                     {
                         adjustment.scalePivotX = ExtractJsonFloat(groupJson, "scalePivotX");
                         adjustment.scalePivotY = ExtractJsonFloat(groupJson, "scalePivotY");
                         adjustment.hasScalePivot = true;
+                    }
+
+                    if (HasJsonKey(groupJson, "scalePosition"))
+                    {
+                        adjustment.scalePosition = ExtractJsonFloat(groupJson, "scalePosition") != 0.0f;
                     }
 
                     groups[id] = adjustment;
@@ -326,26 +347,11 @@ namespace
         }
         initialized = true;
 
-        SDL_Window *window = SDL_GL_GetCurrentWindow();
-        if (window == nullptr)
-        {
-            window = SDL_GetKeyboardFocus();
-        }
-        if (window == nullptr)
-        {
-            window = SDL_GetMouseFocus();
-        }
-
-        int windowW = static_cast<int>(WINDOW_WIDTH);
-        int windowH = static_cast<int>(WINDOW_HEIGHT);
+        const glm::vec2 viewportSize = Util::GetViewportSize();
+        const int windowW = static_cast<int>(viewportSize.x);
+        const int windowH = static_cast<int>(viewportSize.y);
         int drawableW = windowW;
         int drawableH = windowH;
-
-        if (window != nullptr)
-        {
-            SDL_GetWindowSize(window, &windowW, &windowH);
-            SDL_GL_GetDrawableSize(window, &drawableW, &drawableH);
-        }
 
         const int effectiveW = drawableW > 0 ? drawableW : windowW;
         const int effectiveH = drawableH > 0 ? drawableH : windowH;
@@ -493,8 +499,25 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
 
                 // Parse object properties
                 std::string typeStr = ExtractJsonString(entityJson, "type");
-                float posX = ExtractJsonFloat(entityJson, "x");
-                float posY = ExtractJsonFloat(entityJson, "y");
+                float posX = 0.0f;
+                float posY = 0.0f;
+                if (HasJsonKey(entityJson, "xPercent"))
+                {
+                    posX = ExtractJsonFloat(entityJson, "xPercent") * static_cast<float>(WINDOW_WIDTH) / 100.0f;
+                }
+                else
+                {
+                    posX = ExtractJsonFloat(entityJson, "x");
+                }
+
+                if (HasJsonKey(entityJson, "yPercent"))
+                {
+                    posY = ExtractJsonFloat(entityJson, "yPercent") * static_cast<float>(WINDOW_HEIGHT) / 100.0f;
+                }
+                else
+                {
+                    posY = ExtractJsonFloat(entityJson, "y");
+                }
                 float scaleX = ExtractJsonFloat(entityJson, "scaleX");
                 float scaleY = ExtractJsonFloat(entityJson, "scaleY");
                 float rotation = ExtractJsonFloat(entityJson, "rotation");
@@ -612,8 +635,9 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
                 auto groupIt = groupAdjustments.find(groupId);
                 if (groupIt != groupAdjustments.end())
                 {
-                    posX += groupIt->second.offsetX;
-                    posY += groupIt->second.offsetY;
+                    // Apply offset scaled by scaleMultiplier so spacing scales with size
+                    posX += groupIt->second.offsetX * groupIt->second.scaleMultiplier;
+                    posY += groupIt->second.offsetY * groupIt->second.scaleMultiplier;
                 }
 
                 // Apply runtime scaling so level appears proportionally similar
@@ -627,8 +651,9 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
                 // Create character directly
                 auto character = std::make_shared<Character>(fullPath);
                 const glm::vec2 textureSize = character->GetSize();
-                const float viewportWidth = static_cast<float>(WINDOW_WIDTH) * runtimeScale;
-                const float viewportHeight = static_cast<float>(WINDOW_HEIGHT) * runtimeScale;
+                const glm::vec2 viewportSize = Util::GetViewportSize();
+                const float viewportWidth = viewportSize.x * runtimeScale;
+                const float viewportHeight = viewportSize.y * runtimeScale;
 
                 if (hasSizePercent)
                 {
@@ -692,14 +717,18 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
                 if (groupIt != groupAdjustments.end())
                 {
                     // If group has a scale pivot point, scale position relative to pivot
-                    if (groupIt->second.hasScalePivot && groupIt->second.scaleMultiplier != 1.0f)
+                    if (groupIt->second.scalePosition &&
+                        groupIt->second.hasScalePivot &&
+                        groupIt->second.scaleMultiplier != 1.0f)
                     {
-                        float relX = posX - groupIt->second.scalePivotX;
-                        float relY = posY - groupIt->second.scalePivotY;
+                        const float scaledPivotX = groupIt->second.scalePivotX * runtimeScale;
+                        const float scaledPivotY = groupIt->second.scalePivotY * runtimeScale;
+                        float relX = posX - scaledPivotX;
+                        float relY = posY - scaledPivotY;
                         relX *= groupIt->second.scaleMultiplier;
                         relY *= groupIt->second.scaleMultiplier;
-                        posX = groupIt->second.scalePivotX + relX;
-                        posY = groupIt->second.scalePivotY + relY;
+                        posX = scaledPivotX + relX;
+                        posY = scaledPivotY + relY;
                     }
 
                     scaleX *= groupIt->second.scaleMultiplier;
