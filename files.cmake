@@ -9,6 +9,8 @@ set(SRC_FILES
     Scene.cpp
     BirdLaunchController.cpp
     SceneInputController.cpp
+    LevelParser.cpp
+    LevelObjectFactory.cpp
     GameScene.cpp
     IntroScene.cpp
     LevelManager.cpp
@@ -26,6 +28,9 @@ set(INCLUDE_FILES
     Scene.hpp
     BirdLaunchController.hpp
     SceneInputController.hpp
+    LevelTypes.hpp
+    LevelParser.hpp
+    LevelObjectFactory.hpp
     GameScene.hpp
     IntroScene.hpp
     LevelManager.hpp

@@ -8,7 +8,7 @@
       "id": "slingshot",
       "scaleMultiplier": 3,
       "scalePosition": false,
-      "offsetXPercent": 0.0,
+      "offsetXPercent": -5.0,
       "offsetYPercent": 0.0,
       "scalePivotXPercent": -19.854167,
       "scalePivotYPercent": -7.148148
