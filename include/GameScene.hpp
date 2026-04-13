@@ -3,6 +3,8 @@
 
 #include "DynamicBackground.hpp"
 #include "LevelManager.hpp"
+#include "BirdLaunchController.hpp"
+#include "SceneInputController.hpp"
 #include "Scene.hpp"
 
 class GameScene : public Scene
@@ -19,21 +21,18 @@ public:
         {
             m_DynamicBackground->SetSpeed(0.0f);
         }
+        m_SceneInputController = std::make_shared<SceneInputController>(m_DynamicBackground, m_LevelManager);
     }
 
     bool LoadLevel(const std::string &levelPath);
     void Update() override;
 
 private:
-    void HandleBackgroundDrag();
-
     std::shared_ptr<LevelManager> m_LevelManager = std::make_shared<LevelManager>();
+    std::shared_ptr<BirdLaunchController> m_BirdLaunchController = std::make_shared<BirdLaunchController>();
+    std::shared_ptr<SceneInputController> m_SceneInputController = nullptr;
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
-    bool m_IsHoldingBackground = false;
-    bool m_IsDraggingBackground = false;
-    float m_WorldOffsetX = 0.0f;
-    glm::vec2 m_DragStartMousePos{0.0f, 0.0f};
-    glm::vec2 m_LastMousePos{0.0f, 0.0f};
+    float m_ZoomScrollAccumulator = 0.0f;
 };
 
 #endif // GAME_SCENE_HPP
