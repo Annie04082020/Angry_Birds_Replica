@@ -11,12 +11,12 @@ class SceneInputController
 public:
     SceneInputController(std::shared_ptr<DynamicBackground> background,
                          std::shared_ptr<LevelManager> levelManager);
+    ~SceneInputController();
 
     bool Update(bool isBirdHolding);
 
 private:
-    void HandleBackgroundDrag();
-    void UpdateCursor(bool isBirdHolding);
+    void HandleBackgroundDrag(bool isBirdHolding);
 
     std::shared_ptr<LevelManager> m_LevelManager = nullptr;
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;

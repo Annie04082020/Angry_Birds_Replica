@@ -14,7 +14,7 @@ public:
     static std::shared_ptr<IntroScene> Create();
     void Update() override;
 
-    void SetOnPlayClickCallback(std::function<void()> callback)
+    void SetOnPlayClickCallback(std::function<bool()> callback)
     {
         m_onPlayClick = callback;
     }
@@ -27,7 +27,7 @@ private:
     std::shared_ptr<Button> m_playbutton;
     std::shared_ptr<Button> m_exitbutton;
     std::shared_ptr<Button> m_settingbutton;
-    std::function<void()> m_onPlayClick = nullptr;
+    std::function<bool()> m_onPlayClick = nullptr;
 };
 
 #endif // INTRO_SCENE_HPP

@@ -47,7 +47,7 @@ void App::Start()
 
   m_introScene = IntroScene::Create();
   m_introScene->SetOnPlayClickCallback([this]()
-                                       { this->TransitionToGame(); });
+                                       { return this->TransitionToGame(); });
 
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
@@ -58,18 +58,21 @@ void App::Start()
   m_CurrentState = State::UPDATE;
 }
 
-void App::TransitionToGame()
+bool App::TransitionToGame()
 {
   if (m_CurrentState == State::GAME)
   {
-    return;
+    return true;
   }
   LOG_DEBUG("Transitioning to GAME state");
 
   if (!LoadLevel(Resource::LEVEL_1_DATA))
   {
     LOG_ERROR("Failed to load level 1");
+    return false;
   }
+
+  return true;
 }
 
 bool App::LoadLevel(const std::string &levelPath)
@@ -111,4 +114,22 @@ void App::UnloadCurrentGameScene()
 void App::End()
 { // NOLINT(this method will mutate members in the future)
   LOG_TRACE("End");
+
+  if (m_gameScene)
+  {
+    m_Root.RemoveChild(m_gameScene);
+    m_gameScene.reset();
+  }
+
+  if (m_introScene)
+  {
+    m_Root.RemoveChild(m_introScene);
+    m_introScene.reset();
+  }
+
+  if (m_loadingScene)
+  {
+    m_Root.RemoveChild(m_loadingScene);
+    m_loadingScene.reset();
+  }
 }

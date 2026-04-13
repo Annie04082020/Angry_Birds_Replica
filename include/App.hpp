@@ -32,7 +32,7 @@ public:
 
   void End(); // NOLINT(readability-convert-member-functions-to-static)
 
-  void TransitionToGame();
+  bool TransitionToGame();
   bool LoadLevel(const std::string &levelPath);
   void UnloadCurrentGameScene();
 

@@ -15,15 +15,6 @@ namespace
 {
     float GetRuntimeLevelScale()
     {
-        static bool initialized = false;
-        static float cachedScale = 1.0f;
-
-        if (initialized)
-        {
-            return cachedScale;
-        }
-        initialized = true;
-
         const glm::vec2 viewportSize = Util::GetViewportSize();
         const int windowW = static_cast<int>(viewportSize.x);
         const int windowH = static_cast<int>(viewportSize.y);
@@ -31,21 +22,21 @@ namespace
         if (windowW <= 0 || windowH <= 0)
         {
             std::cerr << "LevelManager: failed to query drawable size, using scale=1.0" << std::endl;
-            return cachedScale;
+            return 1.0f;
         }
 
         const float scaleX = static_cast<float>(windowW) / static_cast<float>(WINDOW_WIDTH);
         const float scaleY = static_cast<float>(windowH) / static_cast<float>(WINDOW_HEIGHT);
 
-        cachedScale = std::min(scaleX, scaleY);
-        if (cachedScale <= 0.0f)
+        float scale = std::min(scaleX, scaleY);
+        if (scale <= 0.0f)
         {
-            cachedScale = 1.0f;
+            scale = 1.0f;
         }
 
         std::cout << "LevelManager: runtime window=" << windowW << "x" << windowH
-                  << ", levelScale=" << cachedScale << std::endl;
-        return cachedScale;
+                  << ", levelScale=" << scale << std::endl;
+        return scale;
     }
 }
 

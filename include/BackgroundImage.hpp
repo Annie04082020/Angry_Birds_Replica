@@ -4,6 +4,7 @@
 #include "Core/Context.hpp"
 #include "Util/GameObject.hpp"
 #include "Util/Image.hpp"
+#include "Util/TransformUtils.hpp"
 #include "config.hpp"
 #include "Resource.hpp"
 #include <string>
@@ -43,6 +44,11 @@ public:
     ApplyViewportScale();
   }
 
+  void Update() override
+  {
+    ApplyViewportScale();
+  }
+
   void SetPosition(const glm::vec2 &position) { m_Transform.translation = position; }
 
   glm::vec2 GetPosition() const { return m_Transform.translation; }
@@ -56,26 +62,9 @@ private:
       return;
     }
 
-    int windowWidth = static_cast<int>(WINDOW_WIDTH);
-    int windowHeight = static_cast<int>(WINDOW_HEIGHT);
-    if (SDL_Window *window = SDL_GL_GetCurrentWindow())
-    {
-      SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-      int drawableWidth = windowWidth;
-      int drawableHeight = windowHeight;
-      SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
-      if (drawableWidth > 0)
-      {
-        windowWidth = drawableWidth;
-      }
-      if (drawableHeight > 0)
-      {
-        windowHeight = drawableHeight;
-      }
-    }
-
-    const float viewportWidth = static_cast<float>(windowWidth) * (m_WidthPercent / 100.0f);
-    const float viewportHeight = static_cast<float>(windowHeight) * (m_HeightPercent / 100.0f);
+    const glm::vec2 viewportSize = Util::GetViewportSize();
+    const float viewportWidth = viewportSize.x * (m_WidthPercent / 100.0f);
+    const float viewportHeight = viewportSize.y * (m_HeightPercent / 100.0f);
     m_Transform.scale = {viewportWidth / size.x, viewportHeight / size.y};
   }
 

@@ -32,10 +32,7 @@ bool GameScene::LoadLevel(const std::string &levelPath)
         m_BirdLaunchController->LoadLevelObjects(objects);
     }
 
-    if (m_SceneInputController)
-    {
-        m_SceneInputController = std::make_shared<SceneInputController>(m_DynamicBackground, m_LevelManager);
-    }
+    m_SceneInputController = std::make_shared<SceneInputController>(m_DynamicBackground, m_LevelManager);
 
     return true;
 }
@@ -73,8 +70,8 @@ void GameScene::Update()
             const glm::vec2 worldMousePos = mousePos / oldZoom + oldCameraPos;
 
             constexpr float zoomStep = 0.01f;
-            const float stepScale = zoomSteps > 0 ? (1.0f - zoomStep)
-                                                  : (1.0f + zoomStep);
+            const float stepScale = zoomSteps > 0 ? (1.0f + zoomStep)
+                                                  : (1.0f - zoomStep);
             const float newZoom = oldZoom * std::pow(stepScale, std::abs(zoomSteps));
             Util::SetCameraZoom(newZoom);
 

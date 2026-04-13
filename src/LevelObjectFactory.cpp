@@ -101,8 +101,8 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     auto character = std::make_shared<Character>(PrepareResourcePath(resourcePath));
     const glm::vec2 textureSize = character->GetSize();
     const glm::vec2 viewportSize = Util::GetViewportSize();
-    const float viewportWidth = viewportSize.x * runtimeScale;
-    const float viewportHeight = viewportSize.y * runtimeScale;
+    const float viewportWidth = viewportSize.x;
+    const float viewportHeight = viewportSize.y;
 
     if (objectDefinition.hasSizePercent)
     {

@@ -107,9 +107,8 @@ void Input::Update() {
             UpdateKeyState(&s_Event);
         }
 
-        s_Scroll = s_Event.type == SDL_MOUSEWHEEL || s_Scroll;
-
-        if (s_Scroll) {
+        if (s_Event.type == SDL_MOUSEWHEEL) {
+            s_Scroll = true;
             s_ScrollDistance.x += static_cast<float>(s_Event.wheel.x);
             s_ScrollDistance.y += static_cast<float>(s_Event.wheel.y);
         }

@@ -1,6 +1,7 @@
 #include "SceneInputController.hpp"
 
 #include <algorithm>
+#include <utility>
 
 #include "SDL.h"
 #include "SDL_image.h"
@@ -27,6 +28,7 @@ namespace
         bool initialized = false;
         bool hasApplied = false;
         HandCursorMode lastMode = HandCursorMode::Default;
+        int refCount = 0;
     };
 
     HandCursorRuntime &GetHandCursorRuntime()
@@ -63,6 +65,31 @@ namespace
         runtime.clickingCursor =
             LoadHandCursor(RESOURCE_DIR "/Image/hand/sprite_000.png", 8, 8);
         runtime.initialized = true;
+    }
+
+    void FreeHandCursors()
+    {
+        auto &runtime = GetHandCursorRuntime();
+
+        if (runtime.defaultCursor != nullptr)
+        {
+            SDL_FreeCursor(runtime.defaultCursor);
+            runtime.defaultCursor = nullptr;
+        }
+        if (runtime.draggingCursor != nullptr)
+        {
+            SDL_FreeCursor(runtime.draggingCursor);
+            runtime.draggingCursor = nullptr;
+        }
+        if (runtime.clickingCursor != nullptr)
+        {
+            SDL_FreeCursor(runtime.clickingCursor);
+            runtime.clickingCursor = nullptr;
+        }
+
+        runtime.initialized = false;
+        runtime.hasApplied = false;
+        runtime.lastMode = HandCursorMode::Default;
     }
 
     void UpdateHandCursor(const HandCursorMode mode)
@@ -103,11 +130,26 @@ SceneInputController::SceneInputController(std::shared_ptr<DynamicBackground> ba
     : m_LevelManager(std::move(levelManager)),
       m_DynamicBackground(std::move(background))
 {
+    ++GetHandCursorRuntime().refCount;
+}
+
+SceneInputController::~SceneInputController()
+{
+    auto &runtime = GetHandCursorRuntime();
+    if (runtime.refCount > 0)
+    {
+        --runtime.refCount;
+    }
+
+    if (runtime.refCount == 0)
+    {
+        FreeHandCursors();
+    }
 }
 
 bool SceneInputController::Update(bool isBirdHolding)
 {
-    HandleBackgroundDrag();
+    HandleBackgroundDrag(isBirdHolding);
 
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
     HandCursorMode cursorMode = HandCursorMode::Default;
@@ -128,8 +170,15 @@ bool SceneInputController::Update(bool isBirdHolding)
     return m_IsDraggingBackground || isBirdHolding;
 }
 
-void SceneInputController::HandleBackgroundDrag()
+void SceneInputController::HandleBackgroundDrag(bool isBirdHolding)
 {
+    if (isBirdHolding)
+    {
+        m_IsHoldingBackground = false;
+        m_IsDraggingBackground = false;
+        return;
+    }
+
     const glm::vec2 mousePos = Util::Input::GetCursorPosition();
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
     constexpr float dragStartThreshold = 2.0f;

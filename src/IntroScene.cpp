@@ -24,11 +24,10 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_playbutton->SetVisible(true);
     m_playbutton->SetOnClickFunction([this]()
                                      {
-        m_playbutton->SetVisible(false);
-        if (m_exitbutton) m_exitbutton->SetVisible(false);
-        if (m_settingbutton) m_settingbutton->SetVisible(false);
-        if (m_onPlayClick) {
-            m_onPlayClick();
+        if (m_onPlayClick && m_onPlayClick()) {
+            m_playbutton->SetVisible(false);
+            if (m_exitbutton) m_exitbutton->SetVisible(false);
+            if (m_settingbutton) m_settingbutton->SetVisible(false);
         } });
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);

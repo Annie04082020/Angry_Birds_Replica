@@ -141,6 +141,50 @@ namespace
         return result;
     }
 
+    std::unordered_map<std::string, std::string> ExtractResourceMap(const std::string &jsonStr)
+    {
+        std::unordered_map<std::string, std::string> resourceMap;
+
+        const size_t resourcesStart = jsonStr.find("\"resources\"");
+        if (resourcesStart == std::string::npos)
+        {
+            return resourceMap;
+        }
+
+        const size_t objectStart = jsonStr.find('{', resourcesStart);
+        if (objectStart == std::string::npos)
+        {
+            return resourceMap;
+        }
+
+        size_t braceCount = 0;
+        size_t objectEnd = objectStart;
+        for (size_t currentPos = objectStart; currentPos < jsonStr.length(); ++currentPos)
+        {
+            if (jsonStr[currentPos] == '{')
+            {
+                ++braceCount;
+            }
+            else if (jsonStr[currentPos] == '}')
+            {
+                --braceCount;
+                if (braceCount == 0)
+                {
+                    objectEnd = currentPos;
+                    break;
+                }
+            }
+        }
+
+        if (objectEnd <= objectStart)
+        {
+            return resourceMap;
+        }
+
+        const std::string resourcesContent = jsonStr.substr(objectStart, objectEnd - objectStart + 1);
+        return ExtractJsonObject(resourcesContent);
+    }
+
     std::unordered_map<std::string, GroupAdjustment> ExtractGroupAdjustments(const std::string &jsonStr)
     {
         std::unordered_map<std::string, GroupAdjustment> groups;
@@ -286,7 +330,7 @@ ParsedLevelData LevelParser::Parse(const std::string &jsonStr)
     data.levelName = ExtractJsonString(jsonStr, "name");
     data.backgroundImage = ExtractJsonString(jsonStr, "background");
     data.birdCount = ExtractJsonInt(jsonStr, "birds");
-    data.resourceMap = ExtractJsonObject(jsonStr);
+    data.resourceMap = ExtractResourceMap(jsonStr);
     data.groupAdjustments = ExtractGroupAdjustments(jsonStr);
 
     const size_t objectsStart = jsonStr.find("\"objects\"");
