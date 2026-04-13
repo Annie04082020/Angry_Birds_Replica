@@ -1,0 +1,44 @@
+{
+    "play": {
+        "xPercent": 50.0,
+        "yPercent": 50.0,
+        "scale": 1.35
+    },
+    "exit": {
+        "xPercent": 6.5,
+        "yPercent": 90.5,
+        "scale": 1.35
+    },
+    "setting": {
+        "xPercent": 86.0,
+        "yPercent": 90.5,
+        "scale": 1.22,
+        "baseScale": 1.08,
+        "overlayScale": 1.1,
+        "hoverScaleMultiplier": 1.1
+    },
+    "additional": {
+        "xPercent": 94.0,
+        "yPercent": 90.5,
+        "scale": 1.22,
+        "baseScale": 1.08,
+        "overlayScale": 1.1,
+        "hoverScaleMultiplier": 1.1
+    },
+    "exitConfirm": {
+        "xPercent": 50.0,
+        "yPercent": 50.0
+    },
+    "exitYes": {
+        "xPercent": 60.4167,
+        "yPercent": 54.4444
+    },
+    "exitNo": {
+        "xPercent": 39.5833,
+        "yPercent": 54.4444
+    },
+    "exitDialog": {
+        "xPercent": 50.0,
+        "yPercent": 47.4074
+    }
+}

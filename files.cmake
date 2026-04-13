@@ -9,6 +9,7 @@ set(SRC_FILES
     Scene.cpp
     BirdLaunchController.cpp
     SceneInputController.cpp
+    JsonParseUtils.cpp
     LevelParser.cpp
     LevelObjectFactory.cpp
     GameScene.cpp
@@ -28,6 +29,7 @@ set(INCLUDE_FILES
     Scene.hpp
     BirdLaunchController.hpp
     SceneInputController.hpp
+    JsonParseUtils.hpp
     LevelTypes.hpp
     LevelParser.hpp
     LevelObjectFactory.hpp

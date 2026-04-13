@@ -54,6 +54,8 @@ private:
     bool m_menuItemsAnimating = false;
     bool m_additionalMenuItemsAnimating = false;
     bool m_exitPanelVisible = false;
+    glm::vec2 m_settingButtonPosition = {520.0f, -300.0f};
+    glm::vec2 m_additionalButtonPosition = {650.0f, -300.0f};
     std::function<void()> m_onPlayClick = nullptr;
 };
 
