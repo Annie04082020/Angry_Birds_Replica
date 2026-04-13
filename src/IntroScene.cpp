@@ -74,13 +74,13 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_bird->SetVisible(true);
         if (m_settingMenuOpen) {
             // 關閉菜單：逆時針旋轉 180 度
-            m_settingOverlayTargetRotation -= 3.14159265f;
+            m_settingOverlayTargetRotation += 3.14159265f;
             m_settingMenuOpen = false;
             m_menuItemsAnimating = true;  // 啟動動畫回到原位置
             // 菜單項保持可見，直到動畫完成
         } else {
             // 展開菜單：順時針旋轉 180 度
-            m_settingOverlayTargetRotation += 3.14159265f;
+            m_settingOverlayTargetRotation -= 3.14159265f;
             m_settingMenuOpen = true;
             m_menuItemsAnimating = true;
             // 菜單項visibility由動畫邏輯控制
@@ -109,12 +109,12 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         // Handle menu opening/closing
         if (m_additionalMenuOpen) {
             // Close menu: rotate back
-            m_additionalOverlayTargetRotation -= 3.14159265f;
+            m_additionalOverlayTargetRotation += 3.14159265f;
             m_additionalMenuOpen = false;
             m_additionalMenuItemsAnimating = true;
         } else {
             // Open menu: rotate 180 degrees
-            m_additionalOverlayTargetRotation += 3.14159265f;
+            m_additionalOverlayTargetRotation -= 3.14159265f;
             m_additionalMenuOpen = true;
             m_additionalMenuItemsAnimating = true;
         }

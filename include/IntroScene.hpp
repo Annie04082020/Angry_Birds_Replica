@@ -16,9 +16,6 @@ public:
 
     void SetOnPlayClickCallback(std::function<void()> callback)
     {
-
-    void SetOnPlayClickCallback(std::function<void()> callback)
-    {
         m_onPlayClick = callback;
     }
 
