@@ -18,6 +18,26 @@ namespace Core {
 namespace {
 constexpr float kInitialWindowOccupancy = 0.95F;
 
+void SyncWindowDimensions(SDL_Window *window, unsigned int &windowWidth,
+                          unsigned int &windowHeight) {
+    if (window == nullptr) {
+        return;
+    }
+
+    int queriedWindowWidth = static_cast<int>(windowWidth);
+    int queriedWindowHeight = static_cast<int>(windowHeight);
+    SDL_GetWindowSize(window, &queriedWindowWidth, &queriedWindowHeight);
+
+    int drawableWidth = queriedWindowWidth;
+    int drawableHeight = queriedWindowHeight;
+    SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
+
+    windowWidth = static_cast<unsigned int>(
+        drawableWidth > 0 ? drawableWidth : queriedWindowWidth);
+    windowHeight = static_cast<unsigned int>(
+        drawableHeight > 0 ? drawableHeight : queriedWindowHeight);
+}
+
 std::pair<int, int> GetInitialWindowSize() {
     SDL_DisplayMode desktopMode{};
     if (SDL_GetDesktopDisplayMode(0, &desktopMode) != 0 || desktopMode.w <= 0 ||
@@ -83,6 +103,8 @@ Context::Context() {
         LOG_ERROR("Failed to create window");
         LOG_ERROR(SDL_GetError());
     }
+
+    SyncWindowDimensions(m_Window, m_WindowWidth, m_WindowHeight);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
@@ -154,14 +176,7 @@ void Context::Setup() {
 }
 
 void Context::Update() {
-    int drawableWidth = static_cast<int>(m_WindowWidth);
-    int drawableHeight = static_cast<int>(m_WindowHeight);
-    SDL_GetWindowSize(m_Window, &drawableWidth, &drawableHeight);
-    SDL_GL_GetDrawableSize(m_Window, &drawableWidth, &drawableHeight);
-    m_WindowWidth = static_cast<unsigned int>(
-        drawableWidth > 0 ? drawableWidth : m_WindowWidth);
-    m_WindowHeight = static_cast<unsigned int>(
-        drawableHeight > 0 ? drawableHeight : m_WindowHeight);
+    SyncWindowDimensions(m_Window, m_WindowWidth, m_WindowHeight);
     glViewport(0, 0, static_cast<GLsizei>(m_WindowWidth),
                static_cast<GLsizei>(m_WindowHeight));
 

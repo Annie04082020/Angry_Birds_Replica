@@ -8,29 +8,62 @@
 namespace Util {
 
 namespace {
+struct WindowMetrics {
+    int windowWidth = 0;
+    int windowHeight = 0;
+    int drawableWidth = 0;
+    int drawableHeight = 0;
+
+    bool IsValid() const {
+        return windowWidth > 0 && windowHeight > 0 && drawableWidth > 0 &&
+               drawableHeight > 0;
+    }
+};
+
+WindowMetrics GetWindowMetrics(SDL_Window *window) {
+    WindowMetrics metrics;
+    if (window == nullptr) {
+        return metrics;
+    }
+
+    SDL_GetWindowSize(window, &metrics.windowWidth, &metrics.windowHeight);
+    SDL_GL_GetDrawableSize(window, &metrics.drawableWidth,
+                           &metrics.drawableHeight);
+    return metrics;
+}
+
+glm::vec2 ToDrawableCoordinates(const glm::vec2 &windowPos,
+                                const WindowMetrics &metrics) {
+    if (!metrics.IsValid()) {
+        return windowPos;
+    }
+    return {windowPos.x * static_cast<float>(metrics.drawableWidth) /
+                static_cast<float>(metrics.windowWidth),
+            windowPos.y * static_cast<float>(metrics.drawableHeight) /
+                static_cast<float>(metrics.windowHeight)};
+}
+
+glm::vec2 ToWindowCoordinates(const glm::vec2 &drawablePos,
+                              const WindowMetrics &metrics) {
+    if (!metrics.IsValid()) {
+        return drawablePos;
+    }
+    return {drawablePos.x * static_cast<float>(metrics.windowWidth) /
+                static_cast<float>(metrics.drawableWidth),
+            drawablePos.y * static_cast<float>(metrics.windowHeight) /
+                static_cast<float>(metrics.drawableHeight)};
+}
+
 glm::vec2 GetScaledMousePosition() {
     int windowX = 0;
     int windowY = 0;
     SDL_GetMouseState(&windowX, &windowY);
 
     if (SDL_Window *window = SDL_GL_GetCurrentWindow()) {
-        int windowWidth = 0;
-        int windowHeight = 0;
-        int drawableWidth = 0;
-        int drawableHeight = 0;
-
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
-
-        if (windowWidth > 0 && windowHeight > 0 && drawableWidth > 0 &&
-            drawableHeight > 0) {
-            return {static_cast<float>(windowX) *
-                        static_cast<float>(drawableWidth) /
-                        static_cast<float>(windowWidth),
-                    static_cast<float>(windowY) *
-                        static_cast<float>(drawableHeight) /
-                        static_cast<float>(windowHeight)};
-        }
+        const auto metrics = GetWindowMetrics(window);
+        return ToDrawableCoordinates(
+            {static_cast<float>(windowX), static_cast<float>(windowY)},
+            metrics);
     }
 
     return {static_cast<float>(windowX), static_cast<float>(windowY)};
@@ -150,8 +183,17 @@ glm::vec2 Input::GetCursorPosition() {
 
 void Input::SetCursorPosition(const glm::vec2 &pos) {
     if (SDL_Window *window = SDL_GL_GetCurrentWindow()) {
-        SDL_WarpMouseInWindow(window, static_cast<int>(pos.x),
-                              static_cast<int>(pos.y));
+        const auto metrics = GetWindowMetrics(window);
+
+        const glm::vec2 viewportSize = GetViewportSize();
+        const glm::vec2 drawablePos = {
+            pos.x + viewportSize.x / 2.0F,
+            viewportSize.y / 2.0F - pos.y,
+        };
+        const glm::vec2 windowPos = ToWindowCoordinates(drawablePos, metrics);
+
+        SDL_WarpMouseInWindow(window, static_cast<int>(windowPos.x),
+                              static_cast<int>(windowPos.y));
         return;
     }
 

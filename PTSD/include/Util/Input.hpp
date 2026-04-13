@@ -43,8 +43,9 @@ public:
 
     /**
      * @brief Retrieves the current position of the cursor.
-     * @note The cursor position is relative to the upper-left corner of the
-     * client area of the window.
+     * @note The cursor position is in render-space coordinates:
+     * origin at the center of the drawable viewport,
+     * +x to the right and +y upward.
      *
      * @return The cursor position as vec2(x, y).
      *
@@ -113,8 +114,8 @@ public:
     /**
      * @brief Sets the position of the cursor.
      * @param pos The position to set the cursor to.
-     * @note The cursor position is relative to the upper-left corner of the
-     * client area of the window.
+     * @note `pos` uses the same render-space coordinates as
+     * Util::Input::GetCursorPosition().
      * @note It also generates a mouse motion event, which leads
      * Util::Input::IsMouseMoving() to return true in this update-cycle.
      * @see Util::Input::GetCursorPosition()
