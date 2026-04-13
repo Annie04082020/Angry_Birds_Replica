@@ -5,6 +5,7 @@
 #include "Util/Input.hpp"
 #include "Util/Time.hpp"
 #include <cmath>
+#include <cstdlib>
 
 std::shared_ptr<IntroScene> IntroScene::Create()
 {
@@ -103,16 +104,18 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButton->SetSFX(Resource::SETTING_SFX);
     m_additionalButton->SetOnClickFunction([this]() {
         m_bird->SetVisible(true);
-        // Alternate between counter-clockwise and clockwise 180 degrees
-        float currentRotation = std::fmod(m_additionalOverlayTargetRotation, 6.28318531f);
-        if (m_additionalClockwise) {
-            // Rotate clockwise
-            m_additionalOverlayTargetRotation = currentRotation + 3.14159265f;
+        // Handle menu opening/closing
+        if (m_additionalMenuOpen) {
+            // Close menu: rotate back
+            m_additionalOverlayTargetRotation -= 3.14159265f;
+            m_additionalMenuOpen = false;
+            m_additionalMenuItemsAnimating = true;
         } else {
-            // Rotate counter-clockwise
-            m_additionalOverlayTargetRotation = currentRotation - 3.14159265f;
+            // Open menu: rotate 180 degrees
+            m_additionalOverlayTargetRotation += 3.14159265f;
+            m_additionalMenuOpen = true;
+            m_additionalMenuItemsAnimating = true;
         }
-        m_additionalClockwise = !m_additionalClockwise;  // Toggle direction for next click
         m_additionalOverlayIsAnimating = true;
     });
 
@@ -142,27 +145,43 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_menuItem017->m_Transform.translation = settingPosition + glm::vec2{0.0f, initialOffset};
     m_menuItem017->SetVisible(false);
 
+    // Initialize additional button menu items (108 at bottom, 006 in middle, 041 at top)
+    m_additionalMenuItem108 = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::Image>(Resource::Additional_Menu_Item_108), 20);
+    m_additionalMenuItem108->m_Transform.translation = additionalPosition + glm::vec2{0.0f, initialOffset - menuItemSpacing * 2};
+    m_additionalMenuItem108->SetVisible(false);
+
+    m_additionalMenuItem006 = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::Image>(Resource::Additional_Menu_Item_006), 21);
+    m_additionalMenuItem006->m_Transform.translation = additionalPosition + glm::vec2{0.0f, initialOffset - menuItemSpacing - 3.0f};
+    m_additionalMenuItem006->SetVisible(false);
+
+    m_additionalMenuItem041 = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::Image>(Resource::Additional_Menu_Item_041), 22);
+    m_additionalMenuItem041->m_Transform.translation = additionalPosition + glm::vec2{0.0f, initialOffset};
+    m_additionalMenuItem041->SetVisible(false);
+
     // Exit confirm panel: 048 in the center with 105 (left) and 95 (right) below
     m_exitConfirm048 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Confirm_048), 60);
     m_exitConfirm048->m_Transform.translation = glm::vec2{0.0f, 0.0f};
-    m_exitConfirm048->m_Transform.scale = glm::vec2{2.5f, 2.5f};
+    m_exitConfirm048->m_Transform.scale = glm::vec2{3.0f, 3.0f};
     m_exitConfirm048->SetVisible(false);
 
     m_exitButton105 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_105), 61);
-    m_exitButton105->m_Transform.translation = glm::vec2{-100.0f, -120.0f};
+    m_exitButton105->m_Transform.translation = glm::vec2{-250.0f, -60.0f};
     m_exitButton105->SetVisible(false);
 
     m_exitButton95 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_95), 61);
-    m_exitButton95->m_Transform.translation = glm::vec2{100.0f, -120.0f};
+    m_exitButton95->m_Transform.translation = glm::vec2{250.0f, -60.0f};
     m_exitButton95->SetVisible(false);
 
     m_exitDialog = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Dialog), 62);
-    m_exitDialog->m_Transform.translation = glm::vec2{0.0f, 15.0f};
-    m_exitDialog->m_Transform.scale = glm::vec2{0.45f, 0.45f};
+    m_exitDialog->m_Transform.translation = glm::vec2{0.0f, 35.0f};
+    m_exitDialog->m_Transform.scale = glm::vec2{0.35f, 0.35f};
     m_exitDialog->SetVisible(false);
 
     AddElements(m_bird);
@@ -175,6 +194,9 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     AddElements(m_menuItem043);
     AddElements(m_menuItem032);
     AddElements(m_menuItem017);
+    AddElements(m_additionalMenuItem108);
+    AddElements(m_additionalMenuItem006);
+    AddElements(m_additionalMenuItem041);
     AddElements(m_exitConfirm048);
     AddElements(m_exitButton105);
     AddElements(m_exitButton95);
@@ -184,8 +206,18 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 void IntroScene::Update()
 {
     constexpr glm::vec2 settingPosition = {520.0f, -300.0f};
+    constexpr glm::vec2 additionalPosition = {650.0f, -300.0f};
     constexpr float menuItemSpacing = 70.0f;
     constexpr float initialOffset = -50.0f;
+    
+    // Handle ESC key to show exit confirmation
+    if (Util::Input::IsKeyDown(Util::Keycode::ESCAPE) && !m_exitPanelVisible) {
+        m_exitConfirm048->SetVisible(true);
+        m_exitButton105->SetVisible(true);
+        m_exitButton95->SetVisible(true);
+        m_exitDialog->SetVisible(true);
+        m_exitPanelVisible = true;
+    }
     
     if (m_settingOverlayIsAnimating && m_settingOverlay)
     {
@@ -307,7 +339,87 @@ void IntroScene::Update()
         }
     }
 
-    // Hover scale for settings button overlay (030) when hovering base (068)
+    // Animate additional menu items opening/closing (similar to setting menu)
+    if (m_additionalMenuItemsAnimating && m_additionalMenuItem108 && m_additionalMenuItem006 && m_additionalMenuItem041)
+    {
+        float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
+        constexpr float menuAnimationSpeed = 400.0f;  // pixels per second
+        constexpr float targetMoveDistance = 300.0f;  // move up 300px total
+        
+        if (m_additionalMenuOpen) {
+            // Move all items upward together
+            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
+            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
+            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
+            
+            float moveDistance = menuAnimationSpeed * deltaTimeSec;
+            
+            // Target: move up by targetMoveDistance (Y increases), maintain spacing
+            float targetY108 = additionalPosition.y + initialOffset - menuItemSpacing * 2 + targetMoveDistance;
+            float targetY006 = additionalPosition.y + initialOffset - menuItemSpacing + targetMoveDistance - 3.0f;
+            float targetY041 = additionalPosition.y + initialOffset + targetMoveDistance;
+            
+            if (pos108.y < targetY108) {
+                pos108.y = glm::min(pos108.y + moveDistance, targetY108);
+            }
+            if (pos006.y < targetY006) {
+                pos006.y = glm::min(pos006.y + moveDistance, targetY006);
+            }
+            if (pos041.y < targetY041) {
+                pos041.y = glm::min(pos041.y + moveDistance, targetY041);
+            }
+            
+            // Show items only when they float above additional button
+            m_additionalMenuItem108->SetVisible(pos108.y > additionalPosition.y);
+            m_additionalMenuItem006->SetVisible(pos006.y > additionalPosition.y);
+            m_additionalMenuItem041->SetVisible(pos041.y > additionalPosition.y);
+            
+            // Check if all items reached their targets
+            if (std::fabs(pos108.y - targetY108) < 1.0f &&
+                std::fabs(pos006.y - targetY006) < 1.0f &&
+                std::fabs(pos041.y - targetY041) < 1.0f) {
+                pos108.y = targetY108;
+                pos006.y = targetY006;
+                pos041.y = targetY041;
+                m_additionalMenuItemsAnimating = false;
+            }
+        } else {
+            // Move items back to original positions
+            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
+            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
+            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
+            
+            float moveDistance = menuAnimationSpeed * deltaTimeSec;
+            
+            float targetY108 = additionalPosition.y + initialOffset - menuItemSpacing * 2;
+            float targetY006 = additionalPosition.y + initialOffset - menuItemSpacing;
+            float targetY041 = additionalPosition.y + initialOffset;
+            
+            if (pos108.y > targetY108) {
+                pos108.y = glm::max(pos108.y - moveDistance, targetY108);
+            }
+            if (pos006.y > targetY006) {
+                pos006.y = glm::max(pos006.y - moveDistance, targetY006);
+            }
+            if (pos041.y > targetY041) {
+                pos041.y = glm::max(pos041.y - moveDistance, targetY041);
+            }
+            
+            // Hide items only when they go below additional button
+            m_additionalMenuItem108->SetVisible(pos108.y > additionalPosition.y);
+            m_additionalMenuItem006->SetVisible(pos006.y > additionalPosition.y);
+            m_additionalMenuItem041->SetVisible(pos041.y > additionalPosition.y);
+            
+            if (std::fabs(pos108.y - targetY108) < 1.0f &&
+                std::fabs(pos006.y - targetY006) < 1.0f &&
+                std::fabs(pos041.y - targetY041) < 1.0f) {
+                pos108.y = targetY108;
+                pos006.y = targetY006;
+                pos041.y = targetY041;
+                m_additionalMenuItemsAnimating = false;
+            }
+        }
+    }
     auto mousePos = Util::Input::GetCursorPosition();
     if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos)) {
         m_settingOverlay->m_Transform.scale = m_settingScaleHover;
@@ -320,6 +432,38 @@ void IntroScene::Update()
         m_additionalButtonOverlay->m_Transform.scale = m_additionalScaleHover;
     } else if (m_additionalButtonOverlay) {
         m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
+    }
+
+    // Handle exit panel button clicks (095 and 105)
+    if (m_exitPanelVisible && m_exitButton95 && m_exitButton105) {
+        auto exitButton95Size = m_exitButton95->GetScaledSize();
+        auto exitButton105Size = m_exitButton105->GetScaledSize();
+        auto pos95 = m_exitButton95->m_Transform.translation;
+        auto pos105 = m_exitButton105->m_Transform.translation;
+        
+        // Check if 095 (right button) is clicked - exit game
+        if (mousePos.x >= pos95.x - exitButton95Size.x / 2 &&
+            mousePos.x <= pos95.x + exitButton95Size.x / 2 &&
+            mousePos.y >= pos95.y - exitButton95Size.y / 2 &&
+            mousePos.y <= pos95.y + exitButton95Size.y / 2 &&
+            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB)) {
+            // Exit game - need to implement proper exit
+            std::exit(0);
+        }
+        
+        // Check if 105 (left button) is clicked - continue game
+        if (mousePos.x >= pos105.x - exitButton105Size.x / 2 &&
+            mousePos.x <= pos105.x + exitButton105Size.x / 2 &&
+            mousePos.y >= pos105.y - exitButton105Size.y / 2 &&
+            mousePos.y <= pos105.y + exitButton105Size.y / 2 &&
+            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB)) {
+            // Cancel exit - hide exit panel
+            m_exitConfirm048->SetVisible(false);
+            m_exitButton105->SetVisible(false);
+            m_exitButton95->SetVisible(false);
+            m_exitDialog->SetVisible(false);
+            m_exitPanelVisible = false;
+        }
     }
 
     m_movingBg->Update();

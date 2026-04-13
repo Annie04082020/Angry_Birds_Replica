@@ -34,6 +34,9 @@ private:
     std::shared_ptr<Util::GameObject> m_menuItem017;
     std::shared_ptr<Util::GameObject> m_menuItem032;
     std::shared_ptr<Util::GameObject> m_menuItem043;
+    std::shared_ptr<Util::GameObject> m_additionalMenuItem108;
+    std::shared_ptr<Util::GameObject> m_additionalMenuItem006;
+    std::shared_ptr<Util::GameObject> m_additionalMenuItem041;
     std::shared_ptr<Util::GameObject> m_exitConfirm048;
     std::shared_ptr<Util::GameObject> m_exitButton105;
     std::shared_ptr<Util::GameObject> m_exitButton95;
@@ -46,9 +49,10 @@ private:
     glm::vec2 m_additionalScaleHover = {1.0f, 1.0f};
     float m_additionalOverlayTargetRotation = 0.0f;
     bool m_additionalOverlayIsAnimating = false;
-    bool m_additionalClockwise = false;  // true = clockwise, false = counter-clockwise
     bool m_settingMenuOpen = false;
+    bool m_additionalMenuOpen = false;
     bool m_menuItemsAnimating = false;
+    bool m_additionalMenuItemsAnimating = false;
     bool m_exitPanelVisible = false;
     std::function<void()> m_onPlayClick = nullptr;
 };

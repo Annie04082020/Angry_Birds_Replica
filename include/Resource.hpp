@@ -108,6 +108,9 @@ namespace Resource
     const std::string Exit_Dialog = RESOURCE_DIR "/Image/word/exit_dialog.png";
     const std::string Additional_Button_Base = RESOURCE_DIR "/Image/ui/button/sprite_068.png";
     const std::string Additional_Button_Overlay = RESOURCE_DIR "/Image/ui/button/sprite_096.png";
+    const std::string Additional_Menu_Item_108 = RESOURCE_DIR "/Image/ui/button/sprite_108.png";
+    const std::string Additional_Menu_Item_006 = RESOURCE_DIR "/Image/ui/button/sprite_006.png";
+    const std::string Additional_Menu_Item_041 = RESOURCE_DIR "/Image/ui/button/sprite_041.png";
 
     // Audio - Music
     const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.ogg";
