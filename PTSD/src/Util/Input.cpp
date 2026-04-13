@@ -150,24 +150,9 @@ glm::vec2 Input::GetCursorPosition() {
 
 void Input::SetCursorPosition(const glm::vec2 &pos) {
     if (SDL_Window *window = SDL_GL_GetCurrentWindow()) {
-        int windowWidth = 0;
-        int windowHeight = 0;
-        int drawableWidth = 0;
-        int drawableHeight = 0;
-
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
-
-        if (windowWidth > 0 && windowHeight > 0 && drawableWidth > 0 &&
-            drawableHeight > 0) {
-            SDL_WarpMouseInWindow(
-                window,
-                static_cast<int>(pos.x * static_cast<float>(windowWidth) /
-                                 static_cast<float>(drawableWidth)),
-                static_cast<int>(pos.y * static_cast<float>(windowHeight) /
-                                 static_cast<float>(drawableHeight)));
-            return;
-        }
+        SDL_WarpMouseInWindow(window, static_cast<int>(pos.x),
+                              static_cast<int>(pos.y));
+        return;
     }
 
     SDL_WarpMouseInWindow(nullptr, static_cast<int>(pos.x),
