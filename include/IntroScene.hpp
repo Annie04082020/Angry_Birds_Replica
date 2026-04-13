@@ -13,8 +13,9 @@ class IntroScene : public Scene
 public:
     static std::shared_ptr<IntroScene> Create();
     void Update() override;
-    
-    void SetOnPlayClickCallback(std::function<void()> callback) {
+
+    void SetOnPlayClickCallback(std::function<bool()> callback)
+    {
         m_onPlayClick = callback;
     }
 
@@ -23,13 +24,31 @@ protected:
 
 private:
     std::shared_ptr<DynamicBackground> m_movingBg;
-    std::shared_ptr<Character> m_bird;
     std::shared_ptr<Button> m_playbutton;
     std::shared_ptr<Button> m_exitbutton;
     std::shared_ptr<Button> m_settingbutton;
     std::shared_ptr<Util::GameObject> m_settingOverlay;
+    std::shared_ptr<Button> m_additionalButton;
+    std::shared_ptr<Util::GameObject> m_additionalButtonOverlay;
+    std::shared_ptr<Util::GameObject> m_menuItem017;
+    std::shared_ptr<Util::GameObject> m_menuItem032;
+    std::shared_ptr<Util::GameObject> m_menuItem043;
+    std::shared_ptr<Util::GameObject> m_exitConfirm048;
+    std::shared_ptr<Util::GameObject> m_exitButton105;
+    std::shared_ptr<Util::GameObject> m_exitButton95;
+    std::shared_ptr<Util::GameObject> m_exitDialog;
+    glm::vec2 m_settingScale = {0.9f, 0.9f};
+    glm::vec2 m_settingScaleHover = {1.0f, 1.0f};
     float m_settingOverlayTargetRotation = 0.0f;
     bool m_settingOverlayIsAnimating = false;
+    glm::vec2 m_additionalScale = {0.9f, 0.9f};
+    glm::vec2 m_additionalScaleHover = {1.0f, 1.0f};
+    float m_additionalOverlayTargetRotation = 0.0f;
+    bool m_additionalOverlayIsAnimating = false;
+    bool m_additionalClockwise = false;  // true = clockwise, false = counter-clockwise
+    bool m_settingMenuOpen = false;
+    bool m_menuItemsAnimating = false;
+    bool m_exitPanelVisible = false;
     std::function<void()> m_onPlayClick = nullptr;
 };
 

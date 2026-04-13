@@ -99,6 +99,15 @@ namespace Resource
     const std::string Setting_Button = RESOURCE_DIR "/Image/ui/button/setting.png";
     const std::string Setting_Button_Base = RESOURCE_DIR "/Image/ui/button/sprite_068.png";
     const std::string Setting_Button_Overlay = RESOURCE_DIR "/Image/ui/button/sprite_030.png";
+    const std::string Setting_Menu_Item_017 = RESOURCE_DIR "/Image/ui/button/sprite_017.png";
+    const std::string Setting_Menu_Item_032 = RESOURCE_DIR "/Image/ui/button/sprite_032.png";
+    const std::string Setting_Menu_Item_043 = RESOURCE_DIR "/Image/ui/button/sprite_043.png";
+    const std::string Exit_Confirm_048 = RESOURCE_DIR "/Image/ui/button/sprite_048.png";
+    const std::string Exit_Button_105 = RESOURCE_DIR "/Image/ui/button/sprite_105.png";
+    const std::string Exit_Button_95 = RESOURCE_DIR "/Image/ui/button/sprite_095.png";
+    const std::string Exit_Dialog = RESOURCE_DIR "/Image/word/exit_dialog.png";
+    const std::string Additional_Button_Base = RESOURCE_DIR "/Image/ui/button/sprite_068.png";
+    const std::string Additional_Button_Overlay = RESOURCE_DIR "/Image/ui/button/sprite_096.png";
 
     // Audio - Music
     const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.ogg";
@@ -111,7 +120,6 @@ namespace Resource
     const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
 } // namespace Resource
 
-#include <string>
 namespace Resource
 {
     // Return the resource path for a global resource id, or empty string if not found

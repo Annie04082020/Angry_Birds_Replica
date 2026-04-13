@@ -120,6 +120,17 @@ void Context::Setup() {
 }
 
 void Context::Update() {
+    int drawableWidth = static_cast<int>(m_WindowWidth);
+    int drawableHeight = static_cast<int>(m_WindowHeight);
+    SDL_GetWindowSize(m_Window, &drawableWidth, &drawableHeight);
+    SDL_GL_GetDrawableSize(m_Window, &drawableWidth, &drawableHeight);
+    m_WindowWidth = static_cast<unsigned int>(
+        drawableWidth > 0 ? drawableWidth : m_WindowWidth);
+    m_WindowHeight = static_cast<unsigned int>(
+        drawableHeight > 0 ? drawableHeight : m_WindowHeight);
+    glViewport(0, 0, static_cast<GLsizei>(m_WindowWidth),
+               static_cast<GLsizei>(m_WindowHeight));
+
     Util::Input::Update();
     SDL_GL_SwapWindow(m_Window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

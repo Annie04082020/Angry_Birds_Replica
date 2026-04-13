@@ -1,4 +1,5 @@
 #include "Util/Input.hpp"
+#include "Util/TransformUtils.hpp"
 
 #include <SDL_events.h> // for SDL_Event
 
@@ -10,7 +11,7 @@ namespace Util {
 SDL_Event Input::s_Event = SDL_Event();
 
 glm::vec2 Input::s_CursorPosition = glm::vec2(0.0F);
-glm::vec2 Input::s_ScrollDistance = glm::vec2(-1.0F, -1.0F);
+glm::vec2 Input::s_ScrollDistance = glm::vec2(0.0F, 0.0F);
 
 std::unordered_map<Keycode, std::pair<bool, bool>> Input::s_KeyState = {
     std::make_pair(Keycode::MOUSE_LB, std::make_pair(false, false)),
@@ -81,11 +82,12 @@ void Input::Update() {
     s_CursorPosition.x = static_cast<float>(x);
     s_CursorPosition.y = static_cast<float>(y);
 
-    s_CursorPosition.x -= static_cast<float>(WINDOW_WIDTH) / 2;
-    s_CursorPosition.y =
-        -(s_CursorPosition.y - static_cast<float>(WINDOW_HEIGHT) / 2);
+    const glm::vec2 viewportSize = GetViewportSize();
+    s_CursorPosition.x -= viewportSize.x / 2;
+    s_CursorPosition.y = -(s_CursorPosition.y - viewportSize.y / 2);
 
     s_Scroll = s_MouseMoving = false;
+    s_ScrollDistance = glm::vec2(0.0F, 0.0F);
 
     for (auto &[_, i] : s_KeyState) {
         i.first = i.second;
@@ -105,11 +107,10 @@ void Input::Update() {
             UpdateKeyState(&s_Event);
         }
 
-        s_Scroll = s_Event.type == SDL_MOUSEWHEEL || s_Scroll;
-
-        if (s_Scroll) {
-            s_ScrollDistance.x = static_cast<float>(s_Event.wheel.x);
-            s_ScrollDistance.y = static_cast<float>(s_Event.wheel.y);
+        if (s_Event.type == SDL_MOUSEWHEEL) {
+            s_Scroll = true;
+            s_ScrollDistance.x += static_cast<float>(s_Event.wheel.x);
+            s_ScrollDistance.y += static_cast<float>(s_Event.wheel.y);
         }
         s_MouseMoving = s_Event.type == SDL_MOUSEMOTION || s_MouseMoving;
         s_Exit = s_Event.type == SDL_QUIT;
