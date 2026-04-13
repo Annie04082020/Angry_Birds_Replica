@@ -1,6 +1,8 @@
 #include "Core/Context.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <utility>
 
 #include "Core/DebugMessageCallback.hpp"
 
@@ -13,8 +15,37 @@
 using Util::ms_t;
 
 namespace Core {
+namespace {
+constexpr float kInitialWindowOccupancy = 0.95F;
+
+std::pair<int, int> GetInitialWindowSize() {
+    SDL_DisplayMode desktopMode{};
+    if (SDL_GetDesktopDisplayMode(0, &desktopMode) != 0 || desktopMode.w <= 0 ||
+        desktopMode.h <= 0) {
+        return {static_cast<int>(WINDOW_WIDTH),
+                static_cast<int>(WINDOW_HEIGHT)};
+    }
+
+    const float widthScale =
+        static_cast<float>(desktopMode.w) / static_cast<float>(WINDOW_WIDTH);
+    const float heightScale =
+        static_cast<float>(desktopMode.h) / static_cast<float>(WINDOW_HEIGHT);
+    const float scale =
+        std::min({kInitialWindowOccupancy, widthScale * kInitialWindowOccupancy,
+                  heightScale * kInitialWindowOccupancy});
+
+    const int windowWidth = std::max(1, static_cast<int>(WINDOW_WIDTH * scale));
+    const int windowHeight =
+        std::max(1, static_cast<int>(WINDOW_HEIGHT * scale));
+    return {windowWidth, windowHeight};
+}
+} // namespace
+
 Context::Context() {
     Util::Logger::Init();
+
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         LOG_ERROR("Failed to initialize SDL");
@@ -41,9 +72,12 @@ Context::Context() {
         LOG_ERROR(SDL_GetError());
     }
 
-    m_Window =
-        SDL_CreateWindow(TITLE, WINDOW_POS_X, WINDOW_POS_Y, WINDOW_WIDTH,
-                         WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    const auto [windowWidth, windowHeight] = GetInitialWindowSize();
+
+    m_Window = SDL_CreateWindow(
+        TITLE, WINDOW_POS_X, WINDOW_POS_Y, windowWidth, windowHeight,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
+            SDL_WINDOW_ALLOW_HIGHDPI);
 
     if (m_Window == nullptr) {
         LOG_ERROR("Failed to create window");

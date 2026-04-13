@@ -7,6 +7,36 @@
 
 namespace Util {
 
+namespace {
+glm::vec2 GetScaledMousePosition() {
+    int windowX = 0;
+    int windowY = 0;
+    SDL_GetMouseState(&windowX, &windowY);
+
+    if (SDL_Window *window = SDL_GL_GetCurrentWindow()) {
+        int windowWidth = 0;
+        int windowHeight = 0;
+        int drawableWidth = 0;
+        int drawableHeight = 0;
+
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
+
+        if (windowWidth > 0 && windowHeight > 0 && drawableWidth > 0 &&
+            drawableHeight > 0) {
+            return {static_cast<float>(windowX) *
+                        static_cast<float>(drawableWidth) /
+                        static_cast<float>(windowWidth),
+                    static_cast<float>(windowY) *
+                        static_cast<float>(drawableHeight) /
+                        static_cast<float>(windowHeight)};
+        }
+    }
+
+    return {static_cast<float>(windowX), static_cast<float>(windowY)};
+}
+} // namespace
+
 // init all static members
 SDL_Event Input::s_Event = SDL_Event();
 
@@ -77,10 +107,7 @@ void Input::UpdateKeyState(const SDL_Event *event) {
 }
 
 void Input::Update() {
-    int x, y;
-    SDL_GetMouseState(&x, &y);
-    s_CursorPosition.x = static_cast<float>(x);
-    s_CursorPosition.y = static_cast<float>(y);
+    s_CursorPosition = GetScaledMousePosition();
 
     const glm::vec2 viewportSize = GetViewportSize();
     s_CursorPosition.x -= viewportSize.x / 2;
@@ -122,6 +149,27 @@ glm::vec2 Input::GetCursorPosition() {
 }
 
 void Input::SetCursorPosition(const glm::vec2 &pos) {
+    if (SDL_Window *window = SDL_GL_GetCurrentWindow()) {
+        int windowWidth = 0;
+        int windowHeight = 0;
+        int drawableWidth = 0;
+        int drawableHeight = 0;
+
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
+
+        if (windowWidth > 0 && windowHeight > 0 && drawableWidth > 0 &&
+            drawableHeight > 0) {
+            SDL_WarpMouseInWindow(
+                window,
+                static_cast<int>(pos.x * static_cast<float>(windowWidth) /
+                                 static_cast<float>(drawableWidth)),
+                static_cast<int>(pos.y * static_cast<float>(windowHeight) /
+                                 static_cast<float>(drawableHeight)));
+            return;
+        }
+    }
+
     SDL_WarpMouseInWindow(nullptr, static_cast<int>(pos.x),
                           static_cast<int>(pos.y));
 }
