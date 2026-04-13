@@ -42,8 +42,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_bird->SetVisible(true);
         if (m_onPlayClick) {
             m_onPlayClick();
-        }
-    });
+        } });
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);
@@ -62,6 +61,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
     constexpr glm::vec2 settingPosition = {520.0f, -300.0f};
 
+    // 使用底圖與覆層分開的按鈕：底圖保留光影設計，覆層（齒輪）單獨旋轉
     m_settingbutton = std::make_shared<Button>(Resource::Setting_Button_Base);
     m_settingbutton->SetZIndex(50);
     m_settingbutton->SetPosition(settingPosition);
@@ -69,7 +69,8 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingbutton->SetVisible(true);
     m_settingbutton->SetHoverScaleMultiplier(1.125f);  // 啟用 hover 縮放
     m_settingbutton->SetSFX(Resource::SETTING_SFX);
-    m_settingbutton->SetOnClickFunction([this]() {
+    m_settingbutton->SetOnClickFunction([this]()
+                                        {
         m_bird->SetVisible(true);
         if (m_settingMenuOpen) {
             // 關閉菜單：逆時針旋轉 180 度
@@ -87,6 +88,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_settingOverlayIsAnimating = true;
     });
 
+    // 建立覆層（齒輪），比底圖 z-index 高一層
     m_settingOverlay = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Button_Overlay), 51);
     m_settingOverlay->m_Transform.translation = settingPosition + glm::vec2{0.0f, 6.0f};
