@@ -14,7 +14,7 @@ public:
     static std::shared_ptr<IntroScene> Create();
     void Update() override;
 
-    void SetOnPlayClickCallback(std::function<bool()> callback)
+    void SetOnPlayClickCallback(std::function<void()> callback)
     {
         m_onPlayClick = callback;
     }
@@ -24,6 +24,7 @@ protected:
 
 private:
     std::shared_ptr<DynamicBackground> m_movingBg;
+    std::shared_ptr<Character> m_bird;
     std::shared_ptr<Button> m_playbutton;
     std::shared_ptr<Button> m_exitbutton;
     std::shared_ptr<Button> m_settingbutton;
