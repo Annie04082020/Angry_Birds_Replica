@@ -1,6 +1,8 @@
 #include "Core/Context.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <utility>
 
 #include "Core/DebugMessageCallback.hpp"
 
@@ -13,8 +15,57 @@
 using Util::ms_t;
 
 namespace Core {
+namespace {
+constexpr float kInitialWindowOccupancy = 0.95F;
+
+void SyncWindowDimensions(SDL_Window *window, unsigned int &windowWidth,
+                          unsigned int &windowHeight) {
+    if (window == nullptr) {
+        return;
+    }
+
+    int queriedWindowWidth = static_cast<int>(windowWidth);
+    int queriedWindowHeight = static_cast<int>(windowHeight);
+    SDL_GetWindowSize(window, &queriedWindowWidth, &queriedWindowHeight);
+
+    int drawableWidth = queriedWindowWidth;
+    int drawableHeight = queriedWindowHeight;
+    SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
+
+    windowWidth = static_cast<unsigned int>(
+        drawableWidth > 0 ? drawableWidth : queriedWindowWidth);
+    windowHeight = static_cast<unsigned int>(
+        drawableHeight > 0 ? drawableHeight : queriedWindowHeight);
+}
+
+std::pair<int, int> GetInitialWindowSize() {
+    SDL_DisplayMode desktopMode{};
+    if (SDL_GetDesktopDisplayMode(0, &desktopMode) != 0 || desktopMode.w <= 0 ||
+        desktopMode.h <= 0) {
+        return {static_cast<int>(WINDOW_WIDTH),
+                static_cast<int>(WINDOW_HEIGHT)};
+    }
+
+    const float widthScale =
+        static_cast<float>(desktopMode.w) / static_cast<float>(WINDOW_WIDTH);
+    const float heightScale =
+        static_cast<float>(desktopMode.h) / static_cast<float>(WINDOW_HEIGHT);
+    const float scale =
+        std::min({kInitialWindowOccupancy, widthScale * kInitialWindowOccupancy,
+                  heightScale * kInitialWindowOccupancy});
+
+    const int windowWidth = std::max(1, static_cast<int>(WINDOW_WIDTH * scale));
+    const int windowHeight =
+        std::max(1, static_cast<int>(WINDOW_HEIGHT * scale));
+    return {windowWidth, windowHeight};
+}
+} // namespace
+
 Context::Context() {
     Util::Logger::Init();
+
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         LOG_ERROR("Failed to initialize SDL");
@@ -41,14 +92,19 @@ Context::Context() {
         LOG_ERROR(SDL_GetError());
     }
 
-    m_Window =
-        SDL_CreateWindow(TITLE, WINDOW_POS_X, WINDOW_POS_Y, WINDOW_WIDTH,
-                         WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    const auto [windowWidth, windowHeight] = GetInitialWindowSize();
+
+    m_Window = SDL_CreateWindow(
+        TITLE, WINDOW_POS_X, WINDOW_POS_Y, windowWidth, windowHeight,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
+            SDL_WINDOW_ALLOW_HIGHDPI);
 
     if (m_Window == nullptr) {
         LOG_ERROR("Failed to create window");
         LOG_ERROR(SDL_GetError());
     }
+
+    SyncWindowDimensions(m_Window, m_WindowWidth, m_WindowHeight);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
@@ -120,14 +176,7 @@ void Context::Setup() {
 }
 
 void Context::Update() {
-    int drawableWidth = static_cast<int>(m_WindowWidth);
-    int drawableHeight = static_cast<int>(m_WindowHeight);
-    SDL_GetWindowSize(m_Window, &drawableWidth, &drawableHeight);
-    SDL_GL_GetDrawableSize(m_Window, &drawableWidth, &drawableHeight);
-    m_WindowWidth = static_cast<unsigned int>(
-        drawableWidth > 0 ? drawableWidth : m_WindowWidth);
-    m_WindowHeight = static_cast<unsigned int>(
-        drawableHeight > 0 ? drawableHeight : m_WindowHeight);
+    SyncWindowDimensions(m_Window, m_WindowWidth, m_WindowHeight);
     glViewport(0, 0, static_cast<GLsizei>(m_WindowWidth),
                static_cast<GLsizei>(m_WindowHeight));
 
