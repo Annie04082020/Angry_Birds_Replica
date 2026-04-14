@@ -1,147 +1,15 @@
 #include "IntroScene.hpp"
 #include "BGM.hpp"
-#include "JsonParseUtils.hpp"
+#include "IntroLayout.hpp"
 #include "Resource.hpp"
+#include "UILayout.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 
 #include <cmath>
-#include <fstream>
-#include <sstream>
 #include <cstdlib>
-
-namespace
-{
-    struct IntroLayoutPercents
-    {
-        // Neutral fallback values; tuned layout should live in intro_layout.json.
-        float playXPercent = 50.0f;
-        float playYPercent = 50.0f;
-        float playScale = 1.0f;
-        float exitXPercent = 50.0f;
-        float exitYPercent = 50.0f;
-        float exitScale = 1.0f;
-        float settingXPercent = 50.0f;
-        float settingYPercent = 50.0f;
-        float settingScale = 1.0f;
-        float settingBaseScale = 1.0f;
-        float settingOverlayScale = 1.0f;
-        float settingHoverScaleMultiplier = 1.125f;
-        float additionalXPercent = 50.0f;
-        float additionalYPercent = 50.0f;
-        float additionalScale = 1.0f;
-        float additionalBaseScale = 1.0f;
-        float additionalOverlayScale = 1.0f;
-        float additionalHoverScaleMultiplier = 1.125f;
-        float exitConfirmXPercent = 50.0f;
-        float exitConfirmYPercent = 50.0f;
-        float exitYesXPercent = 60.0f;
-        float exitYesYPercent = 54.0f;
-        float exitNoXPercent = 40.0f;
-        float exitNoYPercent = 54.0f;
-        float exitDialogXPercent = 50.0f;
-        float exitDialogYPercent = 47.0f;
-    };
-
-    void ParseButtonSection(const std::string &json, const std::string &section,
-                            float &xPercent, float &yPercent, float &scale)
-    {
-        std::string sectionJson;
-        if (!JsonParseUtils::ExtractObjectContent(json, section, sectionJson))
-        {
-            return;
-        }
-
-        xPercent = JsonParseUtils::ExtractFloat(sectionJson, "xPercent", xPercent);
-        yPercent = JsonParseUtils::ExtractFloat(sectionJson, "yPercent", yPercent);
-        scale = JsonParseUtils::ExtractFloat(sectionJson, "scale", scale);
-    }
-
-    void ParseCompositeButtonSection(const std::string &json,
-                                     const std::string &section,
-                                     float &xPercent, float &yPercent,
-                                     float &groupScale, float &baseScale,
-                                     float &overlayScale,
-                                     float &hoverScaleMultiplier)
-    {
-        std::string sectionJson;
-        if (!JsonParseUtils::ExtractObjectContent(json, section, sectionJson))
-        {
-            return;
-        }
-
-        xPercent = JsonParseUtils::ExtractFloat(sectionJson, "xPercent", xPercent);
-        yPercent = JsonParseUtils::ExtractFloat(sectionJson, "yPercent", yPercent);
-        groupScale = JsonParseUtils::ExtractFloat(sectionJson, "scale", groupScale);
-        baseScale = JsonParseUtils::ExtractFloat(sectionJson, "baseScale", baseScale);
-        overlayScale = JsonParseUtils::ExtractFloat(sectionJson, "overlayScale", overlayScale);
-        hoverScaleMultiplier = JsonParseUtils::ExtractFloat(sectionJson, "hoverScaleMultiplier", hoverScaleMultiplier);
-    }
-
-    void ParseButtonSection(const std::string &json, const std::string &section,
-                            float &xPercent, float &yPercent)
-    {
-        std::string sectionJson;
-        if (!JsonParseUtils::ExtractObjectContent(json, section, sectionJson))
-        {
-            return;
-        }
-
-        xPercent = JsonParseUtils::ExtractFloat(sectionJson, "xPercent", xPercent);
-        yPercent = JsonParseUtils::ExtractFloat(sectionJson, "yPercent", yPercent);
-    }
-
-    IntroLayoutPercents LoadIntroLayoutPercents()
-    {
-        IntroLayoutPercents layout;
-
-        std::ifstream layoutFile(Resource::INTRO_LAYOUT_DATA);
-        if (!layoutFile)
-        {
-            return layout;
-        }
-
-        std::stringstream buffer;
-        buffer << layoutFile.rdbuf();
-        const std::string layoutJson = buffer.str();
-
-        ParseButtonSection(layoutJson, "play", layout.playXPercent,
-                           layout.playYPercent, layout.playScale);
-        ParseButtonSection(layoutJson, "exit", layout.exitXPercent,
-                           layout.exitYPercent, layout.exitScale);
-        ParseCompositeButtonSection(layoutJson, "setting", layout.settingXPercent,
-                                    layout.settingYPercent, layout.settingScale,
-                                    layout.settingBaseScale,
-                                    layout.settingOverlayScale,
-                                    layout.settingHoverScaleMultiplier);
-        ParseCompositeButtonSection(layoutJson, "additional", layout.additionalXPercent,
-                                    layout.additionalYPercent,
-                                    layout.additionalScale,
-                                    layout.additionalBaseScale,
-                                    layout.additionalOverlayScale,
-                                    layout.additionalHoverScaleMultiplier);
-        ParseButtonSection(layoutJson, "exitConfirm", layout.exitConfirmXPercent,
-                           layout.exitConfirmYPercent);
-        ParseButtonSection(layoutJson, "exitYes", layout.exitYesXPercent,
-                           layout.exitYesYPercent);
-        ParseButtonSection(layoutJson, "exitNo", layout.exitNoXPercent,
-                           layout.exitNoYPercent);
-        ParseButtonSection(layoutJson, "exitDialog", layout.exitDialogXPercent,
-                           layout.exitDialogYPercent);
-
-        return layout;
-    }
-
-    glm::vec2 PercentToWorldPosition(float xPercent, float yPercent,
-                                     const glm::vec2 &viewportSize)
-    {
-        const float x = (xPercent / 100.0f - 0.5f) * viewportSize.x;
-        const float y = (0.5f - yPercent / 100.0f) * viewportSize.y;
-        return {x, y};
-    }
-} // namespace
 
 std::shared_ptr<IntroScene> IntroScene::Create()
 {
@@ -164,17 +32,17 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_bird->SetVisible(false);
 
     const glm::vec2 viewportSize = Util::GetViewportSize();
-    const IntroLayoutPercents layout = LoadIntroLayoutPercents();
-    m_settingButtonPosition = PercentToWorldPosition(
-        layout.settingXPercent, layout.settingYPercent, viewportSize);
-    m_additionalButtonPosition = PercentToWorldPosition(
-        layout.additionalXPercent, layout.additionalYPercent, viewportSize);
+    const IntroLayout layout = IntroLayoutLoader::Load(Resource::INTRO_LAYOUT_DATA);
+    m_settingButtonPosition = UILayout::PercentToWorldPosition(
+        layout.settingButtonBase.xPercent, layout.settingButtonBase.yPercent, viewportSize);
+    m_additionalButtonPosition = UILayout::PercentToWorldPosition(
+        layout.additionalButtonBase.xPercent, layout.additionalButtonBase.yPercent, viewportSize);
 
     m_playbutton = std::make_shared<Button>(Resource::Play_Button);
     m_playbutton->SetZIndex(50);
-    m_playbutton->SetPosition(PercentToWorldPosition(
-        layout.playXPercent, layout.playYPercent, viewportSize));
-    m_playbutton->SetScale({layout.playScale, layout.playScale});
+    m_playbutton->SetPosition(UILayout::PercentToWorldPosition(
+        layout.play.xPercent, layout.play.yPercent, viewportSize));
+    m_playbutton->SetScale({layout.play.scale, layout.play.scale});
     m_playbutton->SetVisible(true);
     m_playbutton->SetSFX(Resource::SETTING_SFX);
     m_playbutton->SetOnClickFunction([this]()
@@ -192,9 +60,9 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);
-    m_exitbutton->SetPosition(PercentToWorldPosition(
-        layout.exitXPercent, layout.exitYPercent, viewportSize));
-    m_exitbutton->SetScale({layout.exitScale, layout.exitScale});
+    m_exitbutton->SetPosition(UILayout::PercentToWorldPosition(
+        layout.exit.xPercent, layout.exit.yPercent, viewportSize));
+    m_exitbutton->SetScale({layout.exit.scale, layout.exit.scale});
     m_exitbutton->SetVisible(true);
     m_exitbutton->SetSFX(Resource::SETTING_SFX);
     m_exitbutton->SetOnClickFunction([this]()
@@ -207,20 +75,20 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_bird->SetVisible(true); });
 
     // scale: group multiplier, baseScale/overlayScale: per-layer multipliers.
-    const float settingBaseScaleValue = layout.settingScale * layout.settingBaseScale;
+    const float settingBaseScaleValue = layout.settingButtonBase.scale * layout.settingButtonBase.baseScale;
     const float settingOverlayScaleValue =
-        layout.settingScale * layout.settingOverlayScale;
+        layout.settingButtonOverlay.scale * layout.settingButtonOverlay.overlayScale;
 
     // 使用底圖與覆層分開的按鈕：底圖保留光影設計，覆層（齒輪）單獨旋轉
     m_settingScale = {settingOverlayScaleValue, settingOverlayScaleValue};
-    m_settingScaleHover = m_settingScale * layout.settingHoverScaleMultiplier;
+    m_settingScaleHover = m_settingScale * layout.settingButtonOverlay.hoverScaleMultiplier;
 
     m_settingbutton = std::make_shared<Button>(Resource::Setting_Button_Base);
     m_settingbutton->SetZIndex(50);
     m_settingbutton->SetPosition(m_settingButtonPosition);
     m_settingbutton->SetScale({settingBaseScaleValue, settingBaseScaleValue});
     m_settingbutton->SetVisible(true);
-    m_settingbutton->SetHoverScaleMultiplier(layout.settingHoverScaleMultiplier); // 啟用 hover 縮放
+    m_settingbutton->SetHoverScaleMultiplier(layout.settingButtonOverlay.hoverScaleMultiplier); // 啟用 hover 縮放
     m_settingbutton->SetSFX(Resource::SETTING_SFX);
     m_settingbutton->SetOnClickFunction([this]()
                                         {
@@ -248,13 +116,13 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingOverlay->SetVisible(true);
 
     const float additionalBaseScaleValue =
-        layout.additionalScale * layout.additionalBaseScale;
+        layout.additionalButtonBase.scale * layout.additionalButtonBase.baseScale;
     const float additionalOverlayScaleValue =
-        layout.additionalScale * layout.additionalOverlayScale;
+        layout.additionalButtonOverlay.scale * layout.additionalButtonOverlay.overlayScale;
 
     m_additionalScale = {additionalOverlayScaleValue, additionalOverlayScaleValue};
     m_additionalScaleHover =
-        m_additionalScale * layout.additionalHoverScaleMultiplier;
+        m_additionalScale * layout.additionalButtonOverlay.hoverScaleMultiplier;
 
     m_additionalButton = std::make_shared<Button>(Resource::Additional_Button_Base);
     m_additionalButton->SetZIndex(50);
@@ -263,7 +131,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         {additionalBaseScaleValue, additionalBaseScaleValue});
     m_additionalButton->SetVisible(true);
     m_additionalButton->SetHoverScaleMultiplier(
-        layout.additionalHoverScaleMultiplier);
+        layout.additionalButtonOverlay.hoverScaleMultiplier);
     m_additionalButton->SetSFX(Resource::SETTING_SFX);
     m_additionalButton->SetOnClickFunction([this]()
                                            {
@@ -327,28 +195,34 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     // Exit confirm panel: 048 in the center with 105 (left) and 95 (right) below
     m_exitConfirm048 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Confirm_048), 60);
-    m_exitConfirm048->m_Transform.translation = PercentToWorldPosition(
-        layout.exitConfirmXPercent, layout.exitConfirmYPercent, viewportSize);
-    m_exitConfirm048->m_Transform.scale = glm::vec2{3.0f, 3.0f};
+    m_exitConfirm048->m_Transform.translation = UILayout::PercentToWorldPosition(
+        layout.exitConfirm.xPercent, layout.exitConfirm.yPercent, viewportSize);
+    m_exitConfirm048->m_Transform.scale =
+        glm::vec2{layout.exitConfirm.scale, layout.exitConfirm.scale};
     m_exitConfirm048->SetVisible(false);
 
     m_exitButton105 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_105), 61);
-    m_exitButton105->m_Transform.translation = PercentToWorldPosition(
-        layout.exitNoXPercent, layout.exitNoYPercent, viewportSize);
+    m_exitButton105->m_Transform.translation = UILayout::PercentToWorldPosition(
+        layout.exitNo.xPercent, layout.exitNo.yPercent, viewportSize);
+    m_exitButton105->m_Transform.scale =
+        glm::vec2{layout.exitNo.scale, layout.exitNo.scale};
     m_exitButton105->SetVisible(false);
 
     m_exitButton95 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_95), 61);
-    m_exitButton95->m_Transform.translation = PercentToWorldPosition(
-        layout.exitYesXPercent, layout.exitYesYPercent, viewportSize);
+    m_exitButton95->m_Transform.translation = UILayout::PercentToWorldPosition(
+        layout.exitYes.xPercent, layout.exitYes.yPercent, viewportSize);
+    m_exitButton95->m_Transform.scale =
+        glm::vec2{layout.exitYes.scale, layout.exitYes.scale};
     m_exitButton95->SetVisible(false);
 
     m_exitDialog = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Dialog), 62);
-    m_exitDialog->m_Transform.translation = PercentToWorldPosition(
-        layout.exitDialogXPercent, layout.exitDialogYPercent, viewportSize);
-    m_exitDialog->m_Transform.scale = glm::vec2{0.35f, 0.35f};
+    m_exitDialog->m_Transform.translation = UILayout::PercentToWorldPosition(
+        layout.exitDialog.xPercent, layout.exitDialog.yPercent, viewportSize);
+    m_exitDialog->m_Transform.scale =
+        glm::vec2{layout.exitDialog.scale, layout.exitDialog.scale};
     m_exitDialog->SetVisible(false);
 
     AddElements(m_bird);

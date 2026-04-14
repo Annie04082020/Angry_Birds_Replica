@@ -12,6 +12,8 @@ namespace JsonParseUtils
                    int fallback = 0);
     float ExtractFloat(const std::string &json, const std::string &key,
                        float fallback = 0.0f);
+    bool ExtractBool(const std::string &json, const std::string &key,
+                     bool fallback = false);
     bool HasKey(const std::string &json, const std::string &key);
 
     // Extract nested object content by key, without outer braces.

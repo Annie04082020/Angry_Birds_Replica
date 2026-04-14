@@ -110,6 +110,57 @@ namespace JsonParseUtils
         return fallback;
     }
 
+    bool ExtractBool(const std::string &json, const std::string &key,
+                     bool fallback)
+    {
+        const std::string searchKey = "\"" + key + "\"";
+        const size_t keyPos = json.find(searchKey);
+        if (keyPos == std::string::npos)
+            return fallback;
+
+        const size_t colonPos = json.find(':', keyPos);
+        if (colonPos == std::string::npos)
+            return fallback;
+
+        size_t valueStart = colonPos + 1;
+        while (valueStart < json.length() &&
+               (json[valueStart] == ' ' || json[valueStart] == '\t' ||
+                json[valueStart] == '\n' || json[valueStart] == '\r'))
+        {
+            ++valueStart;
+        }
+
+        if (valueStart >= json.length())
+            return fallback;
+
+        if (json.compare(valueStart, 4, "true") == 0)
+            return true;
+        if (json.compare(valueStart, 5, "false") == 0)
+            return false;
+
+        size_t valueEnd = valueStart;
+        while (valueEnd < json.length() &&
+               (std::isdigit(static_cast<unsigned char>(json[valueEnd])) ||
+                json[valueEnd] == '-' || json[valueEnd] == '.'))
+        {
+            ++valueEnd;
+        }
+
+        if (valueEnd > valueStart)
+        {
+            try
+            {
+                return std::stof(json.substr(valueStart, valueEnd - valueStart)) != 0.0f;
+            }
+            catch (...)
+            {
+                return fallback;
+            }
+        }
+
+        return fallback;
+    }
+
     bool HasKey(const std::string &json, const std::string &key)
     {
         return json.find("\"" + key + "\"") != std::string::npos;

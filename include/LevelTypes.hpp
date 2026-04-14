@@ -5,16 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-struct GroupAdjustment
-{
-    float scaleMultiplier = 1.0f;
-    float offsetX = 0.0f;
-    float offsetY = 0.0f;
-    float scalePivotX = 0.0f;
-    float scalePivotY = 0.0f;
-    bool hasScalePivot = false;
-    bool scalePosition = true;
-};
+#include "LayoutTypes.hpp"
 
 struct LevelObjectDefinition
 {

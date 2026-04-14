@@ -10,6 +10,9 @@ set(SRC_FILES
     BirdLaunchController.cpp
     SceneInputController.cpp
     JsonParseUtils.cpp
+    LayoutParseUtils.cpp
+    UILayout.cpp
+    IntroLayout.cpp
     LevelParser.cpp
     LevelObjectFactory.cpp
     GameScene.cpp
@@ -30,6 +33,10 @@ set(INCLUDE_FILES
     BirdLaunchController.hpp
     SceneInputController.hpp
     JsonParseUtils.hpp
+    LayoutTypes.hpp
+    LayoutParseUtils.hpp
+    UILayout.hpp
+    IntroLayout.hpp
     LevelTypes.hpp
     LevelParser.hpp
     LevelObjectFactory.hpp

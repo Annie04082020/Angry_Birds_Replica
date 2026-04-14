@@ -1,44 +1,80 @@
 {
+    "groups": [
+        {
+            "id": "ExitDialog",
+            "scaleMultiplier": 2
+        },
+        {
+            "id": "Additional",
+            "scaleMultiplier": 1.5
+        },
+        {
+            "id": "Settings",
+            "scaleMultiplier": 1.5
+        }
+    ],
     "play": {
         "xPercent": 50.0,
         "yPercent": 50.0,
-        "scale": 1.35
+        "scale": 2
     },
     "exit": {
         "xPercent": 6.5,
         "yPercent": 90.5,
-        "scale": 1.35
+        "scale": 2
     },
-    "setting": {
+    "settingButtonBase": {
         "xPercent": 86.0,
         "yPercent": 90.5,
         "scale": 1.22,
         "baseScale": 1.08,
-        "overlayScale": 1.1,
-        "hoverScaleMultiplier": 1.1
+        "groupId": "Settings"
     },
-    "additional": {
+    "settingButtonOverlay": {
+        "xPercent": 86.0,
+        "yPercent": 90.5,
+        "scale": 1.22,
+        "overlayScale": 1.1,
+        "hoverScaleMultiplier": 1.1,
+        "groupId": "Settings"
+    },
+    "additionalButtonBase": {
         "xPercent": 94.0,
         "yPercent": 90.5,
         "scale": 1.22,
         "baseScale": 1.08,
+        "groupId": "Additional"
+    },
+    "additionalButtonOverlay": {
+        "xPercent": 94.0,
+        "yPercent": 90.5,
+        "scale": 1.22,
         "overlayScale": 1.1,
-        "hoverScaleMultiplier": 1.1
+        "hoverScaleMultiplier": 1.1,
+        "groupId": "Additional"
     },
     "exitConfirm": {
         "xPercent": 50.0,
-        "yPercent": 50.0
+        "yPercent": 50.0,
+        "scale": 3.0,
+        "groupId": "ExitDialog"
     },
     "exitYes": {
         "xPercent": 60.4167,
-        "yPercent": 54.4444
+        "yPercent": 54.4444,
+        "scale": 1.0,
+        "groupId": "ExitDialog"
     },
     "exitNo": {
         "xPercent": 39.5833,
-        "yPercent": 54.4444
+        "yPercent": 54.4444,
+        "scale": 1.0,
+        "groupId": "ExitDialog"
     },
     "exitDialog": {
         "xPercent": 50.0,
-        "yPercent": 47.4074
+        "yPercent": 47.4074,
+        "scale": 0.35,
+        "groupId": "ExitDialog"
     }
 }
