@@ -87,6 +87,7 @@ namespace Resource
             {"STONE_42x41_1", STONE_42x41_1},
             {"STONE_42x41_2", STONE_42x41_2},
             {"STONE_42x41_3", STONE_42x41_3},
+            {"STONE_42x41_4", STONE_42x41_4},
             {"STONE_21x20_1", STONE_21x20_1},
             {"STONE_21x20_2", STONE_21x20_2},
             {"STONE_21x20_3", STONE_21x20_3},
@@ -94,9 +95,25 @@ namespace Resource
             {"Play_Button", Play_Button},
             {"Exit_Button", Exit_Button},
             {"Setting_Button", Setting_Button},
+            {"Setting_Button_Base", Setting_Button_Base},
+            {"Setting_Button_Overlay", Setting_Button_Overlay},
+            {"Setting_Menu_Item_017", Setting_Menu_Item_017},
+            {"Setting_Menu_Item_032", Setting_Menu_Item_032},
+            {"Setting_Menu_Item_043", Setting_Menu_Item_043},
+            {"Exit_Confirm_048", Exit_Confirm_048},
+            {"Exit_Button_105", Exit_Button_105},
+            {"Exit_Button_95", Exit_Button_95},
+            {"Exit_Dialog", Exit_Dialog},
+            {"Additional_Button_Base", Additional_Button_Base},
+            {"Additional_Button_Overlay", Additional_Button_Overlay},
+            {"Additional_Menu_Item_108", Additional_Menu_Item_108},
+            {"Additional_Menu_Item_006", Additional_Menu_Item_006},
+            {"Additional_Menu_Item_041", Additional_Menu_Item_041},
             {"TITLE_THEME", TITLE_THEME},
             {"BIRD_LAUNCH_SFX", BIRD_LAUNCH_SFX},
-            {"SETTING_SFX", SETTING_SFX}};
+            {"SETTING_SFX", SETTING_SFX},
+            {"LEVEL_1_DATA", LEVEL_1_DATA},
+            {"INTRO_LAYOUT_DATA", INTRO_LAYOUT_DATA}};
 
         auto it = map.find(id);
         if (it != map.end())
