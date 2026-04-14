@@ -39,6 +39,11 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         layout.additionalButtonBase.xPercent, layout.additionalButtonBase.yPercent, viewportSize);
 
     m_playbutton = std::make_shared<Button>(Resource::Play_Button);
+    // Store menu configuration from JSON
+    m_menuItemSpacing = layout.menuConfig.itemSpacing;
+    m_menuInitialOffset = layout.menuConfig.initialOffset;
+    m_menuAnimationDistance = layout.menuConfig.animationDistance;
+    m_menuAnimationSpeed = layout.menuConfig.animationSpeed;
     m_playbutton->SetZIndex(50);
     m_playbutton->SetPosition(UILayout::PercentToWorldPosition(
         layout.play.xPercent, layout.play.yPercent, viewportSize));
@@ -54,6 +59,13 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_additionalButtonOverlay->SetVisible(false);
         m_exitbutton->SetVisible(false);
         m_bird->SetVisible(true);
+            // Hide menu items
+            m_menuItem043->SetVisible(false);
+            m_menuItem032->SetVisible(false);
+            m_menuItem017->SetVisible(false);
+            m_additionalMenuItem108->SetVisible(false);
+            m_additionalMenuItem006->SetVisible(false);
+            m_additionalMenuItem041->SetVisible(false);
         if (m_onPlayClick) {
             m_onPlayClick();
         } });
@@ -158,38 +170,76 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
     // Initialize menu items (043 at bottom, 032 in middle, 017 at top)
     // Initialize menu items vertically stacked (spacing 70px, starting below setting button)
-    constexpr float menuItemSpacing = 70.0f;
-    constexpr float initialOffset = -5.0f; // Start below setting button
+    auto getGroupScaleMultiplier = [&layout](const std::string &groupId) -> float
+    {
+        if (groupId.empty())
+            return 1.0f;
+        auto it = layout.groups.find(groupId);
+        if (it != layout.groups.end())
+            return it->second.scaleMultiplier;
+        return 1.0f;
+    };
 
+    // Setting menu items - apply JSON configuration and group scaling
     m_menuItem043 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_043), 20);
-    m_menuItem043->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, initialOffset - menuItemSpacing * 2};
+    {
+        const auto &item = layout.settingMenuItems.items.at("043");
+        float groupScale = getGroupScaleMultiplier(item.groupId);
+        m_menuItem043->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
+        m_menuItem043->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
+    }
     m_menuItem043->SetVisible(false);
 
     m_menuItem032 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_032), 21);
-    m_menuItem032->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, initialOffset - menuItemSpacing - 3.0f}; // +10 to prevent overlap with setting button
+    {
+        const auto &item = layout.settingMenuItems.items.at("032");
+        float groupScale = getGroupScaleMultiplier(item.groupId);
+        m_menuItem032->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
+        m_menuItem032->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
+    }
     m_menuItem032->SetVisible(false);
 
     m_menuItem017 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_017), 22);
-    m_menuItem017->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, initialOffset};
+    {
+        const auto &item = layout.settingMenuItems.items.at("017");
+        float groupScale = getGroupScaleMultiplier(item.groupId);
+        m_menuItem017->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
+        m_menuItem017->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
+    }
     m_menuItem017->SetVisible(false);
 
-    // Initialize additional button menu items (108 at bottom, 006 in middle, 041 at top)
+    // Additional menu items - apply JSON configuration and group scaling
     m_additionalMenuItem108 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_108), 20);
-    m_additionalMenuItem108->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, initialOffset - menuItemSpacing * 2};
+    {
+        const auto &item = layout.additionalMenuItems.items.at("108");
+        float groupScale = getGroupScaleMultiplier(item.groupId);
+        m_additionalMenuItem108->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
+        m_additionalMenuItem108->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
+    }
     m_additionalMenuItem108->SetVisible(false);
 
     m_additionalMenuItem006 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_006), 21);
-    m_additionalMenuItem006->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, initialOffset - menuItemSpacing - 3.0f};
+    {
+        const auto &item = layout.additionalMenuItems.items.at("006");
+        float groupScale = getGroupScaleMultiplier(item.groupId);
+        m_additionalMenuItem006->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
+        m_additionalMenuItem006->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
+    }
     m_additionalMenuItem006->SetVisible(false);
 
     m_additionalMenuItem041 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_041), 22);
-    m_additionalMenuItem041->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, initialOffset};
+    {
+        const auto &item = layout.additionalMenuItems.items.at("041");
+        float groupScale = getGroupScaleMultiplier(item.groupId);
+        m_additionalMenuItem041->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
+        m_additionalMenuItem041->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
+    }
     m_additionalMenuItem041->SetVisible(false);
 
     // Exit confirm panel: 048 in the center with 105 (left) and 95 (right) below
@@ -246,9 +296,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
 void IntroScene::Update()
 {
-    constexpr float menuItemSpacing = 70.0f;
-    constexpr float initialOffset = -50.0f;
-
     // Handle ESC key to show exit confirmation
     if (Util::Input::IsKeyDown(Util::Keycode::ESCAPE) && !m_exitPanelVisible)
     {
@@ -301,8 +348,6 @@ void IntroScene::Update()
     if (m_menuItemsAnimating && m_menuItem043 && m_menuItem032 && m_menuItem017)
     {
         float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float menuAnimationSpeed = 400.0f; // pixels per second
-        constexpr float targetMoveDistance = 300.0f; // move up 300px total
 
         if (m_settingMenuOpen)
         {
@@ -311,12 +356,12 @@ void IntroScene::Update()
             glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
             glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
 
-            float moveDistance = menuAnimationSpeed * deltaTimeSec;
+            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
 
-            // Target: move up by targetMoveDistance (Y increases), maintain spacing
-            float targetY043 = m_settingButtonPosition.y + initialOffset - menuItemSpacing * 2 + targetMoveDistance;
-            float targetY032 = m_settingButtonPosition.y + initialOffset - menuItemSpacing + targetMoveDistance - 3.0f; // +10 to prevent overlap with setting button
-            float targetY017 = m_settingButtonPosition.y + initialOffset + targetMoveDistance;
+            // Target: move up by animationDistance (Y increases), maintain spacing
+            float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
+            float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
+            float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
 
             if (pos043.y < targetY043)
             {
@@ -354,11 +399,11 @@ void IntroScene::Update()
             glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
             glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
 
-            float moveDistance = menuAnimationSpeed * deltaTimeSec;
+            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
 
-            float targetY043 = m_settingButtonPosition.y + initialOffset - menuItemSpacing * 2;
-            float targetY032 = m_settingButtonPosition.y + initialOffset - menuItemSpacing; // +5 to prevent overlap with setting button
-            float targetY017 = m_settingButtonPosition.y + initialOffset;
+            float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
+            float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
+            float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset;
 
             if (pos043.y > targetY043)
             {
@@ -394,9 +439,6 @@ void IntroScene::Update()
     if (m_additionalMenuItemsAnimating && m_additionalMenuItem108 && m_additionalMenuItem006 && m_additionalMenuItem041)
     {
         float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float menuAnimationSpeed = 400.0f; // pixels per second
-        constexpr float targetMoveDistance = 300.0f; // move up 300px total
-
         if (m_additionalMenuOpen)
         {
             // Move all items upward together
@@ -404,12 +446,12 @@ void IntroScene::Update()
             glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
             glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
 
-            float moveDistance = menuAnimationSpeed * deltaTimeSec;
+            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
 
-            // Target: move up by targetMoveDistance (Y increases), maintain spacing
-            float targetY108 = m_additionalButtonPosition.y + initialOffset - menuItemSpacing * 2 + targetMoveDistance;
-            float targetY006 = m_additionalButtonPosition.y + initialOffset - menuItemSpacing + targetMoveDistance - 3.0f;
-            float targetY041 = m_additionalButtonPosition.y + initialOffset + targetMoveDistance;
+            // Target: move up by animationDistance (Y increases), maintain spacing
+            float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
+            float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
+            float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
 
             if (pos108.y < targetY108)
             {
@@ -447,11 +489,11 @@ void IntroScene::Update()
             glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
             glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
 
-            float moveDistance = menuAnimationSpeed * deltaTimeSec;
+            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
 
-            float targetY108 = m_additionalButtonPosition.y + initialOffset - menuItemSpacing * 2;
-            float targetY006 = m_additionalButtonPosition.y + initialOffset - menuItemSpacing;
-            float targetY041 = m_additionalButtonPosition.y + initialOffset;
+            float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
+            float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
+            float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset;
 
             if (pos108.y > targetY108)
             {

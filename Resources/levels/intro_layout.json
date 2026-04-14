@@ -13,6 +13,46 @@
             "scaleMultiplier": 1.5
         }
     ],
+    "menuConfig": {
+        "itemSpacing": 100.0,
+        "initialOffset": -50.0,
+        "animationDistance": 420.0,
+        "animationSpeed": 1000.0
+    },
+    "settingMenuItems": {
+        "043": {
+            "relativeOffsetY": -460.0,
+            "scale": 1.0,
+            "groupId": "Settings"
+        },
+        "032": {
+            "relativeOffsetY": -300.0,
+            "scale": 1.0,
+            "groupId": "Settings"
+        },
+        "017": {
+            "relativeOffsetY": -180.0,
+            "scale": 1.0,
+            "groupId": "Settings"
+        }
+    },
+    "additionalMenuItems": {
+        "108": {
+            "relativeOffsetY": -460.0,
+            "scale": 1.0,
+            "groupId": "Additional"
+        },
+        "006": {
+            "relativeOffsetY": -300.0,
+            "scale": 1.0,
+            "groupId": "Additional"
+        },
+        "041": {
+            "relativeOffsetY": -180.0,
+            "scale": 1.0,
+            "groupId": "Additional"
+        }
+    },
     "play": {
         "xPercent": 50.0,
         "yPercent": 50.0,
@@ -32,7 +72,7 @@
     },
     "settingButtonOverlay": {
         "xPercent": 86.0,
-        "yPercent": 90.5,
+        "yPercent": 90.0,
         "scale": 1.22,
         "overlayScale": 1.1,
         "hoverScaleMultiplier": 1.1,

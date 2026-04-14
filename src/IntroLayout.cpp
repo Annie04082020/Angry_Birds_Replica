@@ -1,5 +1,6 @@
 #include "IntroLayout.hpp"
 
+#include "JsonParseUtils.hpp"
 #include "LayoutParseUtils.hpp"
 #include "Util/TransformUtils.hpp"
 
@@ -34,6 +35,90 @@ namespace
         layout.scale *= scaleFactor;
         layout.baseScale *= scaleFactor;
         layout.overlayScale *= scaleFactor;
+    }
+
+    MenuConfig ParseMenuConfig(const std::string &json, const std::string &configKey)
+    {
+        MenuConfig config;
+
+        std::string configJson;
+        if (!JsonParseUtils::ExtractObjectContent(json, configKey, configJson))
+        {
+            return config;
+        }
+
+        // Parse generic menu config (for menuConfig object)
+        if (JsonParseUtils::HasKey(configJson, "itemSpacing"))
+        {
+            config.itemSpacing = JsonParseUtils::ExtractFloat(configJson, "itemSpacing", config.itemSpacing);
+        }
+        if (JsonParseUtils::HasKey(configJson, "initialOffset"))
+        {
+            config.initialOffset = JsonParseUtils::ExtractFloat(configJson, "initialOffset", config.initialOffset);
+        }
+        if (JsonParseUtils::HasKey(configJson, "animationDistance"))
+        {
+            config.animationDistance = JsonParseUtils::ExtractFloat(configJson, "animationDistance", config.animationDistance);
+        }
+        if (JsonParseUtils::HasKey(configJson, "animationSpeed"))
+        {
+            config.animationSpeed = JsonParseUtils::ExtractFloat(configJson, "animationSpeed", config.animationSpeed);
+        }
+
+        // Parse individual menu items
+        const size_t itemsStart = configJson.find_first_of('{');
+        if (itemsStart != std::string::npos)
+        {
+            size_t itemStart = itemsStart;
+            int braceCount = 0;
+            for (size_t i = itemStart; i < configJson.length(); ++i)
+            {
+                if (configJson[i] == '{')
+                {
+                    if (braceCount == 0)
+                    {
+                        itemStart = i;
+                    }
+                    ++braceCount;
+                }
+                else if (configJson[i] == '}')
+                {
+                    --braceCount;
+                    if (braceCount == 0)
+                    {
+                        // Extract key before this object
+                        size_t keyStart = configJson.rfind('\"', itemStart);
+                        if (keyStart != std::string::npos)
+                        {
+                            size_t keyEnd = configJson.rfind('\"', keyStart - 1);
+                            if (keyEnd != std::string::npos)
+                            {
+                                std::string itemKey = configJson.substr(keyEnd + 1, keyStart - keyEnd - 1);
+
+                                std::string itemJson = configJson.substr(itemStart + 1, i - itemStart - 1);
+
+                                MenuItemConfig item;
+                                if (JsonParseUtils::HasKey(itemJson, "relativeOffsetY"))
+                                {
+                                    item.relativeOffsetY = JsonParseUtils::ExtractFloat(itemJson, "relativeOffsetY");
+                                }
+                                if (JsonParseUtils::HasKey(itemJson, "scale"))
+                                {
+                                    item.scale = JsonParseUtils::ExtractFloat(itemJson, "scale", 1.0f);
+                                }
+                                if (JsonParseUtils::HasKey(itemJson, "groupId"))
+                                {
+                                    item.groupId = JsonParseUtils::ExtractString(itemJson, "groupId", "");
+                                }
+                                config.items[itemKey] = item;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return config;
     }
 
     std::unordered_map<std::string, GroupAdjustment> BuildGroupsWithAutoPivot(
@@ -114,6 +199,11 @@ namespace IntroLayoutLoader
         buffer << layoutFile.rdbuf();
         const std::string layoutJson = buffer.str();
 
+        // Parse menu configurations
+        layout.menuConfig = ParseMenuConfig(layoutJson, "menuConfig");
+        layout.settingMenuItems = ParseMenuConfig(layoutJson, "settingMenuItems");
+        layout.additionalMenuItems = ParseMenuConfig(layoutJson, "additionalMenuItems");
+
         UILayout::ParseSection(layoutJson, "play", layout.play);
         UILayout::ParseSection(layoutJson, "exit", layout.exit);
         UILayout::ParseCompositeSection(layoutJson, "settingButtonBase", layout.settingButtonBase);
@@ -131,6 +221,7 @@ namespace IntroLayoutLoader
 
         auto sections = CollectSections(layout);
         const auto resolvedGroups = BuildGroupsWithAutoPivot(groups, sections);
+        layout.groups = resolvedGroups; // Store groups in layout for later use
         for (auto *section : sections)
         {
             UILayout::ApplyGroupAdjustment(*section, resolvedGroups);

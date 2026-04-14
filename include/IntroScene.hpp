@@ -56,6 +56,13 @@ private:
     bool m_exitPanelVisible = false;
     glm::vec2 m_settingButtonPosition = {520.0f, -300.0f};
     glm::vec2 m_additionalButtonPosition = {650.0f, -300.0f};
+
+    // Menu configuration from JSON
+    float m_menuItemSpacing = 70.0f;
+    float m_menuInitialOffset = -5.0f;
+    float m_menuAnimationDistance = 300.0f;
+    float m_menuAnimationSpeed = 400.0f;
+
     std::function<void()> m_onPlayClick = nullptr;
 };
 
