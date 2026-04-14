@@ -8,6 +8,49 @@
 
 namespace
 {
+    Character::EntityKind ClassifyEntityKind(const std::string &imageId)
+    {
+        if (imageId.rfind("BIRD", 0) == 0)
+        {
+            return Character::EntityKind::Bird;
+        }
+        if (imageId.rfind("PIG", 0) == 0)
+        {
+            return Character::EntityKind::Pig;
+        }
+        if (imageId.rfind("SLINGSHOT", 0) == 0)
+        {
+            return Character::EntityKind::Slingshot;
+        }
+        if (imageId.rfind("WOOD", 0) == 0 || imageId.rfind("STONE", 0) == 0 ||
+            imageId.rfind("GLASS", 0) == 0)
+        {
+            return Character::EntityKind::Environment;
+        }
+        return Character::EntityKind::Unknown;
+    }
+
+    Character::MaterialType ClassifyMaterialType(const std::string &imageId)
+    {
+        if (imageId.rfind("WOOD", 0) == 0)
+        {
+            return Character::MaterialType::Wood;
+        }
+        if (imageId.rfind("STONE", 0) == 0)
+        {
+            return Character::MaterialType::Stone;
+        }
+        if (imageId.rfind("GLASS", 0) == 0)
+        {
+            return Character::MaterialType::Glass;
+        }
+        if (imageId.rfind("BIRD", 0) == 0 || imageId.rfind("PIG", 0) == 0)
+        {
+            return Character::MaterialType::Flesh;
+        }
+        return Character::MaterialType::None;
+    }
+
     std::string PrepareResourcePath(const std::string &resourcePath)
     {
         if (resourcePath.empty() || resourcePath.find(':') != std::string::npos || resourcePath[0] == '/')
@@ -186,6 +229,8 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetScale(glm::vec2(scaleX, scaleY));
     character->SetRotation(objectDefinition.rotation);
     character->SetVisible(true);
+    character->SetEntityKind(ClassifyEntityKind(objectDefinition.imageId));
+    character->SetMaterialType(ClassifyMaterialType(objectDefinition.imageId));
 
     if (objectDefinition.imageId == "SLINGSHOT_1")
     {
