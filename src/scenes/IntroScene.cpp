@@ -82,8 +82,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_exitButton105->SetVisible(true);
         m_exitButton95->SetVisible(true);
         m_exitDialog->SetVisible(true);
-        m_exitPanelVisible = true;
-    });
+        m_exitPanelVisible = true; });
 
     // scale: group multiplier, baseScale/overlayScale: per-layer multipliers.
     const float settingBaseScaleValue = layout.settingButtonBase.scale * layout.settingButtonBase.baseScale;
