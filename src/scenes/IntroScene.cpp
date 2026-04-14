@@ -28,9 +28,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     SetZIndex(50);
     SetBGM(std::make_shared<BackgroundMusic>(Resource::TITLE_THEME));
 
-    m_bird = std::make_shared<Character>(Resource::BIRD_R);
-    m_bird->SetVisible(false);
-
     const glm::vec2 viewportSize = Util::GetViewportSize();
     const IntroLayout layout = IntroLayoutLoader::Load(Resource::INTRO_LAYOUT_DATA);
     m_settingButtonPosition = UILayout::PercentToWorldPosition(
@@ -64,7 +61,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_additionalButton->SetVisible(false);
         m_additionalButtonOverlay->SetVisible(false);
         m_exitbutton->SetVisible(false);
-        m_bird->SetVisible(true);
         // Hide menu items
         m_menuItem043->SetVisible(false);
         m_menuItem032->SetVisible(false);
@@ -86,8 +82,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_exitButton105->SetVisible(true);
         m_exitButton95->SetVisible(true);
         m_exitDialog->SetVisible(true);
-        m_exitPanelVisible = true;
-        m_bird->SetVisible(true); });
+        m_exitPanelVisible = true; });
 
     // scale: group multiplier, baseScale/overlayScale: per-layer multipliers.
     const float settingBaseScaleValue = layout.settingButtonBase.scale * layout.settingButtonBase.baseScale;
@@ -107,7 +102,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingbutton->SetSFX(Resource::SETTING_SFX);
     m_settingbutton->SetOnClickFunction([this]()
                                         {
-        m_bird->SetVisible(true);
         if (m_settingMenuOpen) {
             // 關閉菜單：逆時針旋轉 180 度
             m_settingOverlayTargetRotation += 3.14159265f;
@@ -150,7 +144,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButton->SetSFX(Resource::SETTING_SFX);
     m_additionalButton->SetOnClickFunction([this]()
                                            {
-        m_bird->SetVisible(true);
         // Handle menu opening/closing
         if (m_additionalMenuOpen) {
             // Close menu: rotate back
@@ -267,7 +260,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         glm::vec2{layout.exitDialog.scale, layout.exitDialog.scale};
     m_exitDialog->SetVisible(false);
 
-    AddElements(m_bird);
     AddElements(m_playbutton);
     AddElements(m_exitbutton);
     AddElements(m_settingbutton);

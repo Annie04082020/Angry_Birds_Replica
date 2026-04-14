@@ -36,7 +36,7 @@ list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR}/)
 add_executable(${PROJECT_NAME}
     ${SRC_DIR}/main.cpp
     ${SRC_FILES}
-    ${HEADER_FILES}
+    ${INCLUDE_FILES}
 )
 
 if(MSVC)
@@ -55,6 +55,15 @@ endif()
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${DEPENDENCY_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/PTSD/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+file(GLOB_RECURSE PROJECT_HEADER_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
+set(PROJECT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include)
+foreach(header_file ${PROJECT_HEADER_FILES})
+    get_filename_component(header_dir ${header_file} DIRECTORY)
+    list(APPEND PROJECT_INCLUDE_DIRS ${header_dir})
+endforeach()
+list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME}
     SDL2::SDL2main
