@@ -94,7 +94,6 @@ namespace Resource
             // UI and audio
             {"Play_Button", Play_Button},
             {"Exit_Button", Exit_Button},
-            {"Setting_Button", Setting_Button},
             {"Setting_Button_Base", Setting_Button_Base},
             {"Setting_Button_Overlay", Setting_Button_Overlay},
             {"Setting_Menu_Item_017", Setting_Menu_Item_017},

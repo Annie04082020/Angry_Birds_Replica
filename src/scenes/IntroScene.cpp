@@ -82,7 +82,8 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_exitButton105->SetVisible(true);
         m_exitButton95->SetVisible(true);
         m_exitDialog->SetVisible(true);
-        m_exitPanelVisible = true; });
+        m_exitPanelVisible = true;
+    });
 
     // scale: group multiplier, baseScale/overlayScale: per-layer multipliers.
     const float settingBaseScaleValue = layout.settingButtonBase.scale * layout.settingButtonBase.baseScale;
@@ -164,8 +165,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
     m_additionalButtonOverlay->SetVisible(true);
 
-    // Initialize menu items (043 at bottom, 032 in middle, 017 at top)
-    // Initialize menu items vertically stacked (spacing 70px, starting below setting button)
     auto getGroupScaleMultiplier = [&layout](const std::string &groupId) -> float
     {
         if (groupId.empty())
@@ -294,7 +293,7 @@ void IntroScene::Update()
     {
         float &rotation = m_settingOverlay->m_Transform.rotation;
         float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float rotationSpeedRadPerSec = 9.42478f; // 3π rad/sec
+        constexpr float rotationSpeedRadPerSec = 3.0f * glm::pi<float>(); // 3π rad/sec
         float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
 
         float remaining = m_settingOverlayTargetRotation - rotation;
@@ -313,7 +312,7 @@ void IntroScene::Update()
     {
         float &rotation = m_additionalButtonOverlay->m_Transform.rotation;
         float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float rotationSpeedRadPerSec = 11.780975f;
+        constexpr float rotationSpeedRadPerSec = 3.75f * glm::pi<float>();
         float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
 
         float remaining = m_additionalOverlayTargetRotation - rotation;
@@ -329,184 +328,17 @@ void IntroScene::Update()
     }
 
     // Animate menu items opening/closing
-    if (m_menuItemsAnimating && m_menuItem043 && m_menuItem032 && m_menuItem017)
+    if (m_menuItemsAnimating)
     {
-        float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-
-        if (m_settingMenuOpen)
-        {
-            // Move all items upward together
-            glm::vec2 &pos043 = m_menuItem043->m_Transform.translation;
-            glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
-            glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
-
-            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-
-            // Target: move up by animationDistance (Y increases), maintain spacing
-            float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
-            float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
-            float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
-
-            if (pos043.y < targetY043)
-            {
-                pos043.y = glm::min(pos043.y + moveDistance, targetY043);
-            }
-            if (pos032.y < targetY032)
-            {
-                pos032.y = glm::min(pos032.y + moveDistance, targetY032);
-            }
-            if (pos017.y < targetY017)
-            {
-                pos017.y = glm::min(pos017.y + moveDistance, targetY017);
-            }
-
-            // Show items only when they float above setting button
-            m_menuItem043->SetVisible(pos043.y > m_settingButtonPosition.y);
-            m_menuItem032->SetVisible(pos032.y > m_settingButtonPosition.y);
-            m_menuItem017->SetVisible(pos017.y > m_settingButtonPosition.y);
-
-            // Check if all items reached their targets
-            if (std::fabs(pos043.y - targetY043) < 1.0f &&
-                std::fabs(pos032.y - targetY032) < 1.0f &&
-                std::fabs(pos017.y - targetY017) < 1.0f)
-            {
-                pos043.y = targetY043;
-                pos032.y = targetY032;
-                pos017.y = targetY017;
-                m_menuItemsAnimating = false;
-            }
-        }
-        else
-        {
-            // Move items back to original positions
-            glm::vec2 &pos043 = m_menuItem043->m_Transform.translation;
-            glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
-            glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
-
-            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-
-            float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
-            float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
-            float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset;
-
-            if (pos043.y > targetY043)
-            {
-                pos043.y = glm::max(pos043.y - moveDistance, targetY043);
-            }
-            if (pos032.y > targetY032)
-            {
-                pos032.y = glm::max(pos032.y - moveDistance, targetY032);
-            }
-            if (pos017.y > targetY017)
-            {
-                pos017.y = glm::max(pos017.y - moveDistance, targetY017);
-            }
-
-            // Hide items only when they go below setting button
-            m_menuItem043->SetVisible(pos043.y > m_settingButtonPosition.y);
-            m_menuItem032->SetVisible(pos032.y > m_settingButtonPosition.y);
-            m_menuItem017->SetVisible(pos017.y > m_settingButtonPosition.y);
-
-            if (std::fabs(pos043.y - targetY043) < 1.0f &&
-                std::fabs(pos032.y - targetY032) < 1.0f &&
-                std::fabs(pos017.y - targetY017) < 1.0f)
-            {
-                pos043.y = targetY043;
-                pos032.y = targetY032;
-                pos017.y = targetY017;
-                m_menuItemsAnimating = false;
-            }
-        }
+        std::vector<std::shared_ptr<Util::GameObject>> settingItems = {m_menuItem043, m_menuItem032, m_menuItem017};
+        AnimateMenuItems(settingItems, m_settingButtonPosition, m_settingMenuOpen, m_menuItemsAnimating);
     }
 
-    // Animate additional menu items opening/closing (similar to setting menu)
-    if (m_additionalMenuItemsAnimating && m_additionalMenuItem108 && m_additionalMenuItem006 && m_additionalMenuItem041)
+    // Animate additional menu items opening/closing
+    if (m_additionalMenuItemsAnimating)
     {
-        float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        if (m_additionalMenuOpen)
-        {
-            // Move all items upward together
-            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
-            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
-            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
-
-            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-
-            // Target: move up by animationDistance (Y increases), maintain spacing
-            float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
-            float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
-            float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
-
-            if (pos108.y < targetY108)
-            {
-                pos108.y = glm::min(pos108.y + moveDistance, targetY108);
-            }
-            if (pos006.y < targetY006)
-            {
-                pos006.y = glm::min(pos006.y + moveDistance, targetY006);
-            }
-            if (pos041.y < targetY041)
-            {
-                pos041.y = glm::min(pos041.y + moveDistance, targetY041);
-            }
-
-            // Show items only when they float above additional button
-            m_additionalMenuItem108->SetVisible(pos108.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem006->SetVisible(pos006.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem041->SetVisible(pos041.y > m_additionalButtonPosition.y);
-
-            // Check if all items reached their targets
-            if (std::fabs(pos108.y - targetY108) < 1.0f &&
-                std::fabs(pos006.y - targetY006) < 1.0f &&
-                std::fabs(pos041.y - targetY041) < 1.0f)
-            {
-                pos108.y = targetY108;
-                pos006.y = targetY006;
-                pos041.y = targetY041;
-                m_additionalMenuItemsAnimating = false;
-            }
-        }
-        else
-        {
-            // Move items back to original positions
-            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
-            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
-            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
-
-            float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-
-            float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
-            float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
-            float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset;
-
-            if (pos108.y > targetY108)
-            {
-                pos108.y = glm::max(pos108.y - moveDistance, targetY108);
-            }
-            if (pos006.y > targetY006)
-            {
-                pos006.y = glm::max(pos006.y - moveDistance, targetY006);
-            }
-            if (pos041.y > targetY041)
-            {
-                pos041.y = glm::max(pos041.y - moveDistance, targetY041);
-            }
-
-            // Hide items only when they go below additional button
-            m_additionalMenuItem108->SetVisible(pos108.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem006->SetVisible(pos006.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem041->SetVisible(pos041.y > m_additionalButtonPosition.y);
-
-            if (std::fabs(pos108.y - targetY108) < 1.0f &&
-                std::fabs(pos006.y - targetY006) < 1.0f &&
-                std::fabs(pos041.y - targetY041) < 1.0f)
-            {
-                pos108.y = targetY108;
-                pos006.y = targetY006;
-                pos041.y = targetY041;
-                m_additionalMenuItemsAnimating = false;
-            }
-        }
+        std::vector<std::shared_ptr<Util::GameObject>> additionalItems = {m_additionalMenuItem108, m_additionalMenuItem006, m_additionalMenuItem041};
+        AnimateMenuItems(additionalItems, m_additionalButtonPosition, m_additionalMenuOpen, m_additionalMenuItemsAnimating);
     }
     auto mousePos = Util::Input::GetCursorPosition();
     if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos))
@@ -566,4 +398,71 @@ void IntroScene::Update()
 
     m_movingBg->Update();
     Scene::Update();
+}
+
+void IntroScene::AnimateMenuItems(
+    std::vector<std::shared_ptr<Util::GameObject>> &items,
+    const glm::vec2 &basePosition,
+    bool menuOpen,
+    bool &isAnimating)
+{
+    if (!isAnimating || items.empty())
+        return;
+
+    float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
+    float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
+    size_t numItems = items.size();
+
+    if (menuOpen)
+    {
+        // Move items upward
+        bool allReached = true;
+        for (size_t i = 0; i < numItems; ++i)
+        {
+            if (!items[i])
+                continue;
+
+            glm::vec2 &pos = items[i]->m_Transform.translation;
+            float baseOffset = -m_menuItemSpacing * (float)(numItems - 1 - i);
+            float extraAdjust = (i == 1) ? -3.0f : 0.0f;
+            float targetY = basePosition.y + m_menuInitialOffset + baseOffset + m_menuAnimationDistance + extraAdjust;
+
+            if (pos.y < targetY)
+            {
+                pos.y = glm::min(pos.y + moveDistance, targetY);
+                allReached = false;
+            }
+
+            items[i]->SetVisible(pos.y > basePosition.y);
+        }
+
+        if (allReached)
+            isAnimating = false;
+    }
+    else
+    {
+        // Move items back to original positions
+        bool allReached = true;
+        for (size_t i = 0; i < numItems; ++i)
+        {
+            if (!items[i])
+                continue;
+
+            glm::vec2 &pos = items[i]->m_Transform.translation;
+            float baseOffset = -m_menuItemSpacing * (float)(numItems - 1 - i);
+            float extraAdjust = (i == 1) ? -3.0f : 0.0f;
+            float targetY = basePosition.y + m_menuInitialOffset + baseOffset + extraAdjust;
+
+            if (pos.y > targetY)
+            {
+                pos.y = glm::max(pos.y - moveDistance, targetY);
+                allReached = false;
+            }
+
+            items[i]->SetVisible(pos.y > basePosition.y);
+        }
+
+        if (allReached)
+            isAnimating = false;
+    }
 }

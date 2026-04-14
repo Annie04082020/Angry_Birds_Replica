@@ -64,6 +64,13 @@ private:
     float m_menuAnimationSpeed = 400.0f;
 
     std::function<bool()> m_onPlayClick = nullptr;
+
+    // Helper function for menu item animation
+    void AnimateMenuItems(
+        std::vector<std::shared_ptr<Util::GameObject>> &items,
+        const glm::vec2 &basePosition,
+        bool menuOpen,
+        bool &isAnimating);
 };
 
 #endif // INTRO_SCENE_HPP
