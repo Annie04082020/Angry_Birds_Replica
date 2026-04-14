@@ -31,10 +31,8 @@ namespace
         UILayout::CompositeSectionLayout &layout,
         float scaleFactor)
     {
-        // Scale all the scale-related fields
+        // Apply resolution scaling once. baseScale/overlayScale stay as relative multipliers.
         layout.scale *= scaleFactor;
-        layout.baseScale *= scaleFactor;
-        layout.overlayScale *= scaleFactor;
     }
 
     MenuConfig ParseMenuConfig(const std::string &json, const std::string &configKey)

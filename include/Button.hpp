@@ -73,7 +73,7 @@ public:
     m_hoverMultiplier = multiplier;
   }
 
-  void Update()
+  void Update() override
   {
     auto mousePos = Util::Input::GetCursorPosition();
 

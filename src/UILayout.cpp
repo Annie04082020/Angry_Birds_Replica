@@ -55,7 +55,7 @@ namespace UILayout
 
         const GroupAdjustment &group = groupIt->second;
 
-        // Apply offset (fixed displacement, independent of scale)
+        // Apply offset first; if scalePosition is enabled, this offset is part of the scaled relative vector.
         layout.xPercent += group.offsetX;
         layout.yPercent += group.offsetY;
 

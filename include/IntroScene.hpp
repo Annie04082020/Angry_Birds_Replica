@@ -14,7 +14,7 @@ public:
     static std::shared_ptr<IntroScene> Create();
     void Update() override;
 
-    void SetOnPlayClickCallback(std::function<void()> callback)
+    void SetOnPlayClickCallback(std::function<bool()> callback)
     {
         m_onPlayClick = callback;
     }
@@ -63,7 +63,7 @@ private:
     float m_menuAnimationDistance = 300.0f;
     float m_menuAnimationSpeed = 400.0f;
 
-    std::function<void()> m_onPlayClick = nullptr;
+    std::function<bool()> m_onPlayClick = nullptr;
 };
 
 #endif // INTRO_SCENE_HPP

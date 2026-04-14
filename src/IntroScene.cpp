@@ -7,9 +7,9 @@
 #include "Util/Input.hpp"
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
+#include "SDL.h"
 
 #include <cmath>
-#include <cstdlib>
 
 std::shared_ptr<IntroScene> IntroScene::Create()
 {
@@ -52,6 +52,12 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_playbutton->SetSFX(Resource::SETTING_SFX);
     m_playbutton->SetOnClickFunction([this]()
                                      {
+        const bool transitionSucceeded = (m_onPlayClick == nullptr) || m_onPlayClick();
+        if (!transitionSucceeded)
+        {
+            return;
+        }
+
         m_playbutton->SetVisible(false);
         m_settingbutton->SetVisible(false);
         m_settingOverlay->SetVisible(false);
@@ -59,16 +65,13 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_additionalButtonOverlay->SetVisible(false);
         m_exitbutton->SetVisible(false);
         m_bird->SetVisible(true);
-            // Hide menu items
-            m_menuItem043->SetVisible(false);
-            m_menuItem032->SetVisible(false);
-            m_menuItem017->SetVisible(false);
-            m_additionalMenuItem108->SetVisible(false);
-            m_additionalMenuItem006->SetVisible(false);
-            m_additionalMenuItem041->SetVisible(false);
-        if (m_onPlayClick) {
-            m_onPlayClick();
-        } });
+        // Hide menu items
+        m_menuItem043->SetVisible(false);
+        m_menuItem032->SetVisible(false);
+        m_menuItem017->SetVisible(false);
+        m_additionalMenuItem108->SetVisible(false);
+        m_additionalMenuItem006->SetVisible(false);
+        m_additionalMenuItem041->SetVisible(false); });
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);
@@ -180,66 +183,55 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         return 1.0f;
     };
 
+    auto applyMenuItemLayout = [&](const std::shared_ptr<Util::GameObject> &menuItem,
+                                   const std::unordered_map<std::string, MenuItemConfig> &menuItems,
+                                   const std::string &itemId,
+                                   const glm::vec2 &basePosition)
+    {
+        const auto itemIt = menuItems.find(itemId);
+        if (itemIt == menuItems.end())
+        {
+            menuItem->m_Transform.translation = basePosition;
+            menuItem->m_Transform.scale = {1.0f, 1.0f};
+            return;
+        }
+
+        const auto &item = itemIt->second;
+        const float groupScale = getGroupScaleMultiplier(item.groupId);
+        menuItem->m_Transform.translation = basePosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
+        menuItem->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
+    };
+
     // Setting menu items - apply JSON configuration and group scaling
     m_menuItem043 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_043), 20);
-    {
-        const auto &item = layout.settingMenuItems.items.at("043");
-        float groupScale = getGroupScaleMultiplier(item.groupId);
-        m_menuItem043->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
-        m_menuItem043->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
-    }
+    applyMenuItemLayout(m_menuItem043, layout.settingMenuItems.items, "043", m_settingButtonPosition);
     m_menuItem043->SetVisible(false);
 
     m_menuItem032 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_032), 21);
-    {
-        const auto &item = layout.settingMenuItems.items.at("032");
-        float groupScale = getGroupScaleMultiplier(item.groupId);
-        m_menuItem032->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
-        m_menuItem032->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
-    }
+    applyMenuItemLayout(m_menuItem032, layout.settingMenuItems.items, "032", m_settingButtonPosition);
     m_menuItem032->SetVisible(false);
 
     m_menuItem017 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_017), 22);
-    {
-        const auto &item = layout.settingMenuItems.items.at("017");
-        float groupScale = getGroupScaleMultiplier(item.groupId);
-        m_menuItem017->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
-        m_menuItem017->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
-    }
+    applyMenuItemLayout(m_menuItem017, layout.settingMenuItems.items, "017", m_settingButtonPosition);
     m_menuItem017->SetVisible(false);
 
     // Additional menu items - apply JSON configuration and group scaling
     m_additionalMenuItem108 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_108), 20);
-    {
-        const auto &item = layout.additionalMenuItems.items.at("108");
-        float groupScale = getGroupScaleMultiplier(item.groupId);
-        m_additionalMenuItem108->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
-        m_additionalMenuItem108->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
-    }
+    applyMenuItemLayout(m_additionalMenuItem108, layout.additionalMenuItems.items, "108", m_additionalButtonPosition);
     m_additionalMenuItem108->SetVisible(false);
 
     m_additionalMenuItem006 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_006), 21);
-    {
-        const auto &item = layout.additionalMenuItems.items.at("006");
-        float groupScale = getGroupScaleMultiplier(item.groupId);
-        m_additionalMenuItem006->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
-        m_additionalMenuItem006->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
-    }
+    applyMenuItemLayout(m_additionalMenuItem006, layout.additionalMenuItems.items, "006", m_additionalButtonPosition);
     m_additionalMenuItem006->SetVisible(false);
 
     m_additionalMenuItem041 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_041), 22);
-    {
-        const auto &item = layout.additionalMenuItems.items.at("041");
-        float groupScale = getGroupScaleMultiplier(item.groupId);
-        m_additionalMenuItem041->m_Transform.translation = m_additionalButtonPosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
-        m_additionalMenuItem041->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
-    }
+    applyMenuItemLayout(m_additionalMenuItem041, layout.additionalMenuItems.items, "041", m_additionalButtonPosition);
     m_additionalMenuItem041->SetVisible(false);
 
     // Exit confirm panel: 048 in the center with 105 (left) and 95 (right) below
@@ -328,8 +320,8 @@ void IntroScene::Update()
     if (m_additionalOverlayIsAnimating && m_additionalButtonOverlay)
     {
         float &rotation = m_additionalButtonOverlay->m_Transform.rotation;
-        float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 800.0f;
-        constexpr float rotationSpeedRadPerSec = 9.42478f; // 3π rad/sec
+        float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
+        constexpr float rotationSpeedRadPerSec = 11.780975f;
         float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
 
         float remaining = m_additionalOverlayTargetRotation - rotation;
@@ -559,8 +551,9 @@ void IntroScene::Update()
             mousePos.y <= pos95.y + exitButton95Size.y / 2 &&
             Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
         {
-            // Exit game - need to implement proper exit
-            std::exit(0);
+            SDL_Event quitEvent;
+            quitEvent.type = SDL_QUIT;
+            SDL_PushEvent(&quitEvent);
         }
 
         // Check if 105 (left button) is clicked - continue game
