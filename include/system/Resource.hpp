@@ -121,6 +121,7 @@ namespace Resource
     // Level Data
     const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
     const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
+    const std::string ENTITY_TEMPLATE_DATA = RESOURCE_DIR "/entities/entity_templates.json";
 } // namespace Resource
 
 namespace Resource

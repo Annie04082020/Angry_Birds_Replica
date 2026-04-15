@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Character.hpp"
+#include "EntityTemplateDatabase.hpp"
 #include "Resource.hpp"
 #include "Util/TransformUtils.hpp"
 
@@ -40,6 +41,10 @@ namespace
         {
             return Character::MaterialType::Stone;
         }
+        if (imageId.rfind("ICE", 0) == 0)
+        {
+            return Character::MaterialType::Ice;
+        }
         if (imageId.rfind("GLASS", 0) == 0)
         {
             return Character::MaterialType::Glass;
@@ -49,6 +54,40 @@ namespace
             return Character::MaterialType::Flesh;
         }
         return Character::MaterialType::None;
+    }
+
+    void ApplyTemplateDefaults(Character &character, const std::string &imageId)
+    {
+        if (imageId.rfind("SLINGSHOT", 0) == 0)
+        {
+            character.SetEntityKind(Character::EntityKind::Slingshot);
+            character.SetMaterialType(Character::MaterialType::None);
+            character.SetStatic(true);
+            return;
+        }
+
+        const EntityTemplateDefinition *definition = EntityTemplateDatabase::FindTemplate(imageId);
+        if (definition)
+        {
+            character.SetPhysicsState(definition->physicsState);
+            if (definition->entityKind != Character::EntityKind::Unknown)
+            {
+                character.SetEntityKind(definition->entityKind);
+            }
+            if (definition->materialType != Character::MaterialType::None)
+            {
+                character.SetMaterialType(definition->materialType);
+            }
+        }
+
+        if (character.GetEntityKind() == Character::EntityKind::Unknown)
+        {
+            character.SetEntityKind(ClassifyEntityKind(imageId));
+        }
+        if (character.GetMaterialType() == Character::MaterialType::None)
+        {
+            character.SetMaterialType(ClassifyMaterialType(imageId));
+        }
     }
 
     std::string PrepareResourcePath(const std::string &resourcePath)
@@ -229,8 +268,7 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetScale(glm::vec2(scaleX, scaleY));
     character->SetRotation(objectDefinition.rotation);
     character->SetVisible(true);
-    character->SetEntityKind(ClassifyEntityKind(objectDefinition.imageId));
-    character->SetMaterialType(ClassifyMaterialType(objectDefinition.imageId));
+    ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
     if (objectDefinition.imageId == "SLINGSHOT_1")
     {

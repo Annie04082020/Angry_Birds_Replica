@@ -25,7 +25,8 @@ public:
     Flesh,
     Wood,
     Stone,
-    Glass
+    Glass,
+    Ice
   };
 
   struct PhysicsState
