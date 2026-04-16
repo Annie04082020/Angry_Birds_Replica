@@ -137,24 +137,8 @@ public:
   // Apply one Euler integration step and write the result to transform.
   void IntegratePhysics(float deltaTimeSeconds);
 
-  // TODO: Implement the collision detection
-  [[nodiscard]] bool IfCollides(const std::shared_ptr<Character> &other) const
-  {
-    // (void) other;
-    auto thisPos = GetPosition();
-    auto otherPos = other->GetPosition();
-    // Haven't updated to the size of the character
-    auto thisWidth = GetSize().x;
-    auto thisHeight = GetSize().y;
-    auto otherWidth = other->GetSize().x;
-    auto otherHeight = other->GetSize().y;
-    if (abs(thisPos.x - otherPos.x) < (thisWidth / 2 + otherWidth / 2) &&
-        abs(thisPos.y - otherPos.y) < (thisHeight / 2 + otherHeight / 2))
-    {
-      return true;
-    }
-    return false;
-  }
+  // Collision detection: first AABB broad-phase, then OBB/SAT narrow-phase.
+  [[nodiscard]] bool IfCollides(const std::shared_ptr<Character> &other) const;
   [[nodiscard]] const glm::vec2 GetSize() const
   {
     auto size = this->GetScaledSize();

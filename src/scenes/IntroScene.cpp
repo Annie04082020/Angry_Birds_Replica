@@ -55,6 +55,9 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
             return;
         }
 
+        // Stop title BGM once the game transition succeeds.
+        StopBGM();
+
         m_playbutton->SetVisible(false);
         m_settingbutton->SetVisible(false);
         m_settingOverlay->SetVisible(false);
