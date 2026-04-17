@@ -13,6 +13,7 @@ namespace
 {
   constexpr bool kEnableCollisionLog = false;
   constexpr bool kEnableCollisionDebugBoxes = false;
+  constexpr float kWorldFloorY = -320.0f;
 
   float GetRestitution(Character::MaterialType mat)
   {
@@ -71,6 +72,25 @@ void Scene::Update()
       if (ch)
       {
         ch->IntegratePhysics(m_PhysicsStep);
+      }
+    }
+
+    // Keep dynamic objects above the floor boundary and stop them there.
+    for (auto &element : m_Elements)
+    {
+      auto ch = std::dynamic_pointer_cast<Character>(element);
+      if (!ch || ch->IsStatic())
+      {
+        continue;
+      }
+
+      if (ch->GetPosition().y < kWorldFloorY)
+      {
+        glm::vec2 pos = ch->GetPosition();
+        pos.y = kWorldFloorY;
+        ch->SetPosition(pos);
+        ch->SetVelocity({0.0f, 0.0f});
+        ch->SetAngularVelocity(0.0f);
       }
     }
 

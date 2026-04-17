@@ -57,6 +57,20 @@
             "health": 3.0
         },
         {
+            "id": "WOOD_stage",
+            "kind": "Environment",
+            "material": "Wood",
+            "mass": 999999.0,
+            "inertia": 999999.0,
+            "velocityX": 0.0,
+            "velocityY": 0.0,
+            "angularVelocity": 0.0,
+            "centerOfMassOffsetX": 0.0,
+            "centerOfMassOffsetY": 0.0,
+            "isStatic": true,
+            "health": 9999.0
+        },
+        {
             "id": "WOOD_DEFAULT",
             "matchPrefix": "WOOD_",
             "kind": "Environment",
