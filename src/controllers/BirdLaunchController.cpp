@@ -152,6 +152,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     glm::vec2 velocity = m_ActiveBird->GetVelocity();
     velocity.y -= gravity * dt;
     m_ActiveBird->SetVelocity(velocity);
+    m_BirdVelocity = velocity;
 
     glm::vec2 nextPos = m_ActiveBird->GetPosition() + velocity * dt;
 
@@ -172,7 +173,8 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         return true;
     }
 
-    m_ActiveBird->SetPosition(nextPos);
+    // Position integration is handled by Scene::Update -> Character::IntegratePhysics.
+    // Keep controller responsible for launch state and gravity only.
     return true;
 }
 

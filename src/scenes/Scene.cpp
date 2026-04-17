@@ -154,7 +154,7 @@ void Scene::RunCollisionDetection()
   for (const auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
-    if (ch)
+    if (ch && ch->GetEntityKind() != Character::EntityKind::Slingshot)
     {
       characters.push_back(ch);
     }
@@ -183,6 +183,13 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
 
   if (!(ca && cb))
     return;
+
+  // Slingshot should be a pure visual/anchor object and must not block birds.
+  if (ca->GetEntityKind() == Character::EntityKind::Slingshot ||
+      cb->GetEntityKind() == Character::EntityKind::Slingshot)
+  {
+    return;
+  }
 
   auto apos = ca->GetPosition();
   auto bpos = cb->GetPosition();
