@@ -6,15 +6,18 @@ set(SRC_FILES
     audio/SoundEffect.cpp
     graphics/DynamicBackground.cpp
     ui/Button.cpp
+    ui/AnimatedButton.cpp
     scenes/Scene.cpp
     controllers/BirdLaunchController.cpp
     controllers/SceneInputController.cpp
     parsers/JsonParseUtils.cpp
     parsers/LayoutParseUtils.cpp
+    parsers/EntityTemplateParser.cpp
     ui/UILayout.cpp
     ui/IntroLayout.cpp
     levels/LevelParser.cpp
     levels/LevelObjectFactory.cpp
+    entities/EntityTemplateDatabase.cpp
     scenes/GameScene.cpp
     scenes/IntroScene.cpp
     levels/LevelManager.cpp
@@ -29,12 +32,16 @@ set(INCLUDE_FILES
     audio/SoundEffect.hpp
     graphics/DynamicBackground.hpp
     ui/Button.hpp
+    ui/AnimatedButton.hpp
     scenes/Scene.hpp
     controllers/BirdLaunchController.hpp
     controllers/SceneInputController.hpp
     parsers/JsonParseUtils.hpp
     parsers/LayoutTypes.hpp
     parsers/LayoutParseUtils.hpp
+    parsers/EntityTemplateParser.hpp
+    entities/EntityTemplateTypes.hpp
+    entities/EntityTemplateDatabase.hpp
     ui/UILayout.hpp
     ui/IntroLayout.hpp
     levels/LevelTypes.hpp

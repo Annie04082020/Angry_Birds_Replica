@@ -3,11 +3,93 @@
 #include <iostream>
 
 #include "Character.hpp"
+#include "EntityTemplateDatabase.hpp"
 #include "Resource.hpp"
 #include "Util/TransformUtils.hpp"
 
 namespace
 {
+    Character::EntityKind ClassifyEntityKind(const std::string &imageId)
+    {
+        if (imageId.rfind("BIRD", 0) == 0)
+        {
+            return Character::EntityKind::Bird;
+        }
+        if (imageId.rfind("PIG", 0) == 0)
+        {
+            return Character::EntityKind::Pig;
+        }
+        if (imageId.rfind("SLINGSHOT", 0) == 0)
+        {
+            return Character::EntityKind::Slingshot;
+        }
+        if (imageId.rfind("WOOD", 0) == 0 || imageId.rfind("STONE", 0) == 0 ||
+            imageId.rfind("GLASS", 0) == 0)
+        {
+            return Character::EntityKind::Environment;
+        }
+        return Character::EntityKind::Unknown;
+    }
+
+    Character::MaterialType ClassifyMaterialType(const std::string &imageId)
+    {
+        if (imageId.rfind("WOOD", 0) == 0)
+        {
+            return Character::MaterialType::Wood;
+        }
+        if (imageId.rfind("STONE", 0) == 0)
+        {
+            return Character::MaterialType::Stone;
+        }
+        if (imageId.rfind("ICE", 0) == 0)
+        {
+            return Character::MaterialType::Ice;
+        }
+        if (imageId.rfind("GLASS", 0) == 0)
+        {
+            return Character::MaterialType::Glass;
+        }
+        if (imageId.rfind("BIRD", 0) == 0 || imageId.rfind("PIG", 0) == 0)
+        {
+            return Character::MaterialType::Flesh;
+        }
+        return Character::MaterialType::None;
+    }
+
+    void ApplyTemplateDefaults(Character &character, const std::string &imageId)
+    {
+        if (imageId.rfind("SLINGSHOT", 0) == 0)
+        {
+            character.SetEntityKind(Character::EntityKind::Slingshot);
+            character.SetMaterialType(Character::MaterialType::None);
+            character.SetStatic(true);
+            return;
+        }
+
+        const EntityTemplateDefinition *definition = EntityTemplateDatabase::FindTemplate(imageId);
+        if (definition)
+        {
+            character.SetPhysicsState(definition->physicsState);
+            if (definition->entityKind != Character::EntityKind::Unknown)
+            {
+                character.SetEntityKind(definition->entityKind);
+            }
+            if (definition->materialType != Character::MaterialType::None)
+            {
+                character.SetMaterialType(definition->materialType);
+            }
+        }
+
+        if (character.GetEntityKind() == Character::EntityKind::Unknown)
+        {
+            character.SetEntityKind(ClassifyEntityKind(imageId));
+        }
+        if (character.GetMaterialType() == Character::MaterialType::None)
+        {
+            character.SetMaterialType(ClassifyMaterialType(imageId));
+        }
+    }
+
     std::string PrepareResourcePath(const std::string &resourcePath)
     {
         if (resourcePath.empty() || resourcePath.find(':') != std::string::npos || resourcePath[0] == '/')
@@ -186,6 +268,7 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetScale(glm::vec2(scaleX, scaleY));
     character->SetRotation(objectDefinition.rotation);
     character->SetVisible(true);
+    ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
     if (objectDefinition.imageId == "SLINGSHOT_1")
     {

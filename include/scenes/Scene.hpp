@@ -40,6 +40,13 @@ public:
     }
   }
   void SetBGM(std::shared_ptr<BackgroundMusic> bgm) { m_BGM = bgm; }
+  void StopBGM()
+  {
+    if (m_BGM)
+    {
+      m_BGM->Stop_BGM();
+    }
+  }
   void SetOnUpdate(std::function<void()> onUpdate) { m_OnUpdate = onUpdate; }
   void AddElements(std::shared_ptr<Util::GameObject> element)
   {
@@ -59,12 +66,22 @@ protected:
   // Runs a generic collision detection pass for children of this Scene.
   // Scenes may override `HandleCollision` to react to collisions.
   virtual void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                               const std::shared_ptr<Util::GameObject> &b)
-  {
-    (void)a;
-    (void)b;
-  }
+                               const std::shared_ptr<Util::GameObject> &b);
   void RunCollisionDetection();
+
+  // Physics fixed-timestep accumulator (seconds)
+  float m_PhysicsStep = 1.0f / 60.0f;
+  float m_Accumulator = 0.0f;
+  float m_MaxFrameTime = 0.25f; // clamp huge deltas
+  int m_MaxSubSteps = 5;
+  struct DebugEntity
+  {
+    std::shared_ptr<Util::GameObject> obj;
+    float ttl;
+  };
+  std::vector<DebugEntity> m_DebugEntities;
+  float m_DebugDrawCooldown = 0.0f;
+  float m_DebugDrawInterval = 0.05f;
 
 private:
   std::function<void()> m_OnUpdate = nullptr;
