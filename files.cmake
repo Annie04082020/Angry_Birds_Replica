@@ -6,6 +6,7 @@ set(SRC_FILES
     audio/SoundEffect.cpp
     graphics/DynamicBackground.cpp
     ui/Button.cpp
+    ui/AnimatedButton.cpp
     scenes/Scene.cpp
     controllers/BirdLaunchController.cpp
     controllers/SceneInputController.cpp
@@ -31,6 +32,7 @@ set(INCLUDE_FILES
     audio/SoundEffect.hpp
     graphics/DynamicBackground.hpp
     ui/Button.hpp
+    ui/AnimatedButton.hpp
     scenes/Scene.hpp
     controllers/BirdLaunchController.hpp
     controllers/SceneInputController.hpp

@@ -2,6 +2,7 @@
 #define INTRO_SCENE_HPP
 
 #include "Button.hpp"
+#include "ui/AnimatedButton.hpp"
 #include "Character.hpp"
 #include "DynamicBackground.hpp"
 #include "Scene.hpp"
@@ -29,8 +30,10 @@ private:
     std::shared_ptr<Button> m_exitbutton;
     std::shared_ptr<Button> m_settingbutton;
     std::shared_ptr<Util::GameObject> m_settingOverlay;
+    std::shared_ptr<AnimatedButton> m_settingAnimated;
     std::shared_ptr<Button> m_additionalButton;
     std::shared_ptr<Util::GameObject> m_additionalButtonOverlay;
+    std::shared_ptr<AnimatedButton> m_additionalAnimated;
     std::shared_ptr<Util::GameObject> m_menuItem017;
     std::shared_ptr<Util::GameObject> m_menuItem032;
     std::shared_ptr<Util::GameObject> m_menuItem043;
@@ -43,12 +46,8 @@ private:
     std::shared_ptr<Util::GameObject> m_exitDialog;
     glm::vec2 m_settingScale = {0.9f, 0.9f};
     glm::vec2 m_settingScaleHover = {1.0f, 1.0f};
-    float m_settingOverlayTargetRotation = 0.0f;
-    bool m_settingOverlayIsAnimating = false;
     glm::vec2 m_additionalScale = {0.9f, 0.9f};
     glm::vec2 m_additionalScaleHover = {1.0f, 1.0f};
-    float m_additionalOverlayTargetRotation = 0.0f;
-    bool m_additionalOverlayIsAnimating = false;
     bool m_settingMenuOpen = false;
     bool m_additionalMenuOpen = false;
     bool m_menuItemsAnimating = false;

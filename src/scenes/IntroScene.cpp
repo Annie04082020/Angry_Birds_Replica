@@ -8,6 +8,9 @@
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 #include "SDL.h"
+#include "Util/AnimationUtils.hpp"
+#include "Util/LayoutUtils.hpp"
+#include "Util/MouseUtils.hpp"
 
 #include <cmath>
 
@@ -107,18 +110,20 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
                                         {
         if (m_settingMenuOpen) {
             // 關閉菜單：逆時針旋轉 180 度
-            m_settingOverlayTargetRotation += 3.14159265f;
+            if (m_settingAnimated)
+                m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation + 3.14159265f);
             m_settingMenuOpen = false;
             m_menuItemsAnimating = true;  // 啟動動畫回到原位置
             // 菜單項保持可見，直到動畫完成
         } else {
             // 展開菜單：順時針旋轉 180 度
-            m_settingOverlayTargetRotation -= 3.14159265f;
+            if (m_settingAnimated)
+                m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation - 3.14159265f);
             m_settingMenuOpen = true;
             m_menuItemsAnimating = true;
             // 菜單項visibility由動畫邏輯控制
         }
-        m_settingOverlayIsAnimating = true; });
+        if (m_settingAnimated) { /* animation started via SetOverlayTargetRotation */ } });
 
     // 建立覆層（齒輪），比底圖 z-index 高一層
     m_settingOverlay = std::make_shared<Util::GameObject>(
@@ -126,6 +131,10 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingOverlay->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, 6.0f};
     m_settingOverlay->m_Transform.scale = m_settingScale;
     m_settingOverlay->SetVisible(true);
+
+    // Compose AnimatedButton for setting button + overlay
+    m_settingAnimated = std::make_shared<AnimatedButton>(m_settingbutton, m_settingOverlay);
+    m_settingAnimated->SetOverlayScales(m_settingScale, m_settingScaleHover);
 
     const float additionalBaseScaleValue =
         layout.additionalButtonBase.scale * layout.additionalButtonBase.baseScale;
@@ -150,16 +159,18 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         // Handle menu opening/closing
         if (m_additionalMenuOpen) {
             // Close menu: rotate back
-            m_additionalOverlayTargetRotation += 3.14159265f;
+            if (m_additionalAnimated)
+                m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation + 3.14159265f);
             m_additionalMenuOpen = false;
             m_additionalMenuItemsAnimating = true;
         } else {
             // Open menu: rotate 180 degrees
-            m_additionalOverlayTargetRotation -= 3.14159265f;
+            if (m_additionalAnimated)
+                m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation - 3.14159265f);
             m_additionalMenuOpen = true;
             m_additionalMenuItemsAnimating = true;
         }
-        m_additionalOverlayIsAnimating = true; });
+        if (m_additionalAnimated) { /* animation started via SetOverlayTargetRotation */ } });
 
     m_additionalButtonOverlay = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Button_Overlay), 51);
@@ -167,65 +178,42 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
     m_additionalButtonOverlay->SetVisible(true);
 
-    auto getGroupScaleMultiplier = [&layout](const std::string &groupId) -> float
-    {
-        if (groupId.empty())
-            return 1.0f;
-        auto it = layout.groups.find(groupId);
-        if (it != layout.groups.end())
-            return it->second.scaleMultiplier;
-        return 1.0f;
-    };
+    // Compose AnimatedButton for additional button + overlay
+    m_additionalAnimated = std::make_shared<AnimatedButton>(m_additionalButton, m_additionalButtonOverlay);
+    m_additionalAnimated->SetOverlayScales(m_additionalScale, m_additionalScaleHover);
 
-    auto applyMenuItemLayout = [&](const std::shared_ptr<Util::GameObject> &menuItem,
-                                   const std::unordered_map<std::string, MenuItemConfig> &menuItems,
-                                   const std::string &itemId,
-                                   const glm::vec2 &basePosition)
-    {
-        const auto itemIt = menuItems.find(itemId);
-        if (itemIt == menuItems.end())
-        {
-            menuItem->m_Transform.translation = basePosition;
-            menuItem->m_Transform.scale = {1.0f, 1.0f};
-            return;
-        }
-
-        const auto &item = itemIt->second;
-        const float groupScale = getGroupScaleMultiplier(item.groupId);
-        menuItem->m_Transform.translation = basePosition + glm::vec2{0.0f, item.relativeOffsetY * groupScale};
-        menuItem->m_Transform.scale = {item.scale * groupScale, item.scale * groupScale};
-    };
+    // Use LayoutUtils helpers for group scaling and menu item layout.
 
     // Setting menu items - apply JSON configuration and group scaling
     m_menuItem043 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_043), 20);
-    applyMenuItemLayout(m_menuItem043, layout.settingMenuItems.items, "043", m_settingButtonPosition);
+    Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem043, layout.settingMenuItems.items, "043", m_settingButtonPosition, layout);
     m_menuItem043->SetVisible(false);
 
     m_menuItem032 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_032), 21);
-    applyMenuItemLayout(m_menuItem032, layout.settingMenuItems.items, "032", m_settingButtonPosition);
+    Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem032, layout.settingMenuItems.items, "032", m_settingButtonPosition, layout);
     m_menuItem032->SetVisible(false);
 
     m_menuItem017 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_017), 22);
-    applyMenuItemLayout(m_menuItem017, layout.settingMenuItems.items, "017", m_settingButtonPosition);
+    Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem017, layout.settingMenuItems.items, "017", m_settingButtonPosition, layout);
     m_menuItem017->SetVisible(false);
 
     // Additional menu items - apply JSON configuration and group scaling
     m_additionalMenuItem108 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_108), 20);
-    applyMenuItemLayout(m_additionalMenuItem108, layout.additionalMenuItems.items, "108", m_additionalButtonPosition);
+    Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem108, layout.additionalMenuItems.items, "108", m_additionalButtonPosition, layout);
     m_additionalMenuItem108->SetVisible(false);
 
     m_additionalMenuItem006 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_006), 21);
-    applyMenuItemLayout(m_additionalMenuItem006, layout.additionalMenuItems.items, "006", m_additionalButtonPosition);
+    Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem006, layout.additionalMenuItems.items, "006", m_additionalButtonPosition, layout);
     m_additionalMenuItem006->SetVisible(false);
 
     m_additionalMenuItem041 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_041), 22);
-    applyMenuItemLayout(m_additionalMenuItem041, layout.additionalMenuItems.items, "041", m_additionalButtonPosition);
+    Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem041, layout.additionalMenuItems.items, "041", m_additionalButtonPosition, layout);
     m_additionalMenuItem041->SetVisible(false);
 
     // Exit confirm panel: 048 in the center with 105 (left) and 95 (right) below
@@ -291,43 +279,11 @@ void IntroScene::Update()
         m_exitPanelVisible = true;
     }
 
-    if (m_settingOverlayIsAnimating && m_settingOverlay)
-    {
-        float &rotation = m_settingOverlay->m_Transform.rotation;
-        float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float rotationSpeedRadPerSec = 3.0f * glm::pi<float>(); // 3π rad/sec
-        float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
-
-        float remaining = m_settingOverlayTargetRotation - rotation;
-        if (std::fabs(remaining) <= rotationStep)
-        {
-            rotation = m_settingOverlayTargetRotation;
-            m_settingOverlayIsAnimating = false;
-        }
-        else
-        {
-            rotation += (remaining > 0 ? rotationStep : -rotationStep);
-        }
-    }
-
-    if (m_additionalOverlayIsAnimating && m_additionalButtonOverlay)
-    {
-        float &rotation = m_additionalButtonOverlay->m_Transform.rotation;
-        float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float rotationSpeedRadPerSec = 3.75f * glm::pi<float>();
-        float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
-
-        float remaining = m_additionalOverlayTargetRotation - rotation;
-        if (std::fabs(remaining) <= rotationStep)
-        {
-            rotation = m_additionalOverlayTargetRotation;
-            m_additionalOverlayIsAnimating = false;
-        }
-        else
-        {
-            rotation += (remaining > 0 ? rotationStep : -rotationStep);
-        }
-    }
+    // Let AnimatedButton manage overlay rotation and hover scaling
+    if (m_settingAnimated)
+        m_settingAnimated->Update();
+    if (m_additionalAnimated)
+        m_additionalAnimated->Update();
 
     // Animate menu items opening/closing
     if (m_menuItemsAnimating)
@@ -343,24 +299,6 @@ void IntroScene::Update()
         AnimateMenuItems(additionalItems, m_additionalButtonPosition, m_additionalMenuOpen, m_additionalMenuItemsAnimating);
     }
     auto mousePos = Util::Input::GetCursorPosition();
-    if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos))
-    {
-        m_settingOverlay->m_Transform.scale = m_settingScaleHover;
-    }
-    else if (m_settingOverlay)
-    {
-        m_settingOverlay->m_Transform.scale = m_settingScale;
-    }
-
-    // Hover scale for additional button overlay (096) when hovering base (068)
-    if (m_additionalButton && m_additionalButtonOverlay && m_additionalButton->IsHovering(mousePos))
-    {
-        m_additionalButtonOverlay->m_Transform.scale = m_additionalScaleHover;
-    }
-    else if (m_additionalButtonOverlay)
-    {
-        m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
-    }
 
     // Handle exit panel button clicks (095 and 105)
     if (m_exitPanelVisible && m_exitButton95 && m_exitButton105)
@@ -371,11 +309,7 @@ void IntroScene::Update()
         auto pos105 = m_exitButton105->m_Transform.translation;
 
         // Check if 095 (right button) is clicked - exit game
-        if (mousePos.x >= pos95.x - exitButton95Size.x / 2 &&
-            mousePos.x <= pos95.x + exitButton95Size.x / 2 &&
-            mousePos.y >= pos95.y - exitButton95Size.y / 2 &&
-            mousePos.y <= pos95.y + exitButton95Size.y / 2 &&
-            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
+        if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton95, Util::Keycode::MOUSE_LB))
         {
             SDL_Event quitEvent;
             quitEvent.type = SDL_QUIT;
@@ -383,11 +317,7 @@ void IntroScene::Update()
         }
 
         // Check if 105 (left button) is clicked - continue game
-        if (mousePos.x >= pos105.x - exitButton105Size.x / 2 &&
-            mousePos.x <= pos105.x + exitButton105Size.x / 2 &&
-            mousePos.y >= pos105.y - exitButton105Size.y / 2 &&
-            mousePos.y <= pos105.y + exitButton105Size.y / 2 &&
-            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
+        if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton105, Util::Keycode::MOUSE_LB))
         {
             // Cancel exit - hide exit panel
             m_exitConfirm048->SetVisible(false);
