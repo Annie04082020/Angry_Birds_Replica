@@ -230,9 +230,13 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
   }
 
   // Linear impulse response (no angular impulse yet)
-  const bool aStatic = ca->IsStatic();
-  const bool bStatic = cb->IsStatic();
-  if (!(aStatic && bStatic))
+  const bool aStaticOnly = ca->IsStatic();
+  const bool bStaticOnly = cb->IsStatic();
+
+  // Wake threshold: if applied delta velocity from impulse exceeds this, wake a sleeping body
+  constexpr float kWakeVelThreshold = 5.0f; // px/sec
+
+  // We will treat sleeping bodies as immobile for small impacts, but allow large impulses to wake them.
   {
     glm::vec2 normal = bpos - apos;
     const float lenSq = glm::dot(normal, normal);
@@ -245,8 +249,8 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
       normal = glm::vec2(1.0f, 0.0f);
     }
 
-    const float invMassA = aStatic ? 0.0f : 1.0f / std::max(0.0001f, amass);
-    const float invMassB = bStatic ? 0.0f : 1.0f / std::max(0.0001f, bmass);
+    const float invMassA = aStaticOnly ? 0.0f : 1.0f / std::max(0.0001f, amass);
+    const float invMassB = bStaticOnly ? 0.0f : 1.0f / std::max(0.0001f, bmass);
     const float invMassSum = invMassA + invMassB;
 
     if (invMassSum > 0.0f)
@@ -261,13 +265,38 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
         const float j = -(1.0f + e) * velAlongNormal / invMassSum;
         const glm::vec2 impulse = j * normal;
 
-        if (!aStatic)
+        // If either body is sleeping, check whether this impulse would wake it (delta-v > threshold).
+        if (ca->IsSleeping() && !aStaticOnly)
         {
-          ca->SetVelocity(avel - impulse * invMassA);
+          const glm::vec2 deltaV = -impulse * invMassA;
+          if (glm::length(deltaV) > kWakeVelThreshold)
+          {
+            ca->SetSleeping(false);
+          }
         }
-        if (!bStatic)
+        if (cb->IsSleeping() && !bStaticOnly)
         {
-          cb->SetVelocity(bvel + impulse * invMassB);
+          const glm::vec2 deltaV = impulse * invMassB;
+          if (glm::length(deltaV) > kWakeVelThreshold)
+          {
+            cb->SetSleeping(false);
+          }
+        }
+
+        // Apply impulse to non-static, non-sleeping bodies. Sleeping bodies with small delta remain unaffected.
+        if (!aStaticOnly)
+        {
+          if (!ca->IsSleeping())
+          {
+            ca->SetVelocity(avel - impulse * invMassA);
+          }
+        }
+        if (!bStaticOnly)
+        {
+          if (!cb->IsSleeping())
+          {
+            cb->SetVelocity(bvel + impulse * invMassB);
+          }
         }
       }
 
@@ -293,15 +322,41 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
                                     kPercent / invMassSum;
         const glm::vec2 correction = correctionMag * correctionNormal;
 
-        if (!aStatic)
+        if (!aStaticOnly)
         {
-          ca->SetPosition(ca->GetPosition() - correction * invMassA);
+          // If the body is sleeping we avoid nudging it; otherwise apply correction.
+          if (!ca->IsSleeping())
+            ca->SetPosition(ca->GetPosition() - correction * invMassA);
         }
-        if (!bStatic)
+        if (!bStaticOnly)
         {
-          cb->SetPosition(cb->GetPosition() + correction * invMassB);
+          if (!cb->IsSleeping())
+            cb->SetPosition(cb->GetPosition() + correction * invMassB);
         }
       }
+    }
+  }
+
+  // If one body is static and the other is dynamic but relative speed is very small,
+  // consider the dynamic body as settled and mark it static to avoid it sliding forever.
+  const float settleSpeedThreshold = 12.0f; // px/sec
+  const float settleAngularThreshold = 5.0f; // rad/sec
+  if (aStaticOnly && !bStaticOnly)
+  {
+    if (glm::length(cb->GetVelocity()) < settleSpeedThreshold && std::fabs(cb->GetAngularVelocity()) < settleAngularThreshold)
+    {
+      cb->SetSleeping(true);
+      cb->SetVelocity({0.0f, 0.0f});
+      cb->SetAngularVelocity(0.0f);
+    }
+  }
+  else if (bStaticOnly && !aStaticOnly)
+  {
+    if (glm::length(ca->GetVelocity()) < settleSpeedThreshold && std::fabs(ca->GetAngularVelocity()) < settleAngularThreshold)
+    {
+      ca->SetSleeping(true);
+      ca->SetVelocity({0.0f, 0.0f});
+      ca->SetAngularVelocity(0.0f);
     }
   }
 

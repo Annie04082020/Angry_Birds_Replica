@@ -48,7 +48,7 @@ void Character::SetInertia(float inertia)
 void Character::IntegratePhysics(float deltaTimeSeconds)
 {
     if (m_PhysicsState.isStatic || !std::isfinite(deltaTimeSeconds) ||
-        deltaTimeSeconds <= 0.0f)
+        deltaTimeSeconds <= 0.0f || m_PhysicsState.isSleeping)
     {
         return;
     }

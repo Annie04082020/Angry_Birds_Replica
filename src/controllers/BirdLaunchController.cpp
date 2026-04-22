@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <glm/glm.hpp>
 
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
@@ -162,7 +163,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         m_ActiveBird->SetPosition(nextPos);
         m_ActiveBird->SetVelocity({0.0f, 0.0f});
         m_ActiveBird->SetAngularVelocity(0.0f);
-        m_ActiveBird->SetStatic(true);
+        m_ActiveBird->SetSleeping(true);
         m_BirdVelocity = {0.0f, 0.0f};
         m_HasLaunchedBird = false;
 
@@ -171,6 +172,26 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             ActivateBirdByIndex(m_CurrentBirdIndex + 1);
         }
         return true;
+    }
+
+    // If the bird has effectively come to rest (on an object or ground),
+    // advance to next bird. Use static flag or a small velocity + angular
+    // velocity threshold to detect stopping.
+    const float stopSpeedThreshold = 10.0f;  // px/sec
+    const float stopAngularThreshold = 5.0f; // rad/sec
+
+    if (m_ActiveBird->IsStatic() || m_ActiveBird->IsSleeping() ||
+        (glm::length(m_BirdVelocity) < stopSpeedThreshold && std::fabs(m_ActiveBird->GetAngularVelocity()) < stopAngularThreshold))
+    {
+        m_ActiveBird->SetSleeping(true);
+        m_ActiveBird->SetVelocity({0.0f, 0.0f});
+        m_ActiveBird->SetAngularVelocity(0.0f);
+        m_HasLaunchedBird = false;
+        m_BirdVelocity = {0.0f, 0.0f};
+        if (m_CurrentBirdIndex + 1 < m_BirdQueue.size())
+        {
+            ActivateBirdByIndex(m_CurrentBirdIndex + 1);
+        }
     }
 
     // Position integration is handled by Scene::Update -> Character::IntegratePhysics.

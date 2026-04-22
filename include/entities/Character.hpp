@@ -36,7 +36,8 @@ public:
     float angularVelocity = 0.0f;
     glm::vec2 centerOfMassOffset = {0.0f, 0.0f};
     float inertia = 1.0f;
-    bool isStatic = false;
+      bool isStatic = false;
+      bool isSleeping = false; // temporary sleep state (not permanently immovable)
   };
 
   explicit Character(const std::string &ImagePath);
@@ -111,6 +112,10 @@ public:
   [[nodiscard]] bool IsStatic() const { return m_PhysicsState.isStatic; }
 
   void SetStatic(bool isStatic) { m_PhysicsState.isStatic = isStatic; }
+
+  [[nodiscard]] bool IsSleeping() const { return m_PhysicsState.isSleeping; }
+
+  void SetSleeping(bool sleeping) { m_PhysicsState.isSleeping = sleeping; }
 
   [[nodiscard]] EntityKind GetEntityKind() const { return m_EntityKind; }
 
