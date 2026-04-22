@@ -36,8 +36,8 @@ public:
     float angularVelocity = 0.0f;
     glm::vec2 centerOfMassOffset = {0.0f, 0.0f};
     float inertia = 1.0f;
-      bool isStatic = false;
-      bool isSleeping = false; // temporary sleep state (not permanently immovable)
+    bool isStatic = false;
+    bool isSleeping = false; // temporary sleep state (not permanently immovable)
   };
 
   explicit Character(const std::string &ImagePath);

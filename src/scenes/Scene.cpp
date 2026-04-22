@@ -339,7 +339,7 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
 
   // If one body is static and the other is dynamic but relative speed is very small,
   // consider the dynamic body as settled and mark it static to avoid it sliding forever.
-  const float settleSpeedThreshold = 12.0f; // px/sec
+  const float settleSpeedThreshold = 12.0f;  // px/sec
   const float settleAngularThreshold = 5.0f; // rad/sec
   if (aStaticOnly && !bStaticOnly)
   {
