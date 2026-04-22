@@ -94,6 +94,11 @@ protected:
   float m_DebugDrawCooldown = 0.0f;
   float m_DebugDrawInterval = 0.05f;
 
+  // World floor Y coordinate. Can be set by caller (e.g. GameScene after loading level)
+  float m_WorldFloorY = -320.0f;
+  void SetWorldFloorY(float y) { m_WorldFloorY = y; }
+  float GetWorldFloorY() const { return m_WorldFloorY; }
+
 private:
   std::function<void()> m_OnUpdate = nullptr;
   std::shared_ptr<BackgroundMusic> m_BGM;

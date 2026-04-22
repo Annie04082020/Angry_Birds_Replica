@@ -155,10 +155,12 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     m_BirdVelocity = velocity;
 
     glm::vec2 nextPos = m_ActiveBird->GetPosition() + velocity * dt;
+    const float halfH = m_ActiveBird->GetSize().y * 0.5f;
 
-    if (nextPos.y < floorY)
+    // Check bottom edge contact (center.y - halfHeight)
+    if (nextPos.y - halfH < floorY)
     {
-        nextPos.y = floorY;
+        nextPos.y = floorY + halfH;
         m_ActiveBird->SetPosition(nextPos);
         m_ActiveBird->SetVelocity({0.0f, 0.0f});
         m_ActiveBird->SetAngularVelocity(0.0f);
@@ -178,7 +180,6 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     // velocity threshold to detect stopping.
     const float stopSpeedThreshold = 10.0f;  // px/sec
     const float stopAngularThreshold = 5.0f; // rad/sec
-
     if (m_ActiveBird->IsStatic() || m_ActiveBird->IsSleeping() ||
         (glm::length(m_BirdVelocity) < stopSpeedThreshold && std::fabs(m_ActiveBird->GetAngularVelocity()) < stopAngularThreshold))
     {

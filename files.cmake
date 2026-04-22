@@ -8,6 +8,7 @@ set(SRC_FILES
     ui/Button.cpp
     ui/AnimatedButton.cpp
     scenes/Scene.cpp
+    scenes/CollisionUtils.cpp
     controllers/BirdLaunchController.cpp
     controllers/SceneInputController.cpp
     parsers/JsonParseUtils.cpp
@@ -34,6 +35,7 @@ set(INCLUDE_FILES
     ui/Button.hpp
     ui/AnimatedButton.hpp
     scenes/Scene.hpp
+    scenes/CollisionUtils.hpp
     controllers/BirdLaunchController.hpp
     controllers/SceneInputController.hpp
     parsers/JsonParseUtils.hpp

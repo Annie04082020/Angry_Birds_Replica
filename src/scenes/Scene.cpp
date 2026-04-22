@@ -1,6 +1,7 @@
 #include "Scene.hpp"
-// Collision detection and input
 #include "Character.hpp"
+#include "scenes/CollisionUtils.hpp"
+// Collision detection and input
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
 #include <algorithm>
@@ -13,136 +14,6 @@ namespace
 {
   constexpr bool kEnableCollisionLog = false;
   constexpr bool kEnableCollisionDebugBoxes = false;
-  constexpr float kWorldFloorY = -320.0f;
-
-  float GetRestitution(Character::MaterialType mat)
-  {
-    switch (mat)
-    {
-    case Character::MaterialType::Flesh:
-      return 0.2f;
-    case Character::MaterialType::Wood:
-      return 0.12f;
-    case Character::MaterialType::Stone:
-      return 0.06f;
-    case Character::MaterialType::Glass:
-    case Character::MaterialType::Ice:
-      return 0.18f;
-    default:
-      return 0.1f;
-    }
-  }
-  float GetFriction(Character::MaterialType mat)
-  {
-    switch (mat)
-    {
-    case Character::MaterialType::Flesh:
-      return 0.6f;
-    case Character::MaterialType::Wood:
-      return 0.7f;
-    case Character::MaterialType::Stone:
-      return 0.9f;
-    case Character::MaterialType::Glass:
-    case Character::MaterialType::Ice:
-      return 0.2f;
-    default:
-      return 0.5f;
-    }
-  }
-
-  // 2D cross product (returns scalar)
-  inline float Cross(const glm::vec2 &a, const glm::vec2 &b)
-  {
-    return a.x * b.y - a.y * b.x;
-  }
-
-  // Compute MTV (minimum translation vector) between two OBBs using SAT.
-  // Returns true if overlap (collision). Outputs a unit normal pointing from A to B,
-  // penetration depth (positive), and an approximate contact point.
-  bool ComputeOBBMTV(const Character &A, const Character &B,
-                     glm::vec2 &outNormal, float &outDepth,
-                     glm::vec2 &outContactPoint)
-  {
-    // Build OBB representation (center, two orthonormal axes, half-extents)
-    auto buildOBB = [](const Character &c, glm::vec2 &center,
-                       glm::vec2 &u0, glm::vec2 &u1, float &ex,
-                       float &ey)
-    {
-      center = c.m_Transform.translation;
-      float rot = c.m_Transform.rotation;
-      u0 = glm::vec2(std::cos(rot), std::sin(rot));
-      u1 = glm::vec2(-std::sin(rot), std::cos(rot));
-      auto half = c.GetSize() * 0.5f;
-      ex = half.x;
-      ey = half.y;
-    };
-
-    glm::vec2 Ac, Au0, Au1, Bc, Bu0, Bu1;
-    float Aex, Aey, Bex, Bey;
-    buildOBB(A, Ac, Au0, Au1, Aex, Aey);
-    buildOBB(B, Bc, Bu0, Bu1, Bex, Bey);
-
-    auto testAxis = [&](const glm::vec2 &axis, float &outOverlap, glm::vec2 &outAxisDir) -> bool
-    {
-      float len = std::sqrt(axis.x * axis.x + axis.y * axis.y);
-      if (len < 1e-6f)
-        return true;
-      glm::vec2 n = axis / len;
-      float rA = Aex * std::fabs(glm::dot(n, Au0)) + Aey * std::fabs(glm::dot(n, Au1));
-      float rB = Bex * std::fabs(glm::dot(n, Bu0)) + Bey * std::fabs(glm::dot(n, Bu1));
-      float dist = glm::dot(Bc - Ac, n);
-      float overlap = (rA + rB) - std::fabs(dist);
-      outOverlap = overlap;
-      outAxisDir = n;
-      return overlap >= 0.0f;
-    };
-
-    // Test axes and find minimum penetration
-    float minOverlap = FLT_MAX;
-    glm::vec2 minAxis = glm::vec2(1.0f, 0.0f);
-    glm::vec2 candidateAxis;
-    float overlapVal = 0.0f;
-
-    if (!testAxis(Au0, overlapVal, candidateAxis))
-      return false;
-    if (overlapVal < minOverlap)
-    {
-      minOverlap = overlapVal;
-      minAxis = candidateAxis;
-    }
-    if (!testAxis(Au1, overlapVal, candidateAxis))
-      return false;
-    if (overlapVal < minOverlap)
-    {
-      minOverlap = overlapVal;
-      minAxis = candidateAxis;
-    }
-    if (!testAxis(Bu0, overlapVal, candidateAxis))
-      return false;
-    if (overlapVal < minOverlap)
-    {
-      minOverlap = overlapVal;
-      minAxis = candidateAxis;
-    }
-    if (!testAxis(Bu1, overlapVal, candidateAxis))
-      return false;
-    if (overlapVal < minOverlap)
-    {
-      minOverlap = overlapVal;
-      minAxis = candidateAxis;
-    }
-
-    // Ensure normal points from A to B
-    if (glm::dot(Bc - Ac, minAxis) < 0.0f)
-      minAxis = -minAxis;
-
-    outNormal = minAxis;
-    outDepth = minOverlap;
-
-    // Approximate contact point: project centers to midpoint and nudge by half penetration
-    outContactPoint = (Ac + Bc) * 0.5f - outNormal * (outDepth * 0.5f);
-    return true;
-  }
 }
 
 void Scene::Init()
@@ -275,10 +146,12 @@ void Scene::Update()
         continue;
       }
 
-      if (ch->GetPosition().y < kWorldFloorY)
+      // Clamp using object's bottom edge (position.y - halfHeight)
+      const float halfH = ch->GetSize().y * 0.5f;
+      if (ch->GetPosition().y - halfH < this->m_WorldFloorY)
       {
         glm::vec2 pos = ch->GetPosition();
-        pos.y = kWorldFloorY;
+        pos.y = this->m_WorldFloorY + halfH;
         ch->SetPosition(pos);
         ch->SetVelocity({0.0f, 0.0f});
         ch->SetAngularVelocity(0.0f);
@@ -384,7 +257,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
 
         glm::vec2 contactNormal, contactPoint;
         float penetration = 0.0f;
-        if (ComputeOBBMTV(*ca, *cb, contactNormal, penetration, contactPoint))
+        if (CollisionUtils::ComputeOBBMTV(*ca, *cb, contactNormal, penetration, contactPoint))
         {
           HandleCollision(ca, cb, contactNormal, penetration, contactPoint, stabilizing);
         }
@@ -458,8 +331,8 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
 
       if (velAlongNormal < 0.0f)
       {
-        const float e = 0.5f * (GetRestitution(ca->GetMaterialType()) +
-                                GetRestitution(cb->GetMaterialType()));
+        const float e = 0.5f * (CollisionUtils::GetRestitution(ca->GetMaterialType()) +
+                                CollisionUtils::GetRestitution(cb->GetMaterialType()));
 
         // Estimate a reasonable inertia lower bound from mass and size (rectangle about center)
         const float rectInertiaA = amass * (asz.x * asz.x + asz.y * asz.y) / 12.0f;
@@ -471,8 +344,8 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
         const float invInertiaB = bStaticOnly ? 0.0f : 1.0f / std::max(0.0001f, effectiveInertiaB);
 
         // denominator includes rotational effect
-        const float rnA = Cross(rA, normal);
-        const float rnB = Cross(rB, normal);
+        const float rnA = CollisionUtils::Cross(rA, normal);
+        const float rnB = CollisionUtils::Cross(rB, normal);
         const float denom = invMassSum + rnA * rnA * invInertiaA + rnB * rnB * invInertiaB;
         const float j = (denom > 0.0f) ? (-(1.0f + e) * velAlongNormal / denom) : 0.0f;
         const glm::vec2 impulse = j * normal;
@@ -484,12 +357,12 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
         if (tangentLen > 1e-6f)
         {
           tangent /= tangentLen;
-          const float rtA = Cross(rA, tangent);
-          const float rtB = Cross(rB, tangent);
+          const float rtA = CollisionUtils::Cross(rA, tangent);
+          const float rtB = CollisionUtils::Cross(rB, tangent);
           const float denomT = invMassSum + rtA * rtA * invInertiaA + rtB * rtB * invInertiaB;
           float jt = (denomT > 0.0f) ? (-glm::dot(relVel, tangent) / denomT) : 0.0f;
 
-          const float mu = 0.5f * (GetFriction(ca->GetMaterialType()) + GetFriction(cb->GetMaterialType()));
+          const float mu = 0.5f * (CollisionUtils::GetFriction(ca->GetMaterialType()) + CollisionUtils::GetFriction(cb->GetMaterialType()));
           const float maxFriction = std::fabs(j) * mu;
           if (jt > maxFriction)
             jt = maxFriction;
@@ -523,7 +396,7 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
           if (!ca->IsSleeping())
           {
             ca->SetVelocity(avel - (impulse + frictionImpulseVec) * invMassA);
-            float torqueA = Cross(rA, -(impulse + frictionImpulseVec));
+            float torqueA = CollisionUtils::Cross(rA, -(impulse + frictionImpulseVec));
             float deltaOmegaA = -torqueA * invInertiaA;
             constexpr float kMaxDeltaOmega = 8.0f; // rad/sec
             if (deltaOmegaA > kMaxDeltaOmega)
@@ -538,7 +411,7 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
           if (!cb->IsSleeping())
           {
             cb->SetVelocity(bvel + (impulse + frictionImpulseVec) * invMassB);
-            float torqueB = Cross(rB, (impulse + frictionImpulseVec));
+            float torqueB = CollisionUtils::Cross(rB, (impulse + frictionImpulseVec));
             float deltaOmegaB = torqueB * invInertiaB;
             constexpr float kMaxDeltaOmega = 8.0f; // rad/sec
             if (deltaOmegaB > kMaxDeltaOmega)
