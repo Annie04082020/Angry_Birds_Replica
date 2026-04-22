@@ -54,8 +54,11 @@ void Character::IntegratePhysics(float deltaTimeSeconds)
     }
 
     m_Transform.translation += m_PhysicsState.velocity * deltaTimeSeconds;
-    m_Transform.rotation +=
-        m_PhysicsState.angularVelocity * deltaTimeSeconds;
+    m_Transform.rotation += m_PhysicsState.angularVelocity * deltaTimeSeconds;
+
+    // Apply angular damping to reduce runaway spinning (exponential decay)
+    constexpr float kAngularDamping = 3.0f; // per second
+    m_PhysicsState.angularVelocity *= std::exp(-kAngularDamping * deltaTimeSeconds);
 }
 
 // Broad-phase AABB then narrow-phase OBB (SAT) collision test

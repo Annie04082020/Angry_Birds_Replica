@@ -25,6 +25,8 @@ public:
 
   void Init() override;
   void Update() override;
+  // Stabilize environment objects on load by running short physics steps
+  void StabilizeEnvironment(int steps = 30);
   void SetVisible(bool visible)
   {
     if (m_Background)
@@ -64,10 +66,19 @@ public:
 
 protected:
   // Runs a generic collision detection pass for children of this Scene.
-  // Scenes may override `HandleCollision` to react to collisions.
+  // Scenes may override `HandleCollision` to react to collisions. The
+  // collision now provides SAT/MTV contact data (normal, depth and
+  // an approximate contact point) to allow accurate positional correction
+  // and torque computation.
   virtual void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                               const std::shared_ptr<Util::GameObject> &b);
-  void RunCollisionDetection();
+                               const std::shared_ptr<Util::GameObject> &b,
+                               const glm::vec2 &contactNormal,
+                               float penetrationDepth,
+                               const glm::vec2 &contactPoint,
+                               bool stabilizing = false);
+  // Run collision detection with optional multiple passes. When `stabilizing` is true
+  // positional correction uses more aggressive constants to converge overlaps.
+  void RunCollisionDetection(int passes = 1, bool stabilizing = false);
 
   // Physics fixed-timestep accumulator (seconds)
   float m_PhysicsStep = 1.0f / 60.0f;
