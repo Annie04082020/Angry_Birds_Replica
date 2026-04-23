@@ -34,7 +34,7 @@ namespace CollisionUtils
             return 0.9f;
         case Character::MaterialType::Glass:
         case Character::MaterialType::Ice:
-            return 0.2f;
+            return 0.35f;
         default:
             return 0.5f;
         }

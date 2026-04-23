@@ -175,9 +175,15 @@ std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared
     // Resting contact checks (kept here so ResolveCollision fully handles state)
     const float settleSpeedThreshold = 12.0f;
     const float settleAngularThreshold = 5.0f;
+    const bool aIsIceLike = ca->GetMaterialType() == Character::MaterialType::Ice || ca->GetMaterialType() == Character::MaterialType::Glass;
+    const bool bIsIceLike = cb->GetMaterialType() == Character::MaterialType::Ice || cb->GetMaterialType() == Character::MaterialType::Glass;
+    const float iceSpeedThreshold = 8.0f;
+    const float iceAngularThreshold = 3.0f;
     if (aStaticOnly && !bStaticOnly)
     {
-        if (glm::length(cb->GetVelocity()) < settleSpeedThreshold && std::fabs(cb->GetAngularVelocity()) < settleAngularThreshold)
+        const float speedThreshold = bIsIceLike ? iceSpeedThreshold : settleSpeedThreshold;
+        const float angularThreshold = bIsIceLike ? iceAngularThreshold : settleAngularThreshold;
+        if (glm::length(cb->GetVelocity()) < speedThreshold && std::fabs(cb->GetAngularVelocity()) < angularThreshold)
         {
             DebugUtils::LogSleepDecision(cb->GetImagePath(), cb->GetPosition(), cb->GetVelocity(), cb->GetAngularVelocity(), "static_support_settled");
             cb->SetSleeping(true);
@@ -187,7 +193,9 @@ std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared
     }
     else if (bStaticOnly && !aStaticOnly)
     {
-        if (glm::length(ca->GetVelocity()) < settleSpeedThreshold && std::fabs(ca->GetAngularVelocity()) < settleAngularThreshold)
+        const float speedThreshold = aIsIceLike ? iceSpeedThreshold : settleSpeedThreshold;
+        const float angularThreshold = aIsIceLike ? iceAngularThreshold : settleAngularThreshold;
+        if (glm::length(ca->GetVelocity()) < speedThreshold && std::fabs(ca->GetAngularVelocity()) < angularThreshold)
         {
             DebugUtils::LogSleepDecision(ca->GetImagePath(), ca->GetPosition(), ca->GetVelocity(), ca->GetAngularVelocity(), "static_support_settled");
             ca->SetSleeping(true);
@@ -202,8 +210,12 @@ std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared
     const float kSupportNormalY = 0.9f;
     if (!aStaticOnly && !bStaticOnly)
     {
-        if (glm::length(ca->GetVelocity()) < kRestVelThreshold && glm::length(cb->GetVelocity()) < kRestVelThreshold &&
-            std::fabs(ca->GetAngularVelocity()) < kRestAngularThreshold && std::fabs(cb->GetAngularVelocity()) < kRestAngularThreshold &&
+        const float aRestVel = aIsIceLike ? 1.4f : kRestVelThreshold;
+        const float bRestVel = bIsIceLike ? 1.4f : kRestVelThreshold;
+        const float aRestAngular = aIsIceLike ? 0.8f : kRestAngularThreshold;
+        const float bRestAngular = bIsIceLike ? 0.8f : kRestAngularThreshold;
+        if (glm::length(ca->GetVelocity()) < aRestVel && glm::length(cb->GetVelocity()) < bRestVel &&
+            std::fabs(ca->GetAngularVelocity()) < aRestAngular && std::fabs(cb->GetAngularVelocity()) < bRestAngular &&
             std::fabs(contactNormal.y) > kSupportNormalY && penetrationDepth > 0.0f)
         {
             DebugUtils::LogSleepDecision(ca->GetImagePath(), ca->GetPosition(), ca->GetVelocity(), ca->GetAngularVelocity(), "mutual_resting");
