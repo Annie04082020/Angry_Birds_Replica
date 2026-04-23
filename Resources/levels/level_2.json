@@ -3,7 +3,6 @@
   "name": "Level 2",
   "background": "Image/background.png",
   "birds": 4,
-  "resources": {},
   "groups": [
     {
       "id": "slingshot",
@@ -16,10 +15,10 @@
     },
     {
       "id": "Environment",
-      "scaleMultiplier": 1.5,
-      "scalePosition": true,
+      "scaleMultiplier": 3,
+      "scalePosition": false,
       "offsetXPercent": 0.0,
-      "offsetYPercent": 0.0,
+      "offsetYPercent": -7.407407,
       "scalePivotXPercent": 0.0,
       "scalePivotYPercent": 0.0
     }
@@ -83,93 +82,33 @@
     },
     {
       "type": "STONE",
-      "imageId": "STONE_205_1",
+      "imageId": "STONE_205",
       "groupId": "Environment",
-      "widthPercent": 4.2,
+      "widthPercent": 6.2,
       "heightPercent": 1.25,
       "rotation": 1.57,
-      "xPercent": 13,
-      "yPercent": -5
-    },
-    {
-      "type": "WOOD",
-      "imageId": "WOOD_83x20",
-      "groupId": "Environment",
-      "widthPercent": 2.9,
-      "heightPercent": 1.2,
-      "rotation": 0.0,
-      "xPercent": 13,
-      "yPercent": -0.65
-    },
-    {
-      "type": "PIG",
-      "imageId": "PIG_SMALL",
-      "groupId": "Environment",
-      "widthPercent": 1.4,
-      "heightPercent": 2.4,
-      "rotation": 0.0,
-      "xPercent": 13,
-      "yPercent": 0.8
+      "xPercent": 16.800000,
+      "yPercent": -1.800000
     },
     {
       "type": "STONE",
-      "imageId": "STONE_205_1",
+      "imageId": "STONE_205",
       "groupId": "Environment",
-      "widthPercent": 4.2,
+      "widthPercent": 6.2,
       "heightPercent": 1.25,
       "rotation": 1.57,
-      "xPercent": 18,
-      "yPercent": -5
-    },
-    {
-      "type": "WOOD",
-      "imageId": "WOOD_83x20",
-      "groupId": "Environment",
-      "widthPercent": 2.9,
-      "heightPercent": 1.2,
-      "rotation": 0.0,
-      "xPercent": 18,
-      "yPercent": -0.65
-    },
-    {
-      "type": "PIG",
-      "imageId": "PIG_SMALL",
-      "groupId": "Environment",
-      "widthPercent": 1.4,
-      "heightPercent": 2.4,
-      "rotation": 0.0,
-      "xPercent": 18,
-      "yPercent": 0.8
+      "xPercent": 20.800000,
+      "yPercent": -1.600000
     },
     {
       "type": "STONE",
-      "imageId": "STONE_205_1",
+      "imageId": "STONE_205",
       "groupId": "Environment",
-      "widthPercent": 4.2,
+      "widthPercent": 6.2,
       "heightPercent": 1.25,
       "rotation": 1.57,
-      "xPercent": 23,
-      "yPercent": -5
-    },
-    {
-      "type": "WOOD",
-      "imageId": "WOOD_83x20",
-      "groupId": "Environment",
-      "widthPercent": 2.9,
-      "heightPercent": 1.2,
-      "rotation": 0.0,
-      "xPercent": 23,
-      "yPercent": -0.65
-    },
-    {
-      "type": "PIG",
-      "imageId": "PIG_SMALL",
-      "groupId": "Environment",
-      "widthPercent": 1.4,
-      "heightPercent": 2.4,
-      "rotation": 0.0,
-      "xPercent": 23,
-      "yPercent": 0.8
+      "xPercent": 24.800000,
+      "yPercent": -1.600000
     },
     {
       "type": "STONE",
@@ -179,7 +118,38 @@
       "heightPercent": 1.25,
       "rotation": 1.57,
       "xPercent": 31.200000,
-      "yPercent": -0.85
+      "yPercent": 0.700000
+    },
+
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x20",
+      "groupId": "Environment",
+      "widthPercent": 2.9,
+      "heightPercent": 1.2,
+      "rotation": 0.0,
+      "xPercent": 16.800000,
+      "yPercent": 4.400000
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x20",
+      "groupId": "Environment",
+      "widthPercent": 2.9,
+      "heightPercent": 1.2,
+      "rotation": 0.0,
+      "xPercent": 20.800000,
+      "yPercent": 4.600000
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x20",
+      "groupId": "Environment",
+      "widthPercent": 2.9,
+      "heightPercent": 1.2,
+      "rotation": 0.0,
+      "xPercent": 24.800000,
+      "yPercent": 4.600000
     },
     {
       "type": "WOOD",
@@ -189,8 +159,50 @@
       "heightPercent": 1.2,
       "rotation": 0.0,
       "xPercent": 31.200000,
-      "yPercent": 7
-    },    
+      "yPercent": 8.000000
+    },
+
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_205",
+      "groupId": "Environment",
+      "widthPercent": 13.0,
+      "heightPercent": 1.4,
+      "rotation": 0.82,
+      "xPercent": 38.000000,
+      "yPercent": 0.800000
+    },
+
+    {
+      "type": "PIG",
+      "imageId": "PIG_SMALL",
+      "groupId": "Environment",
+      "widthPercent": 1.4,
+      "heightPercent": 2.4,
+      "rotation": 0.0,
+      "xPercent": 16.800000,
+      "yPercent": 6.900000
+    },
+    {
+      "type": "PIG",
+      "imageId": "PIG_SMALL",
+      "groupId": "Environment",
+      "widthPercent": 1.4,
+      "heightPercent": 2.4,
+      "rotation": 0.0,
+      "xPercent": 20.800000,
+      "yPercent": 7.100000
+    },
+    {
+      "type": "PIG",
+      "imageId": "PIG_SMALL",
+      "groupId": "Environment",
+      "widthPercent": 1.4,
+      "heightPercent": 2.4,
+      "rotation": 0.0,
+      "xPercent": 24.800000,
+      "yPercent": 7.100000
+    },
     {
       "type": "PIG",
       "imageId": "PIG_SMALL",
@@ -199,7 +211,7 @@
       "heightPercent": 2.4,
       "rotation": 0.0,
       "xPercent": 31.200000,
-      "yPercent": 8.35
+      "yPercent": 10.500000
     }
   ]
 }
