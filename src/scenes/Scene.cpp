@@ -157,12 +157,17 @@ void Scene::Update()
         continue;
       }
 
-      // Clamp using object's bottom edge (position.y - halfHeight)
-      const float halfH = ch->GetSize().y * 0.5f;
-      if (ch->GetPosition().y - halfH < this->m_WorldFloorY)
+      // Clamp using the rotated OBB's lowest world-space point, not the unrotated center height.
+      const glm::vec2 size = ch->GetSize();
+      const float halfW = size.x * 0.5f;
+      const float halfH = size.y * 0.5f;
+      const float rot = ch->m_Transform.rotation;
+      const float worldHalfY = std::fabs(std::sin(rot)) * halfW + std::fabs(std::cos(rot)) * halfH;
+
+      if (ch->GetPosition().y - worldHalfY < this->m_WorldFloorY)
       {
         glm::vec2 pos = ch->GetPosition();
-        pos.y = this->m_WorldFloorY + halfH;
+        pos.y = this->m_WorldFloorY + worldHalfY;
         ch->SetPosition(pos);
         ch->SetVelocity({0.0f, 0.0f});
         ch->SetAngularVelocity(0.0f);

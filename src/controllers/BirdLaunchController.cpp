@@ -138,7 +138,10 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         else if (m_IsHoldingBird)
         {
             const glm::vec2 pullVector = m_ActiveBird->GetPosition() - m_BirdAnchorPosition;
-            m_BirdVelocity = -pullVector * launchPower;
+            // Scale launch velocity by mass so heavier/lighter birds behave consistently.
+            const float birdMass = std::max(0.0001f, m_ActiveBird->GetMass());
+            const float massScale = std::sqrt(1.0f / birdMass); // keep kinetic energy roughly similar
+            m_BirdVelocity = -pullVector * launchPower * massScale;
             m_ActiveBird->SetStatic(false);
             m_ActiveBird->SetVelocity(m_BirdVelocity);
             m_IsHoldingBird = false;
