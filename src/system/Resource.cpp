@@ -113,6 +113,9 @@ namespace Resource
             {"BIRD_LAUNCH_SFX", BIRD_LAUNCH_SFX},
             {"SETTING_SFX", SETTING_SFX},
             {"LEVEL_1_DATA", LEVEL_1_DATA},
+            {"LEVEL_2_DATA", LEVEL_2_DATA},
+            {"LEVEL_9_DATA", LEVEL_9_DATA},
+            {"DEFAULT_LEVEL_DATA", DEFAULT_LEVEL_DATA},
             {"INTRO_LAYOUT_DATA", INTRO_LAYOUT_DATA}};
 
         auto it = map.find(id);

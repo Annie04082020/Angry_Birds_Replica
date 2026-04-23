@@ -1,6 +1,7 @@
 #include "App.hpp"
 #include "GameScene.hpp"
 #include "IntroScene.hpp"
+#include "LevelSelectScene.hpp"
 #include "Resource.hpp"
 #include "Scene.hpp"
 #include "Util/Image.hpp"
@@ -13,6 +14,21 @@
 
 namespace
 {
+  std::string ResolveLevelPath(const int levelNumber)
+  {
+    switch (levelNumber)
+    {
+    case 1:
+      return Resource::LEVEL_1_DATA;
+    case 2:
+      return Resource::LEVEL_2_DATA;
+    case 9:
+      return Resource::LEVEL_9_DATA;
+    default:
+      return "";
+    }
+  }
+
   void ApplyStartupHandCursor()
   {
     static SDL_Cursor *defaultHandCursor = nullptr;
@@ -46,19 +62,58 @@ void App::Start()
   m_loadingScene->SetVisible(true);
 
   m_introScene = IntroScene::Create();
+  m_levelSelectScene = LevelSelectScene::Create();
   m_introScene->SetOnPlayClickCallback([this]()
-                                       { return this->TransitionToGame(); });
+                                       {
+                                         this->ShowLevelSelectScene();
+                                         return true;
+                                       });
+  m_levelSelectScene->SetOnBackClickCallback([this]()
+                                             { this->ShowIntroScene(); });
+  m_levelSelectScene->SetOnLevelSelectCallback([this](const int levelNumber)
+                                         { return this->TransitionToGame(levelNumber); });
 
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
 
   m_Root.AddChild(m_loadingScene);
   m_Root.AddChild(m_introScene);
+  m_Root.AddChild(m_levelSelectScene);
+
+  ShowIntroScene();
 
   m_CurrentState = State::UPDATE;
 }
 
-bool App::TransitionToGame()
+void App::ShowIntroScene()
+{
+  if (m_introScene)
+  {
+    m_introScene->SetVisible(true);
+    m_introScene->SetMenuVisible(true);
+  }
+  if (m_levelSelectScene)
+  {
+    m_levelSelectScene->SetVisible(false);
+    m_levelSelectScene->SetSceneVisible(false);
+  }
+}
+
+void App::ShowLevelSelectScene()
+{
+  if (m_introScene)
+  {
+    m_introScene->SetVisible(false);
+    m_introScene->SetMenuVisible(false);
+  }
+  if (m_levelSelectScene)
+  {
+    m_levelSelectScene->SetVisible(true);
+    m_levelSelectScene->SetSceneVisible(true);
+  }
+}
+
+bool App::TransitionToGame(const int levelNumber)
 {
   if (m_CurrentState == State::GAME)
   {
@@ -66,9 +121,16 @@ bool App::TransitionToGame()
   }
   LOG_DEBUG("Transitioning to GAME state");
 
-  if (!LoadLevel(Resource::LEVEL_1_DATA))
+  const std::string levelPath = ResolveLevelPath(levelNumber);
+  if (levelPath.empty())
   {
-    LOG_ERROR("Failed to load level 1");
+    LOG_WARN("Level %d is not implemented yet", levelNumber);
+    return false;
+  }
+
+  if (!LoadLevel(levelPath))
+  {
+    LOG_ERROR("Failed to load level %d", levelNumber);
     return false;
   }
 
@@ -88,7 +150,15 @@ bool App::LoadLevel(const std::string &levelPath)
     LOG_DEBUG("Level loaded successfully: %s", levelPath.c_str());
     m_loadingScene->SetVisible(false);
     if (m_introScene)
+    {
       m_introScene->SetVisible(false);
+      m_introScene->SetMenuVisible(false);
+    }
+    if (m_levelSelectScene)
+    {
+      m_levelSelectScene->SetVisible(false);
+      m_levelSelectScene->SetSceneVisible(false);
+    }
 
     m_Root.AddChild(m_gameScene);
     m_gameScene->Init();
@@ -125,6 +195,12 @@ void App::End()
   {
     m_Root.RemoveChild(m_introScene);
     m_introScene.reset();
+  }
+
+  if (m_levelSelectScene)
+  {
+    m_Root.RemoveChild(m_levelSelectScene);
+    m_levelSelectScene.reset();
   }
 
   if (m_loadingScene)
