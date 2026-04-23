@@ -10,6 +10,7 @@ set(SRC_FILES
     scenes/Scene.cpp
     scenes/CollisionUtils.cpp
     scenes/CollisionResponse.cpp
+    scenes/SleepSupport.cpp
     controllers/BirdLaunchController.cpp
     controllers/SceneInputController.cpp
     parsers/JsonParseUtils.cpp
@@ -38,6 +39,7 @@ set(INCLUDE_FILES
     scenes/Scene.hpp
     scenes/CollisionUtils.hpp
     scenes/CollisionResponse.hpp
+    scenes/SleepSupport.hpp
     scenes/DebugUtils.hpp
     controllers/BirdLaunchController.hpp
     controllers/SceneInputController.hpp

@@ -3,6 +3,7 @@
 #include "scenes/CollisionUtils.hpp"
 #include "scenes/CollisionResponse.hpp"
 #include "scenes/DebugUtils.hpp"
+#include "scenes/SleepSupport.hpp"
 // Collision detection and input
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
@@ -246,6 +247,8 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
     passes = 1;
   std::vector<std::shared_ptr<Character>> characters;
   characters.reserve(m_Elements.size());
+  std::vector<std::shared_ptr<Character>> sleepingDynamics;
+  auto supportConfirmed = SleepSupport::CreateSupportConfirmedSet();
 
   for (const auto &element : m_Elements)
   {
@@ -253,6 +256,10 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
     if (ch && ch->GetEntityKind() != Character::EntityKind::Slingshot)
     {
       characters.push_back(ch);
+      if (ch->IsSleeping() && !ch->IsStatic())
+      {
+        sleepingDynamics.push_back(ch);
+      }
     }
   }
 
@@ -269,9 +276,34 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
         float penetration = 0.0f;
         if (CollisionUtils::ComputeOBBMTV(*ca, *cb, contactNormal, penetration, contactPoint))
         {
+          // Track whether sleeping objects still have bottom support contact.
+          if (ca->IsSleeping() && !ca->IsStatic() && SleepSupport::IsBottomSupportContact(ca, cb, contactPoint))
+          {
+            supportConfirmed.insert(ca.get());
+          }
+          if (cb->IsSleeping() && !cb->IsStatic() && SleepSupport::IsBottomSupportContact(cb, ca, contactPoint))
+          {
+            supportConfirmed.insert(cb.get());
+          }
+
           HandleCollision(ca, cb, contactNormal, penetration, contactPoint, stabilizing);
         }
       }
+    }
+  }
+
+  // During gameplay, wake sleeping objects that have truly lost support.
+  if (!stabilizing)
+  {
+    for (const auto &ch : sleepingDynamics)
+    {
+      if (supportConfirmed.find(ch.get()) != supportConfirmed.end())
+        continue;
+      if (SleepSupport::IsGeometricallySupported(ch, m_Elements, m_WorldFloorY))
+        continue;
+
+      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "lost_support_wake");
+      ch->SetSleeping(false);
     }
   }
 }
@@ -314,4 +346,4 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
     {
     }
   }
-}                                                                                                                                                                                               
+}
