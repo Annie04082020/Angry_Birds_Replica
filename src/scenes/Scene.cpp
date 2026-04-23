@@ -314,4 +314,4 @@ void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
     {
     }
   }
-}
+}                                                                                                                                                                                               
