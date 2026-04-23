@@ -1,0 +1,305 @@
+{
+  "level": 9,
+  "name": "Level 9",
+  "background": "Image/background.png",
+  "birds": 4,
+
+  "groups": [
+    {
+      "id": "slingshot",
+      "scaleMultiplier": 3,
+      "scalePosition": false,
+      "offsetXPercent": -5.0,
+      "offsetYPercent": 0.0,
+      "scalePivotXPercent": -19.85,
+      "scalePivotYPercent": -7.14
+    },
+    {
+      "id": "Environment",
+      "scaleMultiplier": 1.55,
+      "scalePosition": true,
+      "offsetXPercent": 0.0,
+      "offsetYPercent": -0.5,
+      "scalePivotXPercent": 0.0,
+      "scalePivotYPercent": 0.0
+    }
+  ],
+
+  "objects": [
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_1",
+      "groupId": "slingshot",
+      "sizePercent": 4.592593,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -19.166667,
+      "yPercent": -6.444444
+    },
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_2",
+      "groupId": "slingshot",
+      "sizePercent": 7.37037,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -17.59375,
+      "yPercent": -11.074074
+    },
+    /* ===== 鸟 ===== */
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "xPercent": -23,
+      "yPercent": -16
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_YELLOW",
+      "heightPercent": 4,
+      "xPercent": -21,
+      "yPercent": -18
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_BLUE",
+      "heightPercent": 3,
+      "xPercent": -22,
+      "yPercent": -20
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_BLACK",
+      "heightPercent": 4,
+      "xPercent": -20,
+      "yPercent": -22
+    },
+
+    /* ================= 左塔 ================= */
+
+    /* 底层：木-石-木 */
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 3,
+      "heightPercent": 4,
+      "xPercent": 11.5,
+      "yPercent": -10
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 4,
+      "heightPercent": 3.5,
+      "xPercent": 11.655,
+      "yPercent": -11.7
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 4,
+      "heightPercent": 3.5,
+      "xPercent": 15.5,
+      "yPercent": -11.7
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 3,
+      "heightPercent": 4,
+      "xPercent": 15.5,
+      "yPercent": -10
+    },
+
+    /* 横梁 */
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4,
+      "heightPercent": 1.5,
+      "xPercent": 13.5,
+      "yPercent": -5
+    },
+
+    /* 猪层（带冰弱点） */
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_42x41_1",
+      "groupId": "Environment",
+      "widthPercent": 2,
+      "heightPercent": 4,
+      "xPercent": 12,
+      "yPercent": -1
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_42x41_1",
+      "groupId": "Environment",
+      "widthPercent": 2,
+      "heightPercent": 4,
+      "xPercent": 15,
+      "yPercent": -1
+    },
+
+    {
+      "type": "PIG",
+      "imageId": "PIG_SMALL",
+      "groupId": "Environment",
+      "xPercent": 13.5,
+      "yPercent": 0.5
+    },
+
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 1.5,
+      "heightPercent": 1.5,
+      "xPercent": 14.7,
+      "yPercent": 0.5
+    },
+
+    /* 顶部冰结构 */
+    {
+      "type": "ICE",
+      "imageId": "ICE_014",
+      "groupId": "Environment",
+      "widthPercent": 4,
+      "heightPercent": 2,
+      "xPercent": 13.5,
+      "yPercent": 4
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_005",
+      "groupId": "Environment",
+      "widthPercent": 1.2,
+      "heightPercent": 3,
+      "xPercent": 13.5,
+      "yPercent": 7
+    },
+
+    /* ================= 右塔（镜像） ================= */
+
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 3,
+      "heightPercent": 4,
+      "xPercent": 20.5,
+      "yPercent": -10
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 3,
+      "heightPercent": 4,
+      "xPercent": 22.5,
+      "yPercent": -10
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 3,
+      "heightPercent": 4,
+      "xPercent": 24.5,
+      "yPercent": -10
+    },
+
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4,
+      "heightPercent": 1.5,
+      "xPercent": 22.5,
+      "yPercent": -5
+    },
+
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_42x41_1",
+      "groupId": "Environment",
+      "widthPercent": 2,
+      "heightPercent": 4,
+      "xPercent": 21,
+      "yPercent": -1
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_42x41_1",
+      "groupId": "Environment",
+      "widthPercent": 2,
+      "heightPercent": 4,
+      "xPercent": 24,
+      "yPercent": -1
+    },
+
+    {
+      "type": "PIG",
+      "imageId": "PIG_SMALL",
+      "groupId": "Environment",
+      "xPercent": 22.5,
+      "yPercent": 0.5
+    },
+
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 1.5,
+      "heightPercent": 1.5,
+      "xPercent": 21.3,
+      "yPercent": 0.5
+    },
+
+    {
+      "type": "ICE",
+      "imageId": "ICE_014",
+      "groupId": "Environment",
+      "widthPercent": 4,
+      "heightPercent": 2,
+      "xPercent": 22.5,
+      "yPercent": 4
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_005",
+      "groupId": "Environment",
+      "widthPercent": 1.2,
+      "heightPercent": 3,
+      "xPercent": 22.5,
+      "yPercent": 7
+    },
+
+    /* ================= 中间 ================= */
+
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_168_1",
+      "groupId": "Environment",
+      "widthPercent": 7,
+      "heightPercent": 2,
+      "xPercent": 18,
+      "yPercent": -2
+    },
+
+    {
+      "type": "PIG",
+      "imageId": "PIG_MEDIUM",
+      "groupId": "Environment",
+      "xPercent": 18,
+      "yPercent": 1
+    }
+
+  ]
+}

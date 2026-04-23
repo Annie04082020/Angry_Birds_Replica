@@ -7,6 +7,7 @@
 #include "DynamicBackground.hpp"
 #include "GameScene.hpp"
 #include "IntroScene.hpp"
+#include "LevelSelectScene.hpp"
 #include "LevelManager.hpp"
 #include "Scene.hpp"
 #include "SoundEffect.hpp"
@@ -32,7 +33,9 @@ public:
 
   void End(); // NOLINT(readability-convert-member-functions-to-static)
 
-  bool TransitionToGame();
+  bool TransitionToGame(int levelNumber);
+  void ShowIntroScene();
+  void ShowLevelSelectScene();
   bool LoadLevel(const std::string &levelPath);
   void UnloadCurrentGameScene();
 
@@ -44,6 +47,7 @@ private:
   State m_CurrentState = State::START;
   std::shared_ptr<Scene> m_loadingScene;
   std::shared_ptr<IntroScene> m_introScene;
+  std::shared_ptr<LevelSelectScene> m_levelSelectScene;
   std::shared_ptr<GameScene> m_gameScene;
   float m_startTime = 0.0f;
   bool m_isSplashDone = false;

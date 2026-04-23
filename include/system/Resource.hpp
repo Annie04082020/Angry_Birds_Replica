@@ -60,6 +60,9 @@ namespace Resource
     const std::string WOOD_21x20_2 = RESOURCE_DIR "/Image/wood/sprite_119.png";
     const std::string WOOD_21x20_3 = RESOURCE_DIR "/Image/wood/sprite_096.png";
     const std::string WOOD_21x20_4 = RESOURCE_DIR "/Image/wood/sprite_028.png";
+    const std::string WOOD_42x41_1 = RESOURCE_DIR "/Image/wood/sprite_070.png";
+    const std::string WOOD_42x41_2 = RESOURCE_DIR "/Image/wood/sprite_110.png";
+    const std::string WOOD_42x41_3 = RESOURCE_DIR "/Image/wood/sprite_082.png";
 
     // stone 1 to 4: complete to broken
     const std::string STONE_ball_b_1 = RESOURCE_DIR "/Image/stone/sprite_201.png";
@@ -92,6 +95,15 @@ namespace Resource
 
     // ice 1 to 4: complete to broken
     const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
+    const std::string ICE_056 = RESOURCE_DIR "/Image/ice/sprite_056.png";
+    const std::string ICE_83x41_1 = RESOURCE_DIR "/Image/ice/sprite_014.png";
+    const std::string ICE_83x41_2 = RESOURCE_DIR "/Image/ice/sprite_028.png";
+    const std::string ICE_83x41_3 = RESOURCE_DIR "/Image/ice/sprite_027.png";
+    const std::string ICE_83x41_4 = RESOURCE_DIR "/Image/ice/sprite_020.png";
+    const std::string ICE_83x20_1 = RESOURCE_DIR "/Image/ice/sprite_005.png";
+    const std::string ICE_83x20_2 = RESOURCE_DIR "/Image/ice/sprite_065.png";
+    const std::string ICE_83x20_3 = RESOURCE_DIR "/Image/ice/sprite_002.png";
+    const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
 
     // UI
     const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
@@ -121,6 +133,9 @@ namespace Resource
 
     // Level Data
     const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
+    const std::string LEVEL_2_DATA = RESOURCE_DIR "/levels/level_2.json";
+    const std::string LEVEL_9_DATA = RESOURCE_DIR "/levels/level_9.json";
+    const std::string DEFAULT_LEVEL_DATA = LEVEL_2_DATA;
     const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
 } // namespace Resource
 

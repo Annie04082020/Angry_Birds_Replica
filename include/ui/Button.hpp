@@ -75,6 +75,12 @@ public:
 
   void Update() override
   {
+    if (!m_Visible)
+    {
+      m_IsPressed = Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
+      return;
+    }
+
     auto mousePos = Util::Input::GetCursorPosition();
 
     // 使用基礎縮放乘以 hover 倍數
