@@ -1,4 +1,5 @@
 #include "IntroScene.hpp"
+
 #include "BGM.hpp"
 #include "IntroLayout.hpp"
 #include "Resource.hpp"
@@ -39,7 +40,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         layout.additionalButtonBase.xPercent, layout.additionalButtonBase.yPercent, viewportSize);
 
     m_playbutton = std::make_shared<Button>(Resource::Play_Button);
-    // Store menu configuration from JSON
     m_menuItemSpacing = layout.menuConfig.itemSpacing;
     m_menuInitialOffset = layout.menuConfig.initialOffset;
     m_menuAnimationDistance = layout.menuConfig.animationDistance;
@@ -52,9 +52,10 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_playbutton->SetSFX(Resource::SETTING_SFX);
     m_playbutton->SetOnClickFunction([this]()
                                      {
-        const bool transitionSucceeded = (m_onPlayClick == nullptr) || m_onPlayClick();
-        if (!transitionSucceeded)
+        const bool canOpenLevelSelect = (m_onPlayClick == nullptr) || m_onPlayClick();
+        if (canOpenLevelSelect)
         {
+<<<<<<< HEAD
             return;
         }
 
@@ -74,6 +75,10 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_additionalMenuItem108->SetVisible(false);
         m_additionalMenuItem006->SetVisible(false);
         m_additionalMenuItem041->SetVisible(false); });
+=======
+            HideExitPanel();
+        } });
+>>>>>>> 70157b8 (update level 9)
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);
@@ -90,12 +95,10 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_exitDialog->SetVisible(true);
         m_exitPanelVisible = true; });
 
-    // scale: group multiplier, baseScale/overlayScale: per-layer multipliers.
     const float settingBaseScaleValue = layout.settingButtonBase.scale * layout.settingButtonBase.baseScale;
     const float settingOverlayScaleValue =
         layout.settingButtonOverlay.scale * layout.settingButtonOverlay.overlayScale;
 
-    // 使用底圖與覆層分開的按鈕：底圖保留光影設計，覆層（齒輪）單獨旋轉
     m_settingScale = {settingOverlayScaleValue, settingOverlayScaleValue};
     m_settingScaleHover = m_settingScale * layout.settingButtonOverlay.hoverScaleMultiplier;
 
@@ -104,28 +107,33 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingbutton->SetPosition(m_settingButtonPosition);
     m_settingbutton->SetScale({settingBaseScaleValue, settingBaseScaleValue});
     m_settingbutton->SetVisible(true);
-    m_settingbutton->SetHoverScaleMultiplier(layout.settingButtonOverlay.hoverScaleMultiplier); // 啟用 hover 縮放
+    m_settingbutton->SetHoverScaleMultiplier(layout.settingButtonOverlay.hoverScaleMultiplier);
     m_settingbutton->SetSFX(Resource::SETTING_SFX);
     m_settingbutton->SetOnClickFunction([this]()
                                         {
         if (m_settingMenuOpen) {
+<<<<<<< HEAD
             // 關閉菜單：逆時針旋轉 180 度
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation + 3.14159265f);
+=======
+            m_settingOverlayTargetRotation += 3.14159265f;
+>>>>>>> 70157b8 (update level 9)
             m_settingMenuOpen = false;
-            m_menuItemsAnimating = true;  // 啟動動畫回到原位置
-            // 菜單項保持可見，直到動畫完成
+            m_menuItemsAnimating = true;
         } else {
+<<<<<<< HEAD
             // 展開菜單：順時針旋轉 180 度
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation - 3.14159265f);
+=======
+            m_settingOverlayTargetRotation -= 3.14159265f;
+>>>>>>> 70157b8 (update level 9)
             m_settingMenuOpen = true;
             m_menuItemsAnimating = true;
-            // 菜單項visibility由動畫邏輯控制
         }
         if (m_settingAnimated) { /* animation started via SetOverlayTargetRotation */ } });
 
-    // 建立覆層（齒輪），比底圖 z-index 高一層
     m_settingOverlay = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Button_Overlay), 51);
     m_settingOverlay->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, 6.0f};
@@ -148,16 +156,14 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButton = std::make_shared<Button>(Resource::Additional_Button_Base);
     m_additionalButton->SetZIndex(50);
     m_additionalButton->SetPosition(m_additionalButtonPosition);
-    m_additionalButton->SetScale(
-        {additionalBaseScaleValue, additionalBaseScaleValue});
+    m_additionalButton->SetScale({additionalBaseScaleValue, additionalBaseScaleValue});
     m_additionalButton->SetVisible(true);
-    m_additionalButton->SetHoverScaleMultiplier(
-        layout.additionalButtonOverlay.hoverScaleMultiplier);
+    m_additionalButton->SetHoverScaleMultiplier(layout.additionalButtonOverlay.hoverScaleMultiplier);
     m_additionalButton->SetSFX(Resource::SETTING_SFX);
     m_additionalButton->SetOnClickFunction([this]()
                                            {
-        // Handle menu opening/closing
         if (m_additionalMenuOpen) {
+<<<<<<< HEAD
             // Close menu: rotate back
             if (m_additionalAnimated)
                 m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation + 3.14159265f);
@@ -167,6 +173,13 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
             // Open menu: rotate 180 degrees
             if (m_additionalAnimated)
                 m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation - 3.14159265f);
+=======
+            m_additionalOverlayTargetRotation += 3.14159265f;
+            m_additionalMenuOpen = false;
+            m_additionalMenuItemsAnimating = true;
+        } else {
+            m_additionalOverlayTargetRotation -= 3.14159265f;
+>>>>>>> 70157b8 (update level 9)
             m_additionalMenuOpen = true;
             m_additionalMenuItemsAnimating = true;
         }
@@ -178,13 +191,28 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
     m_additionalButtonOverlay->SetVisible(true);
 
+<<<<<<< HEAD
     // Compose AnimatedButton for additional button + overlay
     m_additionalAnimated = std::make_shared<AnimatedButton>(m_additionalButton, m_additionalButtonOverlay);
     m_additionalAnimated->SetOverlayScales(m_additionalScale, m_additionalScaleHover);
+=======
+    auto getGroupScaleMultiplier = [&layout](const std::string &groupId) -> float
+    {
+        if (groupId.empty())
+        {
+            return 1.0f;
+        }
+        auto it = layout.groups.find(groupId);
+        if (it != layout.groups.end())
+        {
+            return it->second.scaleMultiplier;
+        }
+        return 1.0f;
+    };
+>>>>>>> 70157b8 (update level 9)
 
     // Use LayoutUtils helpers for group scaling and menu item layout.
 
-    // Setting menu items - apply JSON configuration and group scaling
     m_menuItem043 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_043), 20);
     Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem043, layout.settingMenuItems.items, "043", m_settingButtonPosition, layout);
@@ -200,7 +228,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem017, layout.settingMenuItems.items, "017", m_settingButtonPosition, layout);
     m_menuItem017->SetVisible(false);
 
-    // Additional menu items - apply JSON configuration and group scaling
     m_additionalMenuItem108 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_108), 20);
     Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem108, layout.additionalMenuItems.items, "108", m_additionalButtonPosition, layout);
@@ -216,37 +243,32 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem041, layout.additionalMenuItems.items, "041", m_additionalButtonPosition, layout);
     m_additionalMenuItem041->SetVisible(false);
 
-    // Exit confirm panel: 048 in the center with 105 (left) and 95 (right) below
     m_exitConfirm048 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Confirm_048), 60);
     m_exitConfirm048->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitConfirm.xPercent, layout.exitConfirm.yPercent, viewportSize);
-    m_exitConfirm048->m_Transform.scale =
-        glm::vec2{layout.exitConfirm.scale, layout.exitConfirm.scale};
+    m_exitConfirm048->m_Transform.scale = glm::vec2{layout.exitConfirm.scale, layout.exitConfirm.scale};
     m_exitConfirm048->SetVisible(false);
 
     m_exitButton105 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_105), 61);
     m_exitButton105->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitNo.xPercent, layout.exitNo.yPercent, viewportSize);
-    m_exitButton105->m_Transform.scale =
-        glm::vec2{layout.exitNo.scale, layout.exitNo.scale};
+    m_exitButton105->m_Transform.scale = glm::vec2{layout.exitNo.scale, layout.exitNo.scale};
     m_exitButton105->SetVisible(false);
 
     m_exitButton95 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_95), 61);
     m_exitButton95->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitYes.xPercent, layout.exitYes.yPercent, viewportSize);
-    m_exitButton95->m_Transform.scale =
-        glm::vec2{layout.exitYes.scale, layout.exitYes.scale};
+    m_exitButton95->m_Transform.scale = glm::vec2{layout.exitYes.scale, layout.exitYes.scale};
     m_exitButton95->SetVisible(false);
 
     m_exitDialog = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Dialog), 62);
     m_exitDialog->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitDialog.xPercent, layout.exitDialog.yPercent, viewportSize);
-    m_exitDialog->m_Transform.scale =
-        glm::vec2{layout.exitDialog.scale, layout.exitDialog.scale};
+    m_exitDialog->m_Transform.scale = glm::vec2{layout.exitDialog.scale, layout.exitDialog.scale};
     m_exitDialog->SetVisible(false);
 
     AddElements(m_playbutton);
@@ -267,10 +289,44 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     AddElements(m_exitDialog);
 }
 
+void IntroScene::SetMenuVisible(const bool visible)
+{
+    m_playbutton->SetVisible(visible);
+    m_exitbutton->SetVisible(visible);
+    m_settingbutton->SetVisible(visible);
+    m_settingOverlay->SetVisible(visible);
+    m_additionalButton->SetVisible(visible);
+    m_additionalButtonOverlay->SetVisible(visible);
+
+    if (!visible)
+    {
+        m_settingMenuOpen = false;
+        m_additionalMenuOpen = false;
+        m_menuItemsAnimating = false;
+        m_additionalMenuItemsAnimating = false;
+        HideExitPanel();
+    }
+
+    m_menuItem043->SetVisible(visible && m_settingMenuOpen);
+    m_menuItem032->SetVisible(visible && m_settingMenuOpen);
+    m_menuItem017->SetVisible(visible && m_settingMenuOpen);
+    m_additionalMenuItem108->SetVisible(visible && m_additionalMenuOpen);
+    m_additionalMenuItem006->SetVisible(visible && m_additionalMenuOpen);
+    m_additionalMenuItem041->SetVisible(visible && m_additionalMenuOpen);
+}
+
+void IntroScene::HideExitPanel()
+{
+    m_exitConfirm048->SetVisible(false);
+    m_exitButton105->SetVisible(false);
+    m_exitButton95->SetVisible(false);
+    m_exitDialog->SetVisible(false);
+    m_exitPanelVisible = false;
+}
+
 void IntroScene::Update()
 {
-    // Handle ESC key to show exit confirmation
-    if (Util::Input::IsKeyDown(Util::Keycode::ESCAPE) && !m_exitPanelVisible)
+    if (Util::Input::IsKeyDown(Util::Keycode::ESCAPE) && !m_exitPanelVisible && m_exitbutton->GetVisibility())
     {
         m_exitConfirm048->SetVisible(true);
         m_exitButton105->SetVisible(true);
@@ -279,6 +335,7 @@ void IntroScene::Update()
         m_exitPanelVisible = true;
     }
 
+<<<<<<< HEAD
     // Let AnimatedButton manage overlay rotation and hover scaling
     if (m_settingAnimated)
         m_settingAnimated->Update();
@@ -299,32 +356,259 @@ void IntroScene::Update()
         AnimateMenuItems(additionalItems, m_additionalButtonPosition, m_additionalMenuOpen, m_additionalMenuItemsAnimating);
     }
     auto mousePos = Util::Input::GetCursorPosition();
+=======
+    if (m_settingOverlayIsAnimating && m_settingOverlay)
+    {
+        float &rotation = m_settingOverlay->m_Transform.rotation;
+        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
+        constexpr float rotationSpeedRadPerSec = 9.42478f;
+        const float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
 
-    // Handle exit panel button clicks (095 and 105)
+        const float remaining = m_settingOverlayTargetRotation - rotation;
+        if (std::fabs(remaining) <= rotationStep)
+        {
+            rotation = m_settingOverlayTargetRotation;
+            m_settingOverlayIsAnimating = false;
+        }
+        else
+        {
+            rotation += (remaining > 0 ? rotationStep : -rotationStep);
+        }
+    }
+
+    if (m_additionalOverlayIsAnimating && m_additionalButtonOverlay)
+    {
+        float &rotation = m_additionalButtonOverlay->m_Transform.rotation;
+        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
+        constexpr float rotationSpeedRadPerSec = 11.780975f;
+        const float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
+
+        const float remaining = m_additionalOverlayTargetRotation - rotation;
+        if (std::fabs(remaining) <= rotationStep)
+        {
+            rotation = m_additionalOverlayTargetRotation;
+            m_additionalOverlayIsAnimating = false;
+        }
+        else
+        {
+            rotation += (remaining > 0 ? rotationStep : -rotationStep);
+        }
+    }
+
+    if (m_menuItemsAnimating && m_menuItem043 && m_menuItem032 && m_menuItem017)
+    {
+        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
+
+        if (m_settingMenuOpen)
+        {
+            glm::vec2 &pos043 = m_menuItem043->m_Transform.translation;
+            glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
+            glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
+            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
+            const float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
+            const float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
+            const float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
+
+            if (pos043.y < targetY043)
+            {
+                pos043.y = glm::min(pos043.y + moveDistance, targetY043);
+            }
+            if (pos032.y < targetY032)
+            {
+                pos032.y = glm::min(pos032.y + moveDistance, targetY032);
+            }
+            if (pos017.y < targetY017)
+            {
+                pos017.y = glm::min(pos017.y + moveDistance, targetY017);
+            }
+
+            m_menuItem043->SetVisible(pos043.y > m_settingButtonPosition.y);
+            m_menuItem032->SetVisible(pos032.y > m_settingButtonPosition.y);
+            m_menuItem017->SetVisible(pos017.y > m_settingButtonPosition.y);
+
+            if (std::fabs(pos043.y - targetY043) < 1.0f &&
+                std::fabs(pos032.y - targetY032) < 1.0f &&
+                std::fabs(pos017.y - targetY017) < 1.0f)
+            {
+                pos043.y = targetY043;
+                pos032.y = targetY032;
+                pos017.y = targetY017;
+                m_menuItemsAnimating = false;
+            }
+        }
+        else
+        {
+            glm::vec2 &pos043 = m_menuItem043->m_Transform.translation;
+            glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
+            glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
+            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
+            const float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
+            const float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
+            const float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset;
+
+            if (pos043.y > targetY043)
+            {
+                pos043.y = glm::max(pos043.y - moveDistance, targetY043);
+            }
+            if (pos032.y > targetY032)
+            {
+                pos032.y = glm::max(pos032.y - moveDistance, targetY032);
+            }
+            if (pos017.y > targetY017)
+            {
+                pos017.y = glm::max(pos017.y - moveDistance, targetY017);
+            }
+
+            m_menuItem043->SetVisible(pos043.y > m_settingButtonPosition.y);
+            m_menuItem032->SetVisible(pos032.y > m_settingButtonPosition.y);
+            m_menuItem017->SetVisible(pos017.y > m_settingButtonPosition.y);
+
+            if (std::fabs(pos043.y - targetY043) < 1.0f &&
+                std::fabs(pos032.y - targetY032) < 1.0f &&
+                std::fabs(pos017.y - targetY017) < 1.0f)
+            {
+                pos043.y = targetY043;
+                pos032.y = targetY032;
+                pos017.y = targetY017;
+                m_menuItemsAnimating = false;
+            }
+        }
+    }
+
+    if (m_additionalMenuItemsAnimating && m_additionalMenuItem108 && m_additionalMenuItem006 && m_additionalMenuItem041)
+    {
+        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
+        if (m_additionalMenuOpen)
+        {
+            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
+            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
+            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
+            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
+            const float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
+            const float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
+            const float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
+
+            if (pos108.y < targetY108)
+            {
+                pos108.y = glm::min(pos108.y + moveDistance, targetY108);
+            }
+            if (pos006.y < targetY006)
+            {
+                pos006.y = glm::min(pos006.y + moveDistance, targetY006);
+            }
+            if (pos041.y < targetY041)
+            {
+                pos041.y = glm::min(pos041.y + moveDistance, targetY041);
+            }
+
+            m_additionalMenuItem108->SetVisible(pos108.y > m_additionalButtonPosition.y);
+            m_additionalMenuItem006->SetVisible(pos006.y > m_additionalButtonPosition.y);
+            m_additionalMenuItem041->SetVisible(pos041.y > m_additionalButtonPosition.y);
+
+            if (std::fabs(pos108.y - targetY108) < 1.0f &&
+                std::fabs(pos006.y - targetY006) < 1.0f &&
+                std::fabs(pos041.y - targetY041) < 1.0f)
+            {
+                pos108.y = targetY108;
+                pos006.y = targetY006;
+                pos041.y = targetY041;
+                m_additionalMenuItemsAnimating = false;
+            }
+        }
+        else
+        {
+            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
+            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
+            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
+            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
+            const float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
+            const float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
+            const float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset;
+
+            if (pos108.y > targetY108)
+            {
+                pos108.y = glm::max(pos108.y - moveDistance, targetY108);
+            }
+            if (pos006.y > targetY006)
+            {
+                pos006.y = glm::max(pos006.y - moveDistance, targetY006);
+            }
+            if (pos041.y > targetY041)
+            {
+                pos041.y = glm::max(pos041.y - moveDistance, targetY041);
+            }
+
+            m_additionalMenuItem108->SetVisible(pos108.y > m_additionalButtonPosition.y);
+            m_additionalMenuItem006->SetVisible(pos006.y > m_additionalButtonPosition.y);
+            m_additionalMenuItem041->SetVisible(pos041.y > m_additionalButtonPosition.y);
+
+            if (std::fabs(pos108.y - targetY108) < 1.0f &&
+                std::fabs(pos006.y - targetY006) < 1.0f &&
+                std::fabs(pos041.y - targetY041) < 1.0f)
+            {
+                pos108.y = targetY108;
+                pos006.y = targetY006;
+                pos041.y = targetY041;
+                m_additionalMenuItemsAnimating = false;
+            }
+        }
+    }
+
+    const auto mousePos = Util::Input::GetCursorPosition();
+    if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos) && m_settingbutton->GetVisibility())
+    {
+        m_settingOverlay->m_Transform.scale = m_settingScaleHover;
+    }
+    else if (m_settingOverlay)
+    {
+        m_settingOverlay->m_Transform.scale = m_settingScale;
+    }
+
+    if (m_additionalButton && m_additionalButtonOverlay && m_additionalButton->IsHovering(mousePos) && m_additionalButton->GetVisibility())
+    {
+        m_additionalButtonOverlay->m_Transform.scale = m_additionalScaleHover;
+    }
+    else if (m_additionalButtonOverlay)
+    {
+        m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
+    }
+>>>>>>> 70157b8 (update level 9)
+
     if (m_exitPanelVisible && m_exitButton95 && m_exitButton105)
     {
-        auto exitButton95Size = m_exitButton95->GetScaledSize();
-        auto exitButton105Size = m_exitButton105->GetScaledSize();
-        auto pos95 = m_exitButton95->m_Transform.translation;
-        auto pos105 = m_exitButton105->m_Transform.translation;
+        const auto exitButton95Size = m_exitButton95->GetScaledSize();
+        const auto exitButton105Size = m_exitButton105->GetScaledSize();
+        const auto pos95 = m_exitButton95->m_Transform.translation;
+        const auto pos105 = m_exitButton105->m_Transform.translation;
 
+<<<<<<< HEAD
         // Check if 095 (right button) is clicked - exit game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton95, Util::Keycode::MOUSE_LB))
+=======
+        if (mousePos.x >= pos95.x - exitButton95Size.x / 2 &&
+            mousePos.x <= pos95.x + exitButton95Size.x / 2 &&
+            mousePos.y >= pos95.y - exitButton95Size.y / 2 &&
+            mousePos.y <= pos95.y + exitButton95Size.y / 2 &&
+            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
+>>>>>>> 70157b8 (update level 9)
         {
             SDL_Event quitEvent;
             quitEvent.type = SDL_QUIT;
             SDL_PushEvent(&quitEvent);
         }
 
+<<<<<<< HEAD
         // Check if 105 (left button) is clicked - continue game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton105, Util::Keycode::MOUSE_LB))
+=======
+        if (mousePos.x >= pos105.x - exitButton105Size.x / 2 &&
+            mousePos.x <= pos105.x + exitButton105Size.x / 2 &&
+            mousePos.y >= pos105.y - exitButton105Size.y / 2 &&
+            mousePos.y <= pos105.y + exitButton105Size.y / 2 &&
+            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
+>>>>>>> 70157b8 (update level 9)
         {
-            // Cancel exit - hide exit panel
-            m_exitConfirm048->SetVisible(false);
-            m_exitButton105->SetVisible(false);
-            m_exitButton95->SetVisible(false);
-            m_exitDialog->SetVisible(false);
-            m_exitPanelVisible = false;
+            HideExitPanel();
         }
     }
 
