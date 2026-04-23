@@ -21,98 +21,71 @@ ParsedLevelData LevelParser::Parse(const std::string &jsonStr)
         static_cast<float>(WINDOW_WIDTH),
         static_cast<float>(WINDOW_HEIGHT));
 
-    const size_t objectsStart = jsonStr.find("\"objects\"");
-    if (objectsStart == std::string::npos)
+    std::string objectsContent;
+    if (!JsonParseUtils::ExtractArrayContent(jsonStr, "objects", objectsContent))
     {
         std::cerr << "No objects array found in level JSON" << std::endl;
         return data;
     }
 
-    const size_t arrayStart = jsonStr.find('[', objectsStart);
-    const size_t arrayEnd = jsonStr.find(']', arrayStart);
-    if (arrayStart == std::string::npos || arrayEnd == std::string::npos)
+    const auto objectJsonList = JsonParseUtils::ExtractObjectContentsFromArray("[" + objectsContent + "]");
+    for (const auto &entityJson : objectJsonList)
     {
-        std::cerr << "Invalid objects array format" << std::endl;
-        return data;
-    }
+        LevelObjectDefinition objectDefinition;
 
-    const std::string objectsContent = jsonStr.substr(arrayStart + 1, arrayEnd - arrayStart - 1);
+        objectDefinition.typeStr = JsonParseUtils::ExtractString(entityJson, "type");
+        objectDefinition.posX = JsonParseUtils::HasKey(entityJson, "xPercent")
+                                    ? JsonParseUtils::ExtractFloat(entityJson, "xPercent") * static_cast<float>(WINDOW_WIDTH) / 100.0f
+                                    : JsonParseUtils::ExtractFloat(entityJson, "x");
+        objectDefinition.posY = JsonParseUtils::HasKey(entityJson, "yPercent")
+                                    ? JsonParseUtils::ExtractFloat(entityJson, "yPercent") * static_cast<float>(WINDOW_HEIGHT) / 100.0f
+                                    : JsonParseUtils::ExtractFloat(entityJson, "y");
+        objectDefinition.scaleX = JsonParseUtils::ExtractFloat(entityJson, "scaleX");
+        objectDefinition.scaleY = JsonParseUtils::ExtractFloat(entityJson, "scaleY");
+        objectDefinition.rotation = JsonParseUtils::ExtractFloat(entityJson, "rotation");
+        objectDefinition.groupId = JsonParseUtils::ExtractString(entityJson, "groupId");
 
-    size_t objectStart = 0;
-    int braceCount = 0;
-    for (size_t currentPos = 0; currentPos < objectsContent.length(); ++currentPos)
-    {
-        if (objectsContent[currentPos] == '{')
+        objectDefinition.hasSizePercent = JsonParseUtils::HasKey(entityJson, "sizePercent") || JsonParseUtils::HasKey(entityJson, "scalePercent");
+        objectDefinition.hasWidthPercent = JsonParseUtils::HasKey(entityJson, "widthPercent") || JsonParseUtils::HasKey(entityJson, "scalePercentX");
+        objectDefinition.hasHeightPercent = JsonParseUtils::HasKey(entityJson, "heightPercent") || JsonParseUtils::HasKey(entityJson, "scalePercentY");
+
+        objectDefinition.sizeBase = JsonParseUtils::ExtractString(entityJson, "sizeBase");
+        if (objectDefinition.sizeBase.empty())
         {
-            if (braceCount == 0)
-            {
-                objectStart = currentPos;
-            }
-            ++braceCount;
+            objectDefinition.sizeBase = JsonParseUtils::ExtractString(entityJson, "scaleBase");
         }
-        else if (objectsContent[currentPos] == '}')
+        if (objectDefinition.sizeBase.empty())
         {
-            --braceCount;
-            if (braceCount == 0)
-            {
-                const std::string entityJson = objectsContent.substr(objectStart + 1, currentPos - objectStart - 1);
-                LevelObjectDefinition objectDefinition;
-
-                objectDefinition.typeStr = JsonParseUtils::ExtractString(entityJson, "type");
-                objectDefinition.posX = JsonParseUtils::HasKey(entityJson, "xPercent")
-                                            ? JsonParseUtils::ExtractFloat(entityJson, "xPercent") * static_cast<float>(WINDOW_WIDTH) / 100.0f
-                                            : JsonParseUtils::ExtractFloat(entityJson, "x");
-                objectDefinition.posY = JsonParseUtils::HasKey(entityJson, "yPercent")
-                                            ? JsonParseUtils::ExtractFloat(entityJson, "yPercent") * static_cast<float>(WINDOW_HEIGHT) / 100.0f
-                                            : JsonParseUtils::ExtractFloat(entityJson, "y");
-                objectDefinition.scaleX = JsonParseUtils::ExtractFloat(entityJson, "scaleX");
-                objectDefinition.scaleY = JsonParseUtils::ExtractFloat(entityJson, "scaleY");
-                objectDefinition.rotation = JsonParseUtils::ExtractFloat(entityJson, "rotation");
-                objectDefinition.groupId = JsonParseUtils::ExtractString(entityJson, "groupId");
-
-                objectDefinition.hasSizePercent = JsonParseUtils::HasKey(entityJson, "sizePercent") || JsonParseUtils::HasKey(entityJson, "scalePercent");
-                objectDefinition.hasWidthPercent = JsonParseUtils::HasKey(entityJson, "widthPercent") || JsonParseUtils::HasKey(entityJson, "scalePercentX");
-                objectDefinition.hasHeightPercent = JsonParseUtils::HasKey(entityJson, "heightPercent") || JsonParseUtils::HasKey(entityJson, "scalePercentY");
-
-                objectDefinition.sizeBase = JsonParseUtils::ExtractString(entityJson, "sizeBase");
-                if (objectDefinition.sizeBase.empty())
-                {
-                    objectDefinition.sizeBase = JsonParseUtils::ExtractString(entityJson, "scaleBase");
-                }
-                if (objectDefinition.sizeBase.empty())
-                {
-                    objectDefinition.sizeBase = "height";
-                }
-
-                if (objectDefinition.hasSizePercent)
-                {
-                    objectDefinition.sizePercent = JsonParseUtils::HasKey(entityJson, "sizePercent")
-                                                       ? JsonParseUtils::ExtractFloat(entityJson, "sizePercent")
-                                                       : JsonParseUtils::ExtractFloat(entityJson, "scalePercent");
-                }
-
-                if (objectDefinition.hasWidthPercent)
-                {
-                    objectDefinition.widthPercent = JsonParseUtils::HasKey(entityJson, "widthPercent")
-                                                        ? JsonParseUtils::ExtractFloat(entityJson, "widthPercent")
-                                                        : JsonParseUtils::ExtractFloat(entityJson, "scalePercentX");
-                }
-                if (objectDefinition.hasHeightPercent)
-                {
-                    objectDefinition.heightPercent = JsonParseUtils::HasKey(entityJson, "heightPercent")
-                                                         ? JsonParseUtils::ExtractFloat(entityJson, "heightPercent")
-                                                         : JsonParseUtils::ExtractFloat(entityJson, "scalePercentY");
-                }
-
-                objectDefinition.imageId = JsonParseUtils::ExtractString(entityJson, "imageId");
-                if (objectDefinition.imageId.empty())
-                {
-                    objectDefinition.imageId = JsonParseUtils::ExtractString(entityJson, "resourceId");
-                }
-
-                data.objects.push_back(objectDefinition);
-            }
+            objectDefinition.sizeBase = "height";
         }
+
+        if (objectDefinition.hasSizePercent)
+        {
+            objectDefinition.sizePercent = JsonParseUtils::HasKey(entityJson, "sizePercent")
+                                               ? JsonParseUtils::ExtractFloat(entityJson, "sizePercent")
+                                               : JsonParseUtils::ExtractFloat(entityJson, "scalePercent");
+        }
+
+        if (objectDefinition.hasWidthPercent)
+        {
+            objectDefinition.widthPercent = JsonParseUtils::HasKey(entityJson, "widthPercent")
+                                                ? JsonParseUtils::ExtractFloat(entityJson, "widthPercent")
+                                                : JsonParseUtils::ExtractFloat(entityJson, "scalePercentX");
+        }
+        if (objectDefinition.hasHeightPercent)
+        {
+            objectDefinition.heightPercent = JsonParseUtils::HasKey(entityJson, "heightPercent")
+                                                 ? JsonParseUtils::ExtractFloat(entityJson, "heightPercent")
+                                                 : JsonParseUtils::ExtractFloat(entityJson, "scalePercentY");
+        }
+
+        objectDefinition.imageId = JsonParseUtils::ExtractString(entityJson, "imageId");
+        if (objectDefinition.imageId.empty())
+        {
+            objectDefinition.imageId = JsonParseUtils::ExtractString(entityJson, "resourceId");
+        }
+
+        data.objects.push_back(objectDefinition);
     }
 
     return data;
