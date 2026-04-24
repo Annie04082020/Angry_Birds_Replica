@@ -53,10 +53,9 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_playbutton->SetSFX(Resource::SETTING_SFX);
     m_playbutton->SetOnClickFunction([this]()
                                      {
-        const bool canOpenLevelSelect = (m_onPlayClick == nullptr) || m_onPlayClick();
-        if (canOpenLevelSelect)
+        const bool transitionSucceeded = (m_onPlayClick == nullptr) || m_onPlayClick();
+        if (!transitionSucceeded)
         {
-<<<<<<< HEAD
             return;
         }
 
@@ -110,23 +109,15 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingbutton->SetOnClickFunction([this]()
                                         {
         if (m_settingMenuOpen) {
-<<<<<<< HEAD
             // 關閉菜單：逆時針旋轉 180 度
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation + 3.14159265f);
-=======
-            m_settingOverlayTargetRotation += 3.14159265f;
->>>>>>> 70157b8 (update level 9)
             m_settingMenuOpen = false;
             m_menuItemsAnimating = true;
         } else {
-<<<<<<< HEAD
             // 展開菜單：順時針旋轉 180 度
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation - 3.14159265f);
-=======
-            m_settingOverlayTargetRotation -= 3.14159265f;
->>>>>>> 70157b8 (update level 9)
             m_settingMenuOpen = true;
             m_menuItemsAnimating = true;
         }
@@ -161,7 +152,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButton->SetOnClickFunction([this]()
                                            {
         if (m_additionalMenuOpen) {
-<<<<<<< HEAD
             // Close menu: rotate back
             if (m_additionalAnimated)
                 m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation + 3.14159265f);
@@ -171,13 +161,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
             // Open menu: rotate 180 degrees
             if (m_additionalAnimated)
                 m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation - 3.14159265f);
-=======
-            m_additionalOverlayTargetRotation += 3.14159265f;
-            m_additionalMenuOpen = false;
-            m_additionalMenuItemsAnimating = true;
-        } else {
-            m_additionalOverlayTargetRotation -= 3.14159265f;
->>>>>>> 70157b8 (update level 9)
             m_additionalMenuOpen = true;
             m_additionalMenuItemsAnimating = true;
         }
@@ -189,25 +172,9 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
     m_additionalButtonOverlay->SetVisible(true);
 
-<<<<<<< HEAD
     // Compose AnimatedButton for additional button + overlay
     m_additionalAnimated = std::make_shared<AnimatedButton>(m_additionalButton, m_additionalButtonOverlay);
     m_additionalAnimated->SetOverlayScales(m_additionalScale, m_additionalScaleHover);
-=======
-    auto getGroupScaleMultiplier = [&layout](const std::string &groupId) -> float
-    {
-        if (groupId.empty())
-        {
-            return 1.0f;
-        }
-        auto it = layout.groups.find(groupId);
-        if (it != layout.groups.end())
-        {
-            return it->second.scaleMultiplier;
-        }
-        return 1.0f;
-    };
->>>>>>> 70157b8 (update level 9)
 
     // Use LayoutUtils helpers for group scaling and menu item layout.
 
@@ -333,7 +300,6 @@ void IntroScene::Update()
         m_exitPanelVisible = true;
     }
 
-<<<<<<< HEAD
     // Let AnimatedButton manage overlay rotation and hover scaling
     if (m_settingAnimated)
         m_settingAnimated->Update();
@@ -362,23 +328,14 @@ void IntroScene::Update()
         const auto pos95 = m_exitButton95->m_Transform.translation;
         const auto pos105 = m_exitButton105->m_Transform.translation;
 
-<<<<<<< HEAD
         // Check if 095 (right button) is clicked - exit game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton95, Util::Keycode::MOUSE_LB))
-=======
-        if (mousePos.x >= pos95.x - exitButton95Size.x / 2 &&
-            mousePos.x <= pos95.x + exitButton95Size.x / 2 &&
-            mousePos.y >= pos95.y - exitButton95Size.y / 2 &&
-            mousePos.y <= pos95.y + exitButton95Size.y / 2 &&
-            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
->>>>>>> 70157b8 (update level 9)
         {
             SDL_Event quitEvent;
             quitEvent.type = SDL_QUIT;
             SDL_PushEvent(&quitEvent);
         }
 
-<<<<<<< HEAD
         // Check if 105 (left button) is clicked - continue game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton105, Util::Keycode::MOUSE_LB))
         {
