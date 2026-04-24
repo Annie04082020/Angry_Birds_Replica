@@ -32,7 +32,7 @@
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -19.166667,
-      "yPercent": -4.444444
+      "yPercent": -6.444444
     },
     {
       "type": "SLINGSHOT",
@@ -42,7 +42,7 @@
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -17.59375,
-      "yPercent": -9.074074
+      "yPercent": -11.074074
     },
     {
       "type": "BIRD",
@@ -51,7 +51,7 @@
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -23.333333,
-      "yPercent": -14.074074
+      "yPercent": -16.074074
     },
     {
       "type": "BIRD",
@@ -60,7 +60,7 @@
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -21.666667,
-      "yPercent": -16.296296
+      "yPercent": -18.296296
     },
     {
       "type": "BIRD",
@@ -69,7 +69,7 @@
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -22.5,
-      "yPercent": -18.518519
+      "yPercent": -20.518519
     },
     {
       "type": "WOOD",
@@ -79,7 +79,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 24.583333,
-      "yPercent": -7.037037
+      "yPercent": -9.037037
     },
     {
       "type": "WOOD",
@@ -89,7 +89,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 11.041667,
-      "yPercent": -7.037037
+      "yPercent": -9.037037
     },
     {
       "type": "WOOD",
@@ -99,7 +99,7 @@
       "heightPercent": 4.296296,
       "rotation": 0.0,
       "xPercent": 21.541667,
-      "yPercent": -10.222222
+      "yPercent": -12.222222
     },
     {
       "type": "WOOD",
@@ -109,7 +109,7 @@
       "heightPercent": 4.296296,
       "rotation": 0.0,
       "xPercent": 14.166667,
-      "yPercent": -10.222222
+      "yPercent": -12.222222
     },
     {
       "type": "WOOD",
@@ -119,7 +119,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 20.833333,
-      "yPercent": -2.222222
+      "yPercent": -4.222222
     },
     {
       "type": "WOOD",
@@ -129,7 +129,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 14.791667,
-      "yPercent": -2.222222
+      "yPercent": -4.222222
     },
     {
       "type": "WOOD",
@@ -139,7 +139,7 @@
       "heightPercent": 1.185185,
       "rotation": 0.0,
       "xPercent": 17.708333,
-      "yPercent": 4.444444
+      "yPercent": 2.444444
     },
     {
       "type": "ICE",
@@ -149,7 +149,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 16.75,
-      "yPercent": -4.444444
+      "yPercent": -6.444444
     },
     {
       "type": "ICE",
@@ -159,7 +159,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 18.75,
-      "yPercent": -4.444444
+      "yPercent": -6.444444
     },
     {
       "type": "WOOD",
@@ -169,7 +169,7 @@
       "heightPercent": 1.185185,
       "rotation": 0.0,
       "xPercent": 17.833333,
-      "yPercent": -7.555556
+      "yPercent": -9.555556
     },
     {
       "type": "WOOD",
@@ -179,7 +179,7 @@
       "heightPercent": 1.185185,
       "rotation": 0.0,
       "xPercent": 17.75,
-      "yPercent": -1.407407
+      "yPercent": -3.407407
     },
     {
       "type": "WOOD",
@@ -189,7 +189,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 16.583333,
-      "yPercent": 11.111111
+      "yPercent": 9.111111
     },
     {
       "type": "WOOD",
@@ -199,7 +199,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 18.916667,
-      "yPercent": 11.111111
+      "yPercent": 9.111111
     },
     {
       "type": "WOOD",
@@ -209,7 +209,7 @@
       "heightPercent": 1.185185,
       "rotation": 0.0,
       "xPercent": 17.75,
-      "yPercent": 17.777778
+      "yPercent": 15.777778
     },
     {
       "type": "WOOD",
@@ -219,7 +219,7 @@
       "heightPercent": 1.185185,
       "rotation": 1.6,
       "xPercent": 17.708333,
-      "yPercent": 19.62963
+      "yPercent": 17.62963
     },
     {
       "type": "WOOD",
@@ -229,7 +229,7 @@
       "heightPercent": 1.185185,
       "rotation": 0.0,
       "xPercent": 17.833333,
-      "yPercent": 5.777778
+      "yPercent": 3.777778
     },
     {
       "type": "PIG",
@@ -239,7 +239,7 @@
       "heightPercent": 2.385185,
       "rotation": 0.0,
       "xPercent": 17.833333,
-      "yPercent": 7.62963
+      "yPercent": 5.62963
     }
   ]
 }
