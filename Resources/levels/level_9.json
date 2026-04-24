@@ -3,7 +3,6 @@
   "name": "Level 9",
   "background": "Image/background.png",
   "birds": 4,
-
   "groups": [
     {
       "id": "slingshot",
@@ -24,7 +23,6 @@
       "scalePivotYPercent": 0.0
     }
   ],
-
   "objects": [
     {
       "type": "SLINGSHOT",
@@ -46,7 +44,6 @@
       "xPercent": -17.59375,
       "yPercent": -11.074074
     },
-    /* ===== 鸟 ===== */
     {
       "type": "BIRD",
       "imageId": "BIRD_RED",
@@ -75,10 +72,6 @@
       "xPercent": -20,
       "yPercent": -22
     },
-
-    /* ================= 左塔 ================= */
-
-    /* 底层：木-石-木 */
     {
       "type": "WOOD",
       "imageId": "WOOD_83x41_1",
@@ -115,8 +108,6 @@
       "xPercent": 15.5,
       "yPercent": -10
     },
-
-    /* 横梁 */
     {
       "type": "WOOD",
       "imageId": "WOOD_83x20_1",
@@ -126,8 +117,6 @@
       "xPercent": 13.5,
       "yPercent": -5
     },
-
-    /* 猪层（带冰弱点） */
     {
       "type": "WOOD",
       "imageId": "WOOD_42x41_1",
@@ -146,7 +135,6 @@
       "xPercent": 15,
       "yPercent": -1
     },
-
     {
       "type": "PIG",
       "imageId": "PIG_SMALL",
@@ -154,7 +142,6 @@
       "xPercent": 13.5,
       "yPercent": 0.5
     },
-
     {
       "type": "ICE",
       "imageId": "ICE_056",
@@ -164,8 +151,6 @@
       "xPercent": 14.7,
       "yPercent": 0.5
     },
-
-    /* 顶部冰结构 */
     {
       "type": "ICE",
       "imageId": "ICE_014",
@@ -184,9 +169,6 @@
       "xPercent": 13.5,
       "yPercent": 7
     },
-
-    /* ================= 右塔（镜像） ================= */
-
     {
       "type": "WOOD",
       "imageId": "WOOD_83x41_1",
@@ -214,7 +196,6 @@
       "xPercent": 24.5,
       "yPercent": -10
     },
-
     {
       "type": "WOOD",
       "imageId": "WOOD_83x20_1",
@@ -224,7 +205,6 @@
       "xPercent": 22.5,
       "yPercent": -5
     },
-
     {
       "type": "WOOD",
       "imageId": "WOOD_42x41_1",
@@ -243,7 +223,6 @@
       "xPercent": 24,
       "yPercent": -1
     },
-
     {
       "type": "PIG",
       "imageId": "PIG_SMALL",
@@ -251,7 +230,6 @@
       "xPercent": 22.5,
       "yPercent": 0.5
     },
-
     {
       "type": "ICE",
       "imageId": "ICE_056",
@@ -261,7 +239,6 @@
       "xPercent": 21.3,
       "yPercent": 0.5
     },
-
     {
       "type": "ICE",
       "imageId": "ICE_014",
@@ -280,9 +257,6 @@
       "xPercent": 22.5,
       "yPercent": 7
     },
-
-    /* ================= 中间 ================= */
-
     {
       "type": "WOOD",
       "imageId": "WOOD_168_1",
@@ -292,7 +266,6 @@
       "xPercent": 18,
       "yPercent": -2
     },
-
     {
       "type": "PIG",
       "imageId": "PIG_MEDIUM",
@@ -300,6 +273,5 @@
       "xPercent": 18,
       "yPercent": 1
     }
-
   ]
 }
