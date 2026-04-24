@@ -52,10 +52,9 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_playbutton->SetSFX(Resource::SETTING_SFX);
     m_playbutton->SetOnClickFunction([this]()
                                      {
-        const bool canOpenLevelSelect = (m_onPlayClick == nullptr) || m_onPlayClick();
-        if (canOpenLevelSelect)
+        const bool transitionSucceeded = (m_onPlayClick == nullptr) || m_onPlayClick();
+        if (!transitionSucceeded)
         {
-<<<<<<< HEAD
             return;
         }
 
@@ -74,11 +73,8 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_menuItem017->SetVisible(false);
         m_additionalMenuItem108->SetVisible(false);
         m_additionalMenuItem006->SetVisible(false);
-        m_additionalMenuItem041->SetVisible(false); });
-=======
-            HideExitPanel();
-        } });
->>>>>>> 70157b8 (update level 9)
+        m_additionalMenuItem041->SetVisible(false); 
+        HideExitPanel(); });
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);
@@ -112,23 +108,15 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingbutton->SetOnClickFunction([this]()
                                         {
         if (m_settingMenuOpen) {
-<<<<<<< HEAD
             // 關閉菜單：逆時針旋轉 180 度
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation + 3.14159265f);
-=======
-            m_settingOverlayTargetRotation += 3.14159265f;
->>>>>>> 70157b8 (update level 9)
             m_settingMenuOpen = false;
             m_menuItemsAnimating = true;
         } else {
-<<<<<<< HEAD
             // 展開菜單：順時針旋轉 180 度
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation - 3.14159265f);
-=======
-            m_settingOverlayTargetRotation -= 3.14159265f;
->>>>>>> 70157b8 (update level 9)
             m_settingMenuOpen = true;
             m_menuItemsAnimating = true;
         }
@@ -163,7 +151,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButton->SetOnClickFunction([this]()
                                            {
         if (m_additionalMenuOpen) {
-<<<<<<< HEAD
             // Close menu: rotate back
             if (m_additionalAnimated)
                 m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation + 3.14159265f);
@@ -173,13 +160,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
             // Open menu: rotate 180 degrees
             if (m_additionalAnimated)
                 m_additionalAnimated->SetOverlayTargetRotation(m_additionalButtonOverlay->m_Transform.rotation - 3.14159265f);
-=======
-            m_additionalOverlayTargetRotation += 3.14159265f;
-            m_additionalMenuOpen = false;
-            m_additionalMenuItemsAnimating = true;
-        } else {
-            m_additionalOverlayTargetRotation -= 3.14159265f;
->>>>>>> 70157b8 (update level 9)
             m_additionalMenuOpen = true;
             m_additionalMenuItemsAnimating = true;
         }
@@ -191,25 +171,9 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
     m_additionalButtonOverlay->SetVisible(true);
 
-<<<<<<< HEAD
     // Compose AnimatedButton for additional button + overlay
     m_additionalAnimated = std::make_shared<AnimatedButton>(m_additionalButton, m_additionalButtonOverlay);
     m_additionalAnimated->SetOverlayScales(m_additionalScale, m_additionalScaleHover);
-=======
-    auto getGroupScaleMultiplier = [&layout](const std::string &groupId) -> float
-    {
-        if (groupId.empty())
-        {
-            return 1.0f;
-        }
-        auto it = layout.groups.find(groupId);
-        if (it != layout.groups.end())
-        {
-            return it->second.scaleMultiplier;
-        }
-        return 1.0f;
-    };
->>>>>>> 70157b8 (update level 9)
 
     // Use LayoutUtils helpers for group scaling and menu item layout.
 
@@ -335,7 +299,6 @@ void IntroScene::Update()
         m_exitPanelVisible = true;
     }
 
-<<<<<<< HEAD
     // Let AnimatedButton manage overlay rotation and hover scaling
     if (m_settingAnimated)
         m_settingAnimated->Update();
@@ -356,223 +319,6 @@ void IntroScene::Update()
         AnimateMenuItems(additionalItems, m_additionalButtonPosition, m_additionalMenuOpen, m_additionalMenuItemsAnimating);
     }
     auto mousePos = Util::Input::GetCursorPosition();
-=======
-    if (m_settingOverlayIsAnimating && m_settingOverlay)
-    {
-        float &rotation = m_settingOverlay->m_Transform.rotation;
-        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float rotationSpeedRadPerSec = 9.42478f;
-        const float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
-
-        const float remaining = m_settingOverlayTargetRotation - rotation;
-        if (std::fabs(remaining) <= rotationStep)
-        {
-            rotation = m_settingOverlayTargetRotation;
-            m_settingOverlayIsAnimating = false;
-        }
-        else
-        {
-            rotation += (remaining > 0 ? rotationStep : -rotationStep);
-        }
-    }
-
-    if (m_additionalOverlayIsAnimating && m_additionalButtonOverlay)
-    {
-        float &rotation = m_additionalButtonOverlay->m_Transform.rotation;
-        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        constexpr float rotationSpeedRadPerSec = 11.780975f;
-        const float rotationStep = rotationSpeedRadPerSec * deltaTimeSec;
-
-        const float remaining = m_additionalOverlayTargetRotation - rotation;
-        if (std::fabs(remaining) <= rotationStep)
-        {
-            rotation = m_additionalOverlayTargetRotation;
-            m_additionalOverlayIsAnimating = false;
-        }
-        else
-        {
-            rotation += (remaining > 0 ? rotationStep : -rotationStep);
-        }
-    }
-
-    if (m_menuItemsAnimating && m_menuItem043 && m_menuItem032 && m_menuItem017)
-    {
-        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-
-        if (m_settingMenuOpen)
-        {
-            glm::vec2 &pos043 = m_menuItem043->m_Transform.translation;
-            glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
-            glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
-            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-            const float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
-            const float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
-            const float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
-
-            if (pos043.y < targetY043)
-            {
-                pos043.y = glm::min(pos043.y + moveDistance, targetY043);
-            }
-            if (pos032.y < targetY032)
-            {
-                pos032.y = glm::min(pos032.y + moveDistance, targetY032);
-            }
-            if (pos017.y < targetY017)
-            {
-                pos017.y = glm::min(pos017.y + moveDistance, targetY017);
-            }
-
-            m_menuItem043->SetVisible(pos043.y > m_settingButtonPosition.y);
-            m_menuItem032->SetVisible(pos032.y > m_settingButtonPosition.y);
-            m_menuItem017->SetVisible(pos017.y > m_settingButtonPosition.y);
-
-            if (std::fabs(pos043.y - targetY043) < 1.0f &&
-                std::fabs(pos032.y - targetY032) < 1.0f &&
-                std::fabs(pos017.y - targetY017) < 1.0f)
-            {
-                pos043.y = targetY043;
-                pos032.y = targetY032;
-                pos017.y = targetY017;
-                m_menuItemsAnimating = false;
-            }
-        }
-        else
-        {
-            glm::vec2 &pos043 = m_menuItem043->m_Transform.translation;
-            glm::vec2 &pos032 = m_menuItem032->m_Transform.translation;
-            glm::vec2 &pos017 = m_menuItem017->m_Transform.translation;
-            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-            const float targetY043 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
-            const float targetY032 = m_settingButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
-            const float targetY017 = m_settingButtonPosition.y + m_menuInitialOffset;
-
-            if (pos043.y > targetY043)
-            {
-                pos043.y = glm::max(pos043.y - moveDistance, targetY043);
-            }
-            if (pos032.y > targetY032)
-            {
-                pos032.y = glm::max(pos032.y - moveDistance, targetY032);
-            }
-            if (pos017.y > targetY017)
-            {
-                pos017.y = glm::max(pos017.y - moveDistance, targetY017);
-            }
-
-            m_menuItem043->SetVisible(pos043.y > m_settingButtonPosition.y);
-            m_menuItem032->SetVisible(pos032.y > m_settingButtonPosition.y);
-            m_menuItem017->SetVisible(pos017.y > m_settingButtonPosition.y);
-
-            if (std::fabs(pos043.y - targetY043) < 1.0f &&
-                std::fabs(pos032.y - targetY032) < 1.0f &&
-                std::fabs(pos017.y - targetY017) < 1.0f)
-            {
-                pos043.y = targetY043;
-                pos032.y = targetY032;
-                pos017.y = targetY017;
-                m_menuItemsAnimating = false;
-            }
-        }
-    }
-
-    if (m_additionalMenuItemsAnimating && m_additionalMenuItem108 && m_additionalMenuItem006 && m_additionalMenuItem041)
-    {
-        const float deltaTimeSec = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        if (m_additionalMenuOpen)
-        {
-            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
-            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
-            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
-            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-            const float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2 + m_menuAnimationDistance;
-            const float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing + m_menuAnimationDistance - 3.0f;
-            const float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset + m_menuAnimationDistance;
-
-            if (pos108.y < targetY108)
-            {
-                pos108.y = glm::min(pos108.y + moveDistance, targetY108);
-            }
-            if (pos006.y < targetY006)
-            {
-                pos006.y = glm::min(pos006.y + moveDistance, targetY006);
-            }
-            if (pos041.y < targetY041)
-            {
-                pos041.y = glm::min(pos041.y + moveDistance, targetY041);
-            }
-
-            m_additionalMenuItem108->SetVisible(pos108.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem006->SetVisible(pos006.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem041->SetVisible(pos041.y > m_additionalButtonPosition.y);
-
-            if (std::fabs(pos108.y - targetY108) < 1.0f &&
-                std::fabs(pos006.y - targetY006) < 1.0f &&
-                std::fabs(pos041.y - targetY041) < 1.0f)
-            {
-                pos108.y = targetY108;
-                pos006.y = targetY006;
-                pos041.y = targetY041;
-                m_additionalMenuItemsAnimating = false;
-            }
-        }
-        else
-        {
-            glm::vec2 &pos108 = m_additionalMenuItem108->m_Transform.translation;
-            glm::vec2 &pos006 = m_additionalMenuItem006->m_Transform.translation;
-            glm::vec2 &pos041 = m_additionalMenuItem041->m_Transform.translation;
-            const float moveDistance = m_menuAnimationSpeed * deltaTimeSec;
-            const float targetY108 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing * 2;
-            const float targetY006 = m_additionalButtonPosition.y + m_menuInitialOffset - m_menuItemSpacing;
-            const float targetY041 = m_additionalButtonPosition.y + m_menuInitialOffset;
-
-            if (pos108.y > targetY108)
-            {
-                pos108.y = glm::max(pos108.y - moveDistance, targetY108);
-            }
-            if (pos006.y > targetY006)
-            {
-                pos006.y = glm::max(pos006.y - moveDistance, targetY006);
-            }
-            if (pos041.y > targetY041)
-            {
-                pos041.y = glm::max(pos041.y - moveDistance, targetY041);
-            }
-
-            m_additionalMenuItem108->SetVisible(pos108.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem006->SetVisible(pos006.y > m_additionalButtonPosition.y);
-            m_additionalMenuItem041->SetVisible(pos041.y > m_additionalButtonPosition.y);
-
-            if (std::fabs(pos108.y - targetY108) < 1.0f &&
-                std::fabs(pos006.y - targetY006) < 1.0f &&
-                std::fabs(pos041.y - targetY041) < 1.0f)
-            {
-                pos108.y = targetY108;
-                pos006.y = targetY006;
-                pos041.y = targetY041;
-                m_additionalMenuItemsAnimating = false;
-            }
-        }
-    }
-
-    const auto mousePos = Util::Input::GetCursorPosition();
-    if (m_settingbutton && m_settingOverlay && m_settingbutton->IsHovering(mousePos) && m_settingbutton->GetVisibility())
-    {
-        m_settingOverlay->m_Transform.scale = m_settingScaleHover;
-    }
-    else if (m_settingOverlay)
-    {
-        m_settingOverlay->m_Transform.scale = m_settingScale;
-    }
-
-    if (m_additionalButton && m_additionalButtonOverlay && m_additionalButton->IsHovering(mousePos) && m_additionalButton->GetVisibility())
-    {
-        m_additionalButtonOverlay->m_Transform.scale = m_additionalScaleHover;
-    }
-    else if (m_additionalButtonOverlay)
-    {
-        m_additionalButtonOverlay->m_Transform.scale = m_additionalScale;
-    }
->>>>>>> 70157b8 (update level 9)
 
     if (m_exitPanelVisible && m_exitButton95 && m_exitButton105)
     {
@@ -581,32 +327,16 @@ void IntroScene::Update()
         const auto pos95 = m_exitButton95->m_Transform.translation;
         const auto pos105 = m_exitButton105->m_Transform.translation;
 
-<<<<<<< HEAD
         // Check if 095 (right button) is clicked - exit game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton95, Util::Keycode::MOUSE_LB))
-=======
-        if (mousePos.x >= pos95.x - exitButton95Size.x / 2 &&
-            mousePos.x <= pos95.x + exitButton95Size.x / 2 &&
-            mousePos.y >= pos95.y - exitButton95Size.y / 2 &&
-            mousePos.y <= pos95.y + exitButton95Size.y / 2 &&
-            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
->>>>>>> 70157b8 (update level 9)
         {
             SDL_Event quitEvent;
             quitEvent.type = SDL_QUIT;
             SDL_PushEvent(&quitEvent);
         }
 
-<<<<<<< HEAD
         // Check if 105 (left button) is clicked - continue game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton105, Util::Keycode::MOUSE_LB))
-=======
-        if (mousePos.x >= pos105.x - exitButton105Size.x / 2 &&
-            mousePos.x <= pos105.x + exitButton105Size.x / 2 &&
-            mousePos.y >= pos105.y - exitButton105Size.y / 2 &&
-            mousePos.y <= pos105.y + exitButton105Size.y / 2 &&
-            Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
->>>>>>> 70157b8 (update level 9)
         {
             HideExitPanel();
         }
