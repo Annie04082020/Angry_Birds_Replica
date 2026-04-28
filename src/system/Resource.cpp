@@ -48,6 +48,8 @@ namespace Resource
             {"PIG_MEDIUM_3", PIG_MEDIUM_3},
             {"PIG_MEDIUM_076", PIG_MEDIUM_076},
             {"PIG_MEDIUM_076_1", PIG_MEDIUM_076_1},
+            {"PIG_MEDIUM", PIG_MEDIUM},
+            {"PIG_MEDIUM_076", PIG_MEDIUM_076},
             // Wood entries (matching updated Resource.hpp)
             {"WOOD_stage", WOOD_stage},
             {"WOOD_205_1", WOOD_205_1},

@@ -72,6 +72,15 @@
       "yPercent": -20
     },
     {
+      "type": "BIRD",
+      "imageId": "BIRD_BLACK",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -20,
+      "yPercent": -22
+    },
+    {
       "type": "STONE",
       "imageId": "STONE_83x41_1",
       "groupId": "Environment",
