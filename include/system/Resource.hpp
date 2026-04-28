@@ -20,6 +20,8 @@ namespace Resource
 
     // Pigs
     const std::string PIG_SMALL = RESOURCE_DIR "/Image/pigs/pig_small/sprite_001.png";
+    const std::string PIG_MEDIUM = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_005.png";
+    const std::string PIG_MEDIUM_076 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_076.png";
     // Wood 1 to 4: complete to broken
     const std::string WOOD_stage = RESOURCE_DIR "/Image/wood/sprite_013.png";
     const std::string WOOD_ball_1 = RESOURCE_DIR "/Image/wood/sprite_161.png";
