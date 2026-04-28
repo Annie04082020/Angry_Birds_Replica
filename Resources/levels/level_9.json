@@ -75,17 +75,10 @@
       "type": "BIRD",
       "imageId": "BIRD_BLACK",
       "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
       "xPercent": -20,
       "yPercent": -22
-    },
-    {
-      "type": "WOOD",
-      "imageId": "WOOD_83x41_1",
-      "groupId": "Environment",
-      "widthPercent": 3,
-      "heightPercent": 4,
-      "xPercent": 11.5,
-      "yPercent": -10
     },
     {
       "type": "STONE",
@@ -151,24 +144,19 @@
       "type": "WOOD",
       "imageId": "WOOD_83x20_1",
       "groupId": "Environment",
-      "xPercent": 13.5,
-      "yPercent": 0.5
+      "widthPercent": 4.0,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 8.8,
+      "yPercent": 1.2
     },
     {
-      "type": "ICE",
-      "imageId": "ICE_056",
+      "type": "WOOD",
+      "imageId": "WOOD_83x20_1",
       "groupId": "Environment",
-      "widthPercent": 1.5,
-      "heightPercent": 1.5,
-      "xPercent": 14.7,
-      "yPercent": 0.5
-    },
-    {
-      "type": "ICE",
-      "imageId": "ICE_014",
-      "groupId": "Environment",
-      "widthPercent": 4,
-      "heightPercent": 2,
+      "widthPercent": 4.0,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
       "xPercent": 13.5,
       "yPercent": 4
       "widthPercent": 4.0,
@@ -211,14 +199,15 @@
       "type": "WOOD",
       "imageId": "WOOD_83x41_1",
       "groupId": "Environment",
-      "widthPercent": 3,
-      "heightPercent": 4,
-      "xPercent": 24.5,
-      "yPercent": -10
+      "widthPercent": 4.0,
+      "heightPercent": 3.5,
+      "rotation": 1.57,
+      "xPercent": 8.0,
+      "yPercent": 9.9
     },
     {
       "type": "WOOD",
-      "imageId": "WOOD_83x20_1",
+      "imageId": "WOOD_83x41_1",
       "groupId": "Environment",
       "widthPercent": 4,
       "heightPercent": 1.5,
