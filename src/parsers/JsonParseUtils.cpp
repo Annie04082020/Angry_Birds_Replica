@@ -2,6 +2,8 @@
 
 #include <cctype>
 
+#include <vector>
+
 namespace JsonParseUtils
 {
     std::string ExtractString(const std::string &json, const std::string &key,
@@ -201,6 +203,82 @@ namespace JsonParseUtils
         }
 
         return false;
+    }
+
+    bool ExtractArrayContent(const std::string &json, const std::string &arrayKey,
+                             std::string &outContent)
+    {
+        const std::string sectionKey = "\"" + arrayKey + "\"";
+        const size_t sectionPos = json.find(sectionKey);
+        if (sectionPos == std::string::npos)
+        {
+            return false;
+        }
+
+        const size_t openBracket = json.find('[', sectionPos + sectionKey.length());
+        if (openBracket == std::string::npos)
+        {
+            return false;
+        }
+
+        int bracketCount = 0;
+        for (size_t i = openBracket; i < json.length(); ++i)
+        {
+            if (json[i] == '[')
+            {
+                ++bracketCount;
+            }
+            else if (json[i] == ']')
+            {
+                --bracketCount;
+                if (bracketCount == 0)
+                {
+                    outContent = json.substr(openBracket + 1, i - openBracket - 1);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    std::vector<std::string> ExtractObjectContentsFromArray(const std::string &jsonArrayWithBrackets)
+    {
+        std::vector<std::string> objects;
+
+        const size_t arrayStart = jsonArrayWithBrackets.find('[');
+        const size_t arrayEnd = jsonArrayWithBrackets.rfind(']');
+        if (arrayStart == std::string::npos || arrayEnd == std::string::npos || arrayEnd <= arrayStart)
+        {
+            return objects;
+        }
+
+        const std::string content =
+            jsonArrayWithBrackets.substr(arrayStart + 1, arrayEnd - arrayStart - 1);
+
+        size_t objectStart = 0;
+        int braceCount = 0;
+        for (size_t i = 0; i < content.length(); ++i)
+        {
+            if (content[i] == '{')
+            {
+                if (braceCount == 0)
+                {
+                    objectStart = i;
+                }
+                ++braceCount;
+            }
+            else if (content[i] == '}')
+            {
+                --braceCount;
+                if (braceCount == 0)
+                {
+                    objects.push_back(content.substr(objectStart + 1, i - objectStart - 1));
+                }
+            }
+        }
+
+        return objects;
     }
 
     std::unordered_map<std::string, std::string> ExtractStringMapFromObject(

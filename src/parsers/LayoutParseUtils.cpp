@@ -63,139 +63,88 @@ namespace LayoutParseUtils
         const float yUnitBase =
             coordinateSpace == GroupCoordinateSpace::PixelSpace ? percentBaseHeight : 100.0f;
 
-        const size_t groupsStart = json.find("\"groups\"");
-        if (groupsStart == std::string::npos)
+        std::string groupsContent;
+        if (!JsonParseUtils::ExtractArrayContent(json, "groups", groupsContent))
         {
             return groups;
         }
 
-        const size_t arrayStart = json.find('[', groupsStart);
-        if (arrayStart == std::string::npos)
+        const auto groupJsonList = JsonParseUtils::ExtractObjectContentsFromArray("[" + groupsContent + "]");
+        for (const auto &groupJson : groupJsonList)
         {
-            return groups;
-        }
-
-        size_t arrayEnd = arrayStart;
-        int arrayDepth = 0;
-        for (size_t i = arrayStart; i < json.length(); ++i)
-        {
-            if (json[i] == '[')
+            const std::string id = JsonParseUtils::ExtractString(groupJson, "id");
+            if (id.empty())
             {
-                ++arrayDepth;
+                continue;
             }
-            else if (json[i] == ']')
+
+            GroupAdjustment adjustment;
+
+            if (JsonParseUtils::HasKey(groupJson, "scaleMultiplier"))
             {
-                --arrayDepth;
-                if (arrayDepth == 0)
-                {
-                    arrayEnd = i;
-                    break;
-                }
+                adjustment.scaleMultiplier = JsonParseUtils::ExtractFloat(groupJson, "scaleMultiplier");
             }
-        }
-
-        if (arrayEnd <= arrayStart)
-        {
-            return groups;
-        }
-
-        const std::string groupsContent =
-            json.substr(arrayStart + 1, arrayEnd - arrayStart - 1);
-
-        size_t objectStart = 0;
-        int braceCount = 0;
-        for (size_t i = 0; i < groupsContent.length(); ++i)
-        {
-            if (groupsContent[i] == '{')
+            else if (JsonParseUtils::HasKey(groupJson, "sizeMultiplier"))
             {
-                if (braceCount == 0)
-                {
-                    objectStart = i;
-                }
-                ++braceCount;
+                adjustment.scaleMultiplier = JsonParseUtils::ExtractFloat(groupJson, "sizeMultiplier");
             }
-            else if (groupsContent[i] == '}')
+            else if (JsonParseUtils::HasKey(groupJson, "scale"))
             {
-                --braceCount;
-                if (braceCount == 0)
-                {
-                    const std::string groupJson =
-                        groupsContent.substr(objectStart + 1, i - objectStart - 1);
-                    const std::string id = JsonParseUtils::ExtractString(groupJson, "id");
-                    if (id.empty())
-                    {
-                        continue;
-                    }
-
-                    GroupAdjustment adjustment;
-
-                    if (JsonParseUtils::HasKey(groupJson, "scaleMultiplier"))
-                    {
-                        adjustment.scaleMultiplier = JsonParseUtils::ExtractFloat(groupJson, "scaleMultiplier");
-                    }
-                    else if (JsonParseUtils::HasKey(groupJson, "sizeMultiplier"))
-                    {
-                        adjustment.scaleMultiplier = JsonParseUtils::ExtractFloat(groupJson, "sizeMultiplier");
-                    }
-                    else if (JsonParseUtils::HasKey(groupJson, "scale"))
-                    {
-                        adjustment.scaleMultiplier = JsonParseUtils::ExtractFloat(groupJson, "scale");
-                    }
-
-                    if (adjustment.scaleMultiplier <= 0.0f)
-                    {
-                        adjustment.scaleMultiplier = 1.0f;
-                    }
-
-                    if (JsonParseUtils::HasKey(groupJson, "offsetXPercent"))
-                    {
-                        adjustment.offsetX = JsonParseUtils::ExtractFloat(groupJson, "offsetXPercent") * xUnitBase / 100.0f;
-                    }
-                    else if (JsonParseUtils::HasKey(groupJson, "offsetX"))
-                    {
-                        adjustment.offsetX = JsonParseUtils::ExtractFloat(groupJson, "offsetX");
-                    }
-                    else if (JsonParseUtils::HasKey(groupJson, "moveX"))
-                    {
-                        adjustment.offsetX = JsonParseUtils::ExtractFloat(groupJson, "moveX");
-                    }
-
-                    if (JsonParseUtils::HasKey(groupJson, "offsetYPercent"))
-                    {
-                        adjustment.offsetY = JsonParseUtils::ExtractFloat(groupJson, "offsetYPercent") * yUnitBase / 100.0f;
-                    }
-                    else if (JsonParseUtils::HasKey(groupJson, "offsetY"))
-                    {
-                        adjustment.offsetY = JsonParseUtils::ExtractFloat(groupJson, "offsetY");
-                    }
-                    else if (JsonParseUtils::HasKey(groupJson, "moveY"))
-                    {
-                        adjustment.offsetY = JsonParseUtils::ExtractFloat(groupJson, "moveY");
-                    }
-
-                    if (JsonParseUtils::HasKey(groupJson, "scalePivotXPercent") &&
-                        JsonParseUtils::HasKey(groupJson, "scalePivotYPercent"))
-                    {
-                        adjustment.scalePivotX = JsonParseUtils::ExtractFloat(groupJson, "scalePivotXPercent") * xUnitBase / 100.0f;
-                        adjustment.scalePivotY = JsonParseUtils::ExtractFloat(groupJson, "scalePivotYPercent") * yUnitBase / 100.0f;
-                        adjustment.hasScalePivot = true;
-                    }
-                    else if (JsonParseUtils::HasKey(groupJson, "scalePivotX") &&
-                             JsonParseUtils::HasKey(groupJson, "scalePivotY"))
-                    {
-                        adjustment.scalePivotX = JsonParseUtils::ExtractFloat(groupJson, "scalePivotX");
-                        adjustment.scalePivotY = JsonParseUtils::ExtractFloat(groupJson, "scalePivotY");
-                        adjustment.hasScalePivot = true;
-                    }
-
-                    if (JsonParseUtils::HasKey(groupJson, "scalePosition"))
-                    {
-                        adjustment.scalePosition = JsonParseUtils::ExtractBool(groupJson, "scalePosition", adjustment.scalePosition);
-                    }
-
-                    groups[id] = adjustment;
-                }
+                adjustment.scaleMultiplier = JsonParseUtils::ExtractFloat(groupJson, "scale");
             }
+
+            if (adjustment.scaleMultiplier <= 0.0f)
+            {
+                adjustment.scaleMultiplier = 1.0f;
+            }
+
+            if (JsonParseUtils::HasKey(groupJson, "offsetXPercent"))
+            {
+                adjustment.offsetX = JsonParseUtils::ExtractFloat(groupJson, "offsetXPercent") * xUnitBase / 100.0f;
+            }
+            else if (JsonParseUtils::HasKey(groupJson, "offsetX"))
+            {
+                adjustment.offsetX = JsonParseUtils::ExtractFloat(groupJson, "offsetX");
+            }
+            else if (JsonParseUtils::HasKey(groupJson, "moveX"))
+            {
+                adjustment.offsetX = JsonParseUtils::ExtractFloat(groupJson, "moveX");
+            }
+
+            if (JsonParseUtils::HasKey(groupJson, "offsetYPercent"))
+            {
+                adjustment.offsetY = JsonParseUtils::ExtractFloat(groupJson, "offsetYPercent") * yUnitBase / 100.0f;
+            }
+            else if (JsonParseUtils::HasKey(groupJson, "offsetY"))
+            {
+                adjustment.offsetY = JsonParseUtils::ExtractFloat(groupJson, "offsetY");
+            }
+            else if (JsonParseUtils::HasKey(groupJson, "moveY"))
+            {
+                adjustment.offsetY = JsonParseUtils::ExtractFloat(groupJson, "moveY");
+            }
+
+            if (JsonParseUtils::HasKey(groupJson, "scalePivotXPercent") &&
+                JsonParseUtils::HasKey(groupJson, "scalePivotYPercent"))
+            {
+                adjustment.scalePivotX = JsonParseUtils::ExtractFloat(groupJson, "scalePivotXPercent") * xUnitBase / 100.0f;
+                adjustment.scalePivotY = JsonParseUtils::ExtractFloat(groupJson, "scalePivotYPercent") * yUnitBase / 100.0f;
+                adjustment.hasScalePivot = true;
+            }
+            else if (JsonParseUtils::HasKey(groupJson, "scalePivotX") &&
+                     JsonParseUtils::HasKey(groupJson, "scalePivotY"))
+            {
+                adjustment.scalePivotX = JsonParseUtils::ExtractFloat(groupJson, "scalePivotX");
+                adjustment.scalePivotY = JsonParseUtils::ExtractFloat(groupJson, "scalePivotY");
+                adjustment.hasScalePivot = true;
+            }
+
+            if (JsonParseUtils::HasKey(groupJson, "scalePosition"))
+            {
+                adjustment.scalePosition = JsonParseUtils::ExtractBool(groupJson, "scalePosition", adjustment.scalePosition);
+            }
+
+            groups[id] = adjustment;
         }
 
         return groups;

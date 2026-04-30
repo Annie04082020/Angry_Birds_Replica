@@ -25,6 +25,9 @@ public:
 
   void Init() override;
   void Update() override;
+  void AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl);
+  // Stabilize environment objects on load by running short physics steps
+  void StabilizeEnvironment(int steps = 30);
   void SetVisible(bool visible)
   {
     if (m_Background)
@@ -40,6 +43,13 @@ public:
     }
   }
   void SetBGM(std::shared_ptr<BackgroundMusic> bgm) { m_BGM = bgm; }
+  void StopBGM()
+  {
+    if (m_BGM)
+    {
+      m_BGM->Stop_BGM();
+    }
+  }
   void SetOnUpdate(std::function<void()> onUpdate) { m_OnUpdate = onUpdate; }
   void AddElements(std::shared_ptr<Util::GameObject> element)
   {
@@ -57,14 +67,38 @@ public:
 
 protected:
   // Runs a generic collision detection pass for children of this Scene.
-  // Scenes may override `HandleCollision` to react to collisions.
+  // Scenes may override `HandleCollision` to react to collisions. The
+  // collision now provides SAT/MTV contact data (normal, depth and
+  // an approximate contact point) to allow accurate positional correction
+  // and torque computation.
   virtual void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                               const std::shared_ptr<Util::GameObject> &b)
+                               const std::shared_ptr<Util::GameObject> &b,
+                               const glm::vec2 &contactNormal,
+                               float penetrationDepth,
+                               const glm::vec2 &contactPoint,
+                               bool stabilizing = false);
+  // Run collision detection with optional multiple passes. When `stabilizing` is true
+  // positional correction uses more aggressive constants to converge overlaps.
+  void RunCollisionDetection(int passes = 1, bool stabilizing = false);
+
+  // Physics fixed-timestep accumulator (seconds)
+  float m_PhysicsStep = 1.0f / 60.0f;
+  float m_Accumulator = 0.0f;
+  float m_MaxFrameTime = 0.25f; // clamp huge deltas
+  int m_MaxSubSteps = 5;
+  struct DebugEntity
   {
-    (void)a;
-    (void)b;
-  }
-  void RunCollisionDetection();
+    std::shared_ptr<Util::GameObject> obj;
+    float ttl;
+  };
+  std::vector<DebugEntity> m_DebugEntities;
+  float m_DebugDrawCooldown = 0.0f;
+  float m_DebugDrawInterval = 0.05f;
+
+  // World floor Y coordinate. Can be set by caller (e.g. GameScene after loading level)
+  float m_WorldFloorY = -320.0f;
+  void SetWorldFloorY(float y) { m_WorldFloorY = y; }
+  float GetWorldFloorY() const { return m_WorldFloorY; }
 
 private:
   std::function<void()> m_OnUpdate = nullptr;

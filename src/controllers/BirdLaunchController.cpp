@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <glm/glm.hpp>
 
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
@@ -66,6 +67,16 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
 
     if (!m_BirdQueue.empty())
     {
+        for (const auto &bird : m_BirdQueue)
+        {
+            if (!bird)
+            {
+                continue;
+            }
+            bird->SetVelocity({0.0f, 0.0f});
+            bird->SetAngularVelocity(0.0f);
+            bird->SetStatic(true);
+        }
         ActivateBirdByIndex(0);
     }
 
@@ -97,8 +108,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     const glm::vec2 mouseWorldPos = GetMouseWorldPosition();
 
     constexpr float maxPullDistance = 140.0f;
-    constexpr float launchPower = 7.0f;
-    constexpr float gravity = 700.0f;
+    constexpr float launchPower = 9.0f;
     constexpr float floorY = -320.0f;
 
     if (!m_HasLaunchedBird)
@@ -120,6 +130,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
                 }
 
                 m_ActiveBird->SetPosition(m_BirdAnchorPosition + pull);
+                m_ActiveBird->SetVelocity({0.0f, 0.0f});
                 m_BirdVelocity = {0.0f, 0.0f};
                 return true;
             }
@@ -127,7 +138,12 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         else if (m_IsHoldingBird)
         {
             const glm::vec2 pullVector = m_ActiveBird->GetPosition() - m_BirdAnchorPosition;
-            m_BirdVelocity = -pullVector * launchPower;
+            // Scale launch velocity by mass so heavier/lighter birds behave consistently.
+            const float birdMass = std::max(0.0001f, m_ActiveBird->GetMass());
+            const float massScale = std::sqrt(1.0f / birdMass); // keep kinetic energy roughly similar
+            m_BirdVelocity = -pullVector * launchPower * massScale;
+            m_ActiveBird->SetStatic(false);
+            m_ActiveBird->SetVelocity(m_BirdVelocity);
             m_IsHoldingBird = false;
             m_HasLaunchedBird = true;
             return true;
@@ -136,13 +152,22 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         return m_IsHoldingBird;
     }
 
-    m_BirdVelocity.y -= gravity * dt;
-    glm::vec2 nextPos = m_ActiveBird->GetPosition() + m_BirdVelocity * dt;
+    glm::vec2 velocity = m_ActiveBird->GetVelocity();
+    // gravity applied centrally in Scene::Update
+    m_ActiveBird->SetVelocity(velocity);
+    m_BirdVelocity = velocity;
 
-    if (nextPos.y < floorY)
+    glm::vec2 nextPos = m_ActiveBird->GetPosition() + velocity * dt;
+    const float halfH = m_ActiveBird->GetSize().y * 0.5f;
+
+    // Check bottom edge contact (center.y - halfHeight)
+    if (nextPos.y - halfH < floorY)
     {
-        nextPos.y = floorY;
+        nextPos.y = floorY + halfH;
         m_ActiveBird->SetPosition(nextPos);
+        m_ActiveBird->SetVelocity({0.0f, 0.0f});
+        m_ActiveBird->SetAngularVelocity(0.0f);
+        m_ActiveBird->SetSleeping(true);
         m_BirdVelocity = {0.0f, 0.0f};
         m_HasLaunchedBird = false;
 
@@ -153,7 +178,27 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         return true;
     }
 
-    m_ActiveBird->SetPosition(nextPos);
+    // If the bird has effectively come to rest (on an object or ground),
+    // advance to next bird. Use static flag or a small velocity + angular
+    // velocity threshold to detect stopping.
+    const float stopSpeedThreshold = 10.0f;  // px/sec
+    const float stopAngularThreshold = 5.0f; // rad/sec
+    if (m_ActiveBird->IsStatic() || m_ActiveBird->IsSleeping() ||
+        (glm::length(m_BirdVelocity) < stopSpeedThreshold && std::fabs(m_ActiveBird->GetAngularVelocity()) < stopAngularThreshold))
+    {
+        m_ActiveBird->SetSleeping(true);
+        m_ActiveBird->SetVelocity({0.0f, 0.0f});
+        m_ActiveBird->SetAngularVelocity(0.0f);
+        m_HasLaunchedBird = false;
+        m_BirdVelocity = {0.0f, 0.0f};
+        if (m_CurrentBirdIndex + 1 < m_BirdQueue.size())
+        {
+            ActivateBirdByIndex(m_CurrentBirdIndex + 1);
+        }
+    }
+
+    // Position integration is handled by Scene::Update -> Character::IntegratePhysics.
+    // Keep controller responsible for launch state and gravity only.
     return true;
 }
 
@@ -172,6 +217,9 @@ void BirdLaunchController::ActivateBirdByIndex(size_t index)
     }
 
     m_ActiveBird->SetPosition(m_BirdAnchorPosition);
+    m_ActiveBird->SetVelocity({0.0f, 0.0f});
+    m_ActiveBird->SetAngularVelocity(0.0f);
+    m_ActiveBird->SetStatic(true);
     m_BirdVelocity = {0.0f, 0.0f};
     m_IsHoldingBird = false;
     m_HasLaunchedBird = false;

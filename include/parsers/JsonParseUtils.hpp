@@ -2,6 +2,7 @@
 #define JSON_PARSE_UTILS_HPP
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 namespace JsonParseUtils
@@ -19,6 +20,11 @@ namespace JsonParseUtils
     // Extract nested object content by key, without outer braces.
     bool ExtractObjectContent(const std::string &json, const std::string &objectKey,
                               std::string &outContent);
+
+    bool ExtractArrayContent(const std::string &json, const std::string &arrayKey,
+                             std::string &outContent);
+
+    std::vector<std::string> ExtractObjectContentsFromArray(const std::string &jsonArrayWithBrackets);
 
     std::unordered_map<std::string, std::string> ExtractStringMapFromObject(
         const std::string &jsonObjectWithBraces);

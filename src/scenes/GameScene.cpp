@@ -27,6 +27,29 @@ bool GameScene::LoadLevel(const std::string &levelPath)
         AddElements(obj);
     }
 
+    // Determine world floor from wood stage bottom if present so objects land at stage edge
+    float floorCandidate = this->GetWorldFloorY();
+    bool foundStage = false;
+    for (const auto &obj : objects)
+    {
+        if (!obj)
+            continue;
+        const std::string path = obj->GetImagePath();
+        if (path.find("sprite_013") != std::string::npos || path.find("WOOD_stage") != std::string::npos)
+        {
+            const float bottom = obj->GetPosition().y - obj->GetSize().y * 0.5f;
+            if (!foundStage || bottom > floorCandidate)
+            {
+                floorCandidate = bottom;
+                foundStage = true;
+            }
+        }
+    }
+    if (foundStage)
+    {
+        this->SetWorldFloorY(floorCandidate);
+    }
+
     if (m_BirdLaunchController)
     {
         m_BirdLaunchController->LoadLevelObjects(objects);

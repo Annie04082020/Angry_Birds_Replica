@@ -26,6 +26,7 @@ private:
     size_t m_CurrentBirdIndex = 0;
     bool m_IsHoldingBird = false;
     bool m_HasLaunchedBird = false;
+    // stop detection now uses velocity/angle thresholds
 };
 
 #endif // BIRD_LAUNCH_CONTROLLER_HPP
