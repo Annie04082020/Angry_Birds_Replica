@@ -13,6 +13,7 @@ struct LevelObjectDefinition
     std::string imageId;
     std::string groupId;
     std::string sizeBase;
+    std::string collisionShape;
     std::string resourcePath;
     float posX = 0.0f;
     float posY = 0.0f;

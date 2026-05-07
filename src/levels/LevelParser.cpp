@@ -79,6 +79,12 @@ ParsedLevelData LevelParser::Parse(const std::string &jsonStr)
                                                  : JsonParseUtils::ExtractFloat(entityJson, "scalePercentY");
         }
 
+        objectDefinition.collisionShape = JsonParseUtils::ExtractString(entityJson, "collisionShape");
+        if (objectDefinition.collisionShape.empty())
+        {
+            objectDefinition.collisionShape = JsonParseUtils::ExtractString(entityJson, "shape");
+        }
+
         objectDefinition.imageId = JsonParseUtils::ExtractString(entityJson, "imageId");
         if (objectDefinition.imageId.empty())
         {

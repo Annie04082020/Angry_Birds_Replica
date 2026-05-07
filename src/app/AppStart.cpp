@@ -66,9 +66,9 @@ bool App::TransitionToGame()
   }
   LOG_DEBUG("Transitioning to GAME state");
 
-  if (!LoadLevel(Resource::LEVEL_1_DATA))
+  if (!LoadLevel(Resource::LEVEL_EARTH_TEST_DATA))
   {
-    LOG_ERROR("Failed to load level 1");
+    LOG_ERROR("Failed to load earth test level");
     return false;
   }
 

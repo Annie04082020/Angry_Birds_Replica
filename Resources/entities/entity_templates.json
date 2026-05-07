@@ -114,6 +114,21 @@
             "centerOfMassOffsetY": 0.0,
             "isStatic": false,
             "health": 1.5
+        },
+        {
+            "id": "EARTH_DEFAULT",
+            "matchPrefix": "EARTH_",
+            "kind": "Environment",
+            "material": "Earth",
+            "mass": 4.0,
+            "inertia": 3.2,
+            "velocityX": 0.0,
+            "velocityY": 0.0,
+            "angularVelocity": 0.0,
+            "centerOfMassOffsetX": 0.0,
+            "centerOfMassOffsetY": 0.0,
+            "isStatic": false,
+            "health": 4.0
         }
     ]
 }

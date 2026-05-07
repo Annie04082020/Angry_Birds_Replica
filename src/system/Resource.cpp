@@ -18,6 +18,8 @@ namespace Resource
             {"BIRD_BLUE", BIRD_B},
             {"SLINGSHOT_1", SLINGSHOT_1},
             {"SLINGSHOT_2", SLINGSHOT_2},
+            {"EARTH", EARTH_BLOCK},
+            {"EARTH_BLOCK", EARTH_BLOCK},
             {"ICE_005", RESOURCE_DIR "/Image/ice/sprite_005.png"},
             {"PIG_SMALL", PIG_SMALL},
             // Wood entries (matching updated Resource.hpp)
@@ -112,6 +114,7 @@ namespace Resource
             {"BIRD_LAUNCH_SFX", BIRD_LAUNCH_SFX},
             {"SETTING_SFX", SETTING_SFX},
             {"LEVEL_1_DATA", LEVEL_1_DATA},
+            {"LEVEL_EARTH_TEST_DATA", LEVEL_EARTH_TEST_DATA},
             {"INTRO_LAYOUT_DATA", INTRO_LAYOUT_DATA},
             {"ENTITY_TEMPLATE_DATA", ENTITY_TEMPLATE_DATA}};
 

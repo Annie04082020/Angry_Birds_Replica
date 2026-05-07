@@ -7,8 +7,30 @@
 #include "Resource.hpp"
 #include "Util/TransformUtils.hpp"
 
+#include <cctype>
+
 namespace
 {
+    bool StartsWith(const std::string &value, const std::string &prefix)
+    {
+        return value.rfind(prefix, 0) == 0;
+    }
+
+    std::string ToLowerCopy(const std::string &value)
+    {
+        std::string lowered = value;
+        for (char &ch : lowered)
+        {
+            ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+        }
+        return lowered;
+    }
+
+    bool IsEarthKey(const std::string &value)
+    {
+        return StartsWith(value, "EARTH");
+    }
+
     Character::EntityKind ClassifyEntityKind(const std::string &imageId)
     {
         if (imageId.rfind("BIRD", 0) == 0)
@@ -24,7 +46,7 @@ namespace
             return Character::EntityKind::Slingshot;
         }
         if (imageId.rfind("WOOD", 0) == 0 || imageId.rfind("STONE", 0) == 0 ||
-            imageId.rfind("GLASS", 0) == 0)
+            imageId.rfind("GLASS", 0) == 0 || imageId.rfind("EARTH", 0) == 0)
         {
             return Character::EntityKind::Environment;
         }
@@ -49,11 +71,56 @@ namespace
         {
             return Character::MaterialType::Glass;
         }
+        if (imageId.rfind("EARTH", 0) == 0)
+        {
+            return Character::MaterialType::Earth;
+        }
         if (imageId.rfind("BIRD", 0) == 0 || imageId.rfind("PIG", 0) == 0)
         {
             return Character::MaterialType::Flesh;
         }
         return Character::MaterialType::None;
+    }
+
+    Character::ColliderShape ClassifyColliderShape(const LevelObjectDefinition &objectDefinition, const std::string &usedId)
+    {
+        std::string shapeKey = objectDefinition.collisionShape;
+        if (shapeKey.empty())
+        {
+            shapeKey = objectDefinition.typeStr;
+        }
+        if (shapeKey.empty())
+        {
+            shapeKey = usedId;
+        }
+
+        const std::string lowered = ToLowerCopy(shapeKey);
+        if (lowered.find("triangle_down") != std::string::npos ||
+            lowered.find("tri_down") != std::string::npos ||
+            lowered.find("triangle-down") != std::string::npos)
+        {
+            return Character::ColliderShape::TriangleDown;
+        }
+        if (lowered.find("triangle_left") != std::string::npos ||
+            lowered.find("tri_left") != std::string::npos ||
+            lowered.find("triangle-left") != std::string::npos)
+        {
+            return Character::ColliderShape::TriangleLeft;
+        }
+        if (lowered.find("triangle_right") != std::string::npos ||
+            lowered.find("tri_right") != std::string::npos ||
+            lowered.find("triangle-right") != std::string::npos)
+        {
+            return Character::ColliderShape::TriangleRight;
+        }
+        if (lowered.find("triangle") != std::string::npos ||
+            lowered.find("tri_up") != std::string::npos ||
+            lowered.find("tri") != std::string::npos)
+        {
+            return Character::ColliderShape::TriangleUp;
+        }
+
+        return Character::ColliderShape::Box;
     }
 
     void ApplyTemplateDefaults(Character &character, const std::string &imageId)
@@ -104,6 +171,10 @@ namespace
                                     const ParsedLevelData &levelData,
                                     std::string &usedId)
     {
+        const std::string candidateId = !objectDefinition.imageId.empty()
+                                            ? objectDefinition.imageId
+                                            : (IsEarthKey(objectDefinition.typeStr) ? objectDefinition.typeStr : std::string());
+
         auto lookup = [&](const std::string &id) -> std::string
         {
             const std::string globalPath = Resource::GetPath(id);
@@ -120,16 +191,21 @@ namespace
             return std::string();
         };
 
-        std::string resourcePath = lookup(objectDefinition.imageId);
+        std::string resourcePath = lookup(candidateId);
         if (!resourcePath.empty())
         {
-            usedId = objectDefinition.imageId;
+            usedId = candidateId;
             return resourcePath;
         }
 
         for (int s = 1; resourcePath.empty() && s <= 4; ++s)
         {
-            const std::string variantId = objectDefinition.imageId + "_" + std::to_string(s);
+            if (candidateId.empty())
+            {
+                break;
+            }
+
+            const std::string variantId = candidateId + "_" + std::to_string(s);
             resourcePath = lookup(variantId);
             if (!resourcePath.empty())
             {
@@ -270,6 +346,19 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetVisible(true);
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
+    if (IsEarthKey(objectDefinition.typeStr) || StartsWith(objectDefinition.imageId, "EARTH"))
+    {
+        character->SetEntityKind(Character::EntityKind::Environment);
+        character->SetMaterialType(Character::MaterialType::Earth);
+    }
+
+    character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
+
+    if (StartsWith(objectDefinition.imageId, "WOOD_tri") || StartsWith(objectDefinition.imageId, "WOOD_tri_empty"))
+    {
+        character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
+    }
+
     if (objectDefinition.imageId == "SLINGSHOT_1")
     {
         character->SetZIndex(1.0f);
@@ -281,7 +370,8 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     if (!objectDefinition.imageId.empty())
     {
-        if (objectDefinition.imageId.rfind("WOOD", 0) == 0 || objectDefinition.imageId.rfind("STONE", 0) == 0)
+        if (objectDefinition.imageId.rfind("WOOD", 0) == 0 || objectDefinition.imageId.rfind("STONE", 0) == 0 ||
+            objectDefinition.imageId.rfind("EARTH", 0) == 0)
         {
             character->SetZIndex(50.0f);
         }

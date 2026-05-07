@@ -25,8 +25,18 @@ public:
     Flesh,
     Wood,
     Stone,
+    Earth,
     Glass,
     Ice
+  };
+
+  enum class ColliderShape
+  {
+    Box,
+    TriangleUp,
+    TriangleDown,
+    TriangleLeft,
+    TriangleRight
   };
 
   struct PhysicsState
@@ -128,6 +138,10 @@ public:
     m_MaterialType = materialType;
   }
 
+  [[nodiscard]] ColliderShape GetColliderShape() const { return m_ColliderShape; }
+
+  void SetColliderShape(ColliderShape colliderShape) { m_ColliderShape = colliderShape; }
+
   void SetImage(const std::string &ImagePath);
 
   void SetPosition(const glm::vec2 &Position)
@@ -187,6 +201,7 @@ private:
   PhysicsState m_PhysicsState;
   EntityKind m_EntityKind = EntityKind::Unknown;
   MaterialType m_MaterialType = MaterialType::None;
+  ColliderShape m_ColliderShape = ColliderShape::Box;
 };
 
 #endif // CHARACTER_HPP

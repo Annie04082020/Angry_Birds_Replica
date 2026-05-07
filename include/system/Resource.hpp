@@ -17,6 +17,7 @@ namespace Resource
     const std::string BIRD_B = RESOURCE_DIR "/Image/birds/blue_birds/sprite_070.png";
     const std::string SLINGSHOT_1 = RESOURCE_DIR "/Image/assets/sprite_147.png";
     const std::string SLINGSHOT_2 = RESOURCE_DIR "/Image/assets/sprite_154.png";
+    const std::string EARTH_BLOCK = RESOURCE_DIR "/Image/themes/sprite_023.png";
 
     // Pigs
     const std::string PIG_SMALL = RESOURCE_DIR "/Image/pigs/pig_small/sprite_001.png";
@@ -120,6 +121,7 @@ namespace Resource
 
     // Level Data
     const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
+    const std::string LEVEL_EARTH_TEST_DATA = RESOURCE_DIR "/levels/level_earth_test.json";
     const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
     const std::string ENTITY_TEMPLATE_DATA = RESOURCE_DIR "/entities/entity_templates.json";
 } // namespace Resource
