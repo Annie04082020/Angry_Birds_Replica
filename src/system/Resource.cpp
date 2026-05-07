@@ -20,6 +20,8 @@ namespace Resource
             {"BIRD_BLACK", BIRD_K},
             {"SLINGSHOT_1", SLINGSHOT_1},
             {"SLINGSHOT_2", SLINGSHOT_2},
+            {"EARTH", EARTH_BLOCK},
+            {"EARTH_BLOCK", EARTH_BLOCK},
             // Ice entries
             {"ICE_83x20",   ICE_83x20_1},
             {"ICE_005", ICE_83x20_1},
@@ -166,6 +168,7 @@ namespace Resource
             {"LEVEL_9_DATA", LEVEL_9_DATA},
             {"LEVEL_10_DATA", LEVEL_10_DATA},
             {"DEFAULT_LEVEL_DATA", DEFAULT_LEVEL_DATA},
+            {"LEVEL_EARTH_TEST_DATA", LEVEL_EARTH_TEST_DATA},
             {"INTRO_LAYOUT_DATA", INTRO_LAYOUT_DATA},
             {"ENTITY_TEMPLATE_DATA", ENTITY_TEMPLATE_DATA}};
 

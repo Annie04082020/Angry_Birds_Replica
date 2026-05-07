@@ -1,0 +1,193 @@
+{
+    "level": 101,
+    "name": "Earth Collision Test",
+    "background": "Image/background.png",
+    "birds": 3,
+    "groups": [
+        {
+            "id": "slingshot",
+            "scaleMultiplier": 3,
+            "scalePosition": false,
+            "offsetXPercent": -5.0,
+            "offsetYPercent": -1.0,
+            "scalePivotXPercent": -19.854167,
+            "scalePivotYPercent": -7.148148
+        },
+        {
+            "id": "Environment",
+            "scaleMultiplier": 1.5,
+            "scalePosition": true,
+            "offsetXPercent": 0.0,
+            "offsetYPercent": -2.0,
+            "scalePivotXPercent": 0.0,
+            "scalePivotYPercent": 0.0
+        }
+    ],
+    "objects": [
+        {
+            "type": "SLINGSHOT",
+            "imageId": "SLINGSHOT_1",
+            "groupId": "slingshot",
+            "sizePercent": 4.592593,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -19.166667,
+            "yPercent": -4.444444
+        },
+        {
+            "type": "SLINGSHOT",
+            "imageId": "SLINGSHOT_2",
+            "groupId": "slingshot",
+            "sizePercent": 7.37037,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -17.59375,
+            "yPercent": -9.074074
+        },
+        {
+            "type": "BIRD",
+            "imageId": "BIRD_RED",
+            "heightPercent": 4,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -23.333333,
+            "yPercent": -14.074074
+        },
+        {
+            "type": "BIRD",
+            "imageId": "BIRD_YELLOW",
+            "heightPercent": 4,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -21.666667,
+            "yPercent": -16.296296
+        },
+        {
+            "type": "BIRD",
+            "imageId": "BIRD_BLUE",
+            "heightPercent": 3,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -22.5,
+            "yPercent": -18.518519
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 7.8,
+            "yPercent": -15.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 10.8,
+            "yPercent": -15.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 13.8,
+            "yPercent": -15.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 16.8,
+            "yPercent": -15.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "triangle_up",
+            "rotation": 0.0,
+            "xPercent": 20.0,
+            "yPercent": -15.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "triangle_up",
+            "rotation": 0.0,
+            "xPercent": 23.0,
+            "yPercent": -12.8
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "triangle_up",
+            "rotation": 0.0,
+            "xPercent": 26.0,
+            "yPercent": -10.6
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "triangle_right",
+            "rotation": 0.0,
+            "xPercent": 31.0,
+            "yPercent": -15.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "triangle_left",
+            "rotation": 0.0,
+            "xPercent": 34.0,
+            "yPercent": -15.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 40.0,
+            "yPercent": -14.8
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 40.0,
+            "yPercent": -12.8
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "Environment",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 40.0,
+            "yPercent": -10.8
+        },
+        {
+            "type": "PIG",
+            "imageId": "PIG_SMALL",
+            "groupId": "Environment",
+            "widthPercent": 1.4,
+            "heightPercent": 2.2,
+            "rotation": 0.0,
+            "xPercent": 40.0,
+            "yPercent": -8.8
+        }
+    ]
+}
