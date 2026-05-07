@@ -12,6 +12,8 @@
 
 #include <cctype>
 
+#include <cctype>
+
 namespace
 {
     bool StartsWith(const std::string &value, const std::string &prefix)
@@ -399,6 +401,19 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetNumDamageStates(numDamageStates);
 
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
+
+    if (IsEarthKey(objectDefinition.typeStr) || StartsWith(objectDefinition.imageId, "EARTH"))
+    {
+        character->SetEntityKind(Character::EntityKind::Environment);
+        character->SetMaterialType(Character::MaterialType::Earth);
+    }
+
+    character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
+
+    if (StartsWith(objectDefinition.imageId, "WOOD_tri") || StartsWith(objectDefinition.imageId, "WOOD_tri_empty"))
+    {
+        character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
+    }
 
     const bool isDecor = objectDefinition.typeStr == "DECOR";
 
