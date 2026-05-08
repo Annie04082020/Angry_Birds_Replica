@@ -132,6 +132,23 @@ public:
 
   void SetSleeping(bool sleeping) { m_PhysicsState.isSleeping = sleeping; }
 
+  [[nodiscard]] bool IsImpactActivated() const { return m_ImpactActivated; }
+
+  void SetImpactActivated(bool impactActivated)
+  {
+    m_ImpactActivated = impactActivated;
+  }
+
+  [[nodiscard]] bool ParticipatesInPhysics() const
+  {
+    return m_ParticipatesInPhysics;
+  }
+
+  void SetParticipatesInPhysics(bool participatesInPhysics)
+  {
+    m_ParticipatesInPhysics = participatesInPhysics;
+  }
+
   [[nodiscard]] EntityKind GetEntityKind() const { return m_EntityKind; }
 
   void SetEntityKind(EntityKind entityKind) { m_EntityKind = entityKind; }
@@ -273,16 +290,18 @@ public:
 private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }
 
-  std::string m_ImagePath;
-  std::string m_BaseImageId; // Original image ID for damage state switching
-  PhysicsState m_PhysicsState;
-  EntityKind m_EntityKind = EntityKind::Unknown;
-  MaterialType m_MaterialType = MaterialType::None;
-  float m_Health = 1.0f;
-  float m_MaxHealth = 1.0f;
-  DamageState m_PreviousDamageState = DamageState::Undamaged;
-  bool m_IsDestroyed = false;
-  int m_NumDamageStates = 5; // Default to 5 states (undamaged + 4 variants)
+    std::string m_ImagePath;
+    std::string m_BaseImageId; // Original image ID for damage state switching
+    PhysicsState m_PhysicsState;
+    EntityKind m_EntityKind = EntityKind::Unknown;
+    MaterialType m_MaterialType = MaterialType::None;
+    float m_Health = 1.0f;
+    float m_MaxHealth = 1.0f;
+    DamageState m_PreviousDamageState = DamageState::Undamaged;
+    bool m_IsDestroyed = false;
+    int m_NumDamageStates = 5; // Default to 5 states (undamaged + 4 variants)
+    bool m_ImpactActivated = true;
+    bool m_ParticipatesInPhysics = true;
 };
 
 #endif // CHARACTER_HPP

@@ -19,12 +19,14 @@ struct LevelObjectDefinition
     float scaleX = 1.0f;
     float scaleY = 1.0f;
     float rotation = 0.0f;
+    float zIndex = 0.0f;
     float sizePercent = 0.0f;
     float widthPercent = 0.0f;
     float heightPercent = 0.0f;
     bool hasSizePercent = false;
     bool hasWidthPercent = false;
     bool hasHeightPercent = false;
+    bool hasZIndex = false;
 };
 
 struct ParsedLevelData

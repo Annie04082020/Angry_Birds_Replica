@@ -1,5 +1,4 @@
 #include "Util/Input.hpp"
-#include "Util/TransformUtils.hpp"
 
 #include <SDL_events.h> // for SDL_Event
 
@@ -7,74 +6,11 @@
 
 namespace Util {
 
-namespace {
-struct WindowMetrics {
-    int windowWidth = 0;
-    int windowHeight = 0;
-    int drawableWidth = 0;
-    int drawableHeight = 0;
-
-    bool IsValid() const {
-        return windowWidth > 0 && windowHeight > 0 && drawableWidth > 0 &&
-               drawableHeight > 0;
-    }
-};
-
-WindowMetrics GetWindowMetrics(SDL_Window *window) {
-    WindowMetrics metrics;
-    if (window == nullptr) {
-        return metrics;
-    }
-
-    SDL_GetWindowSize(window, &metrics.windowWidth, &metrics.windowHeight);
-    SDL_GL_GetDrawableSize(window, &metrics.drawableWidth,
-                           &metrics.drawableHeight);
-    return metrics;
-}
-
-glm::vec2 ToDrawableCoordinates(const glm::vec2 &windowPos,
-                                const WindowMetrics &metrics) {
-    if (!metrics.IsValid()) {
-        return windowPos;
-    }
-    return {windowPos.x * static_cast<float>(metrics.drawableWidth) /
-                static_cast<float>(metrics.windowWidth),
-            windowPos.y * static_cast<float>(metrics.drawableHeight) /
-                static_cast<float>(metrics.windowHeight)};
-}
-
-glm::vec2 ToWindowCoordinates(const glm::vec2 &drawablePos,
-                              const WindowMetrics &metrics) {
-    if (!metrics.IsValid()) {
-        return drawablePos;
-    }
-    return {drawablePos.x * static_cast<float>(metrics.windowWidth) /
-                static_cast<float>(metrics.drawableWidth),
-            drawablePos.y * static_cast<float>(metrics.windowHeight) /
-                static_cast<float>(metrics.drawableHeight)};
-}
-
-glm::vec2 GetScaledMousePosition() {
-    int windowX = 0;
-    int windowY = 0;
-    SDL_GetMouseState(&windowX, &windowY);
-
-    if (SDL_Window *window = SDL_GL_GetCurrentWindow()) {
-        const auto metrics = GetWindowMetrics(window);
-        return ToDrawableCoordinates(
-            {static_cast<float>(windowX), static_cast<float>(windowY)},
-            metrics);
-    }
-
-    return {static_cast<float>(windowX), static_cast<float>(windowY)};
-}
-} // namespace
-
 // init all static members
 SDL_Event Input::s_Event = SDL_Event();
 
 glm::vec2 Input::s_CursorPosition = glm::vec2(0.0F);
-glm::vec2 Input::s_ScrollDistance = glm::vec2(0.0F, 0.0F);
+glm::vec2 Input::s_ScrollDistance = glm::vec2(-1.0F, -1.0F);
 
 std::unordered_map<Keycode, std::pair<bool, bool>> Input::s_KeyState = {
     std::make_pair(Keycode::MOUSE_LB, std::make_pair(false, false)),
@@ -140,14 +76,16 @@ void Input::UpdateKeyState(const SDL_Event *event) {
 }
 
 void Input::Update() {
-    s_CursorPosition = GetScaledMousePosition();
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+    s_CursorPosition.x = static_cast<float>(x);
+    s_CursorPosition.y = static_cast<float>(y);
 
-    const glm::vec2 viewportSize = GetViewportSize();
-    s_CursorPosition.x -= viewportSize.x / 2;
-    s_CursorPosition.y = -(s_CursorPosition.y - viewportSize.y / 2);
+    s_CursorPosition.x -= static_cast<float>(WINDOW_WIDTH) / 2;
+    s_CursorPosition.y =
+        -(s_CursorPosition.y - static_cast<float>(WINDOW_HEIGHT) / 2);
 
     s_Scroll = s_MouseMoving = false;
-    s_ScrollDistance = glm::vec2(0.0F, 0.0F);
 
     for (auto &[_, i] : s_KeyState) {
         i.first = i.second;
@@ -167,10 +105,11 @@ void Input::Update() {
             UpdateKeyState(&s_Event);
         }
 
-        if (s_Event.type == SDL_MOUSEWHEEL) {
-            s_Scroll = true;
-            s_ScrollDistance.x += static_cast<float>(s_Event.wheel.x);
-            s_ScrollDistance.y += static_cast<float>(s_Event.wheel.y);
+        s_Scroll = s_Event.type == SDL_MOUSEWHEEL || s_Scroll;
+
+        if (s_Scroll) {
+            s_ScrollDistance.x = static_cast<float>(s_Event.wheel.x);
+            s_ScrollDistance.y = static_cast<float>(s_Event.wheel.y);
         }
         s_MouseMoving = s_Event.type == SDL_MOUSEMOTION || s_MouseMoving;
         s_Exit = s_Event.type == SDL_QUIT;
@@ -182,21 +121,6 @@ glm::vec2 Input::GetCursorPosition() {
 }
 
 void Input::SetCursorPosition(const glm::vec2 &pos) {
-    if (SDL_Window *window = SDL_GL_GetCurrentWindow()) {
-        const auto metrics = GetWindowMetrics(window);
-
-        const glm::vec2 viewportSize = GetViewportSize();
-        const glm::vec2 drawablePos = {
-            pos.x + viewportSize.x / 2.0F,
-            viewportSize.y / 2.0F - pos.y,
-        };
-        const glm::vec2 windowPos = ToWindowCoordinates(drawablePos, metrics);
-
-        SDL_WarpMouseInWindow(window, static_cast<int>(windowPos.x),
-                              static_cast<int>(windowPos.y));
-        return;
-    }
-
     SDL_WarpMouseInWindow(nullptr, static_cast<int>(pos.x),
                           static_cast<int>(pos.y));
 }

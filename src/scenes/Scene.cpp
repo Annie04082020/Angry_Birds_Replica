@@ -55,6 +55,9 @@ namespace
     }
     return candidate;
   }
+
+  constexpr float settleSpeedThreshold = 6.0f;   // px/sec (stricter)
+  constexpr float settleAngularThreshold = 2.0f; // rad/sec
 }
 
 void Scene::AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl)
@@ -109,6 +112,8 @@ void Scene::StabilizeEnvironment(int steps)
       auto ch = std::dynamic_pointer_cast<Character>(element);
       if (!ch)
         continue;
+      if (!ch->ParticipatesInPhysics())
+        continue;
       if (ch->GetEntityKind() != Character::EntityKind::Environment)
         continue;
       if (ch->IsStatic())
@@ -135,12 +140,21 @@ void Scene::StabilizeEnvironment(int steps)
   for (auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
-    if (!ch) continue;
-    if (ch->GetEntityKind() != Character::EntityKind::Environment) continue;
-    if (ch->IsStatic()) continue;
-    ch->SetSleeping(true);
-    ch->SetVelocity({0.0f, 0.0f});
-    ch->SetAngularVelocity(0.0f);
+    if (!ch)
+        continue;
+    if (!ch->ParticipatesInPhysics())
+        continue;
+    if (ch->GetEntityKind() != Character::EntityKind::Environment)
+        continue;
+    if (ch->IsStatic())
+        continue;
+    if (glm::length(ch->GetVelocity()) < settleSpeedThreshold && std::fabs(ch->GetAngularVelocity()) < settleAngularThreshold)
+    {
+        DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "stabilize_settled");
+        ch->SetSleeping(true);
+        ch->SetVelocity({0.0f, 0.0f});
+        ch->SetAngularVelocity(0.0f);
+    }
   }
 }
 
@@ -169,6 +183,8 @@ void Scene::Update()
       auto ch = std::dynamic_pointer_cast<Character>(element);
       if (!ch)
         continue;
+      if (!ch->ParticipatesInPhysics())
+        continue;
       if (ch->IsStatic() || ch->IsSleeping())
         continue;
       auto v = ch->GetVelocity();
@@ -180,7 +196,7 @@ void Scene::Update()
     for (auto &element : m_Elements)
     {
       auto ch = std::dynamic_pointer_cast<Character>(element);
-      if (ch)
+      if (ch && ch->ParticipatesInPhysics())
       {
         ch->IntegratePhysics(m_PhysicsStep);
       }
@@ -190,7 +206,7 @@ void Scene::Update()
     for (auto &element : m_Elements)
     {
       auto ch = std::dynamic_pointer_cast<Character>(element);
-      if (!ch || ch->IsStatic())
+      if (!ch || !ch->ParticipatesInPhysics() || ch->IsStatic())
       {
         continue;
       }
@@ -383,7 +399,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   for (const auto& element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
-    if (ch && ch->GetEntityKind() != Character::EntityKind::Slingshot)
+    if (ch && ch->ParticipatesInPhysics() && ch->GetEntityKind() != Character::EntityKind::Slingshot)
     {
       characters.push_back(ch);
       if (ch->IsSleeping() && !ch->IsStatic())
@@ -406,6 +422,34 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       float penetration = 0.f;
       if (!CollisionUtils::ComputeOBBMTV(*ca, *cb, normal, penetration, contactPoint))
         continue;
+
+      // Impact activation check: wake environmental objects if hit by birds or already activated objects
+      auto activateEnvironment = [](const std::shared_ptr<Character>& target, const std::shared_ptr<Character>& other) {
+          if (!target || target->GetEntityKind() != Character::EntityKind::Environment)
+              return;
+          if (target->IsImpactActivated())
+              return;
+
+          bool triggered = false;
+          if (other->GetEntityKind() == Character::EntityKind::Bird)
+          {
+              triggered = true;
+          }
+          else if (other->GetEntityKind() == Character::EntityKind::Environment)
+          {
+              // Can transfer impact if other is already activated and not sleeping
+              triggered = other->IsImpactActivated() && !other->IsSleeping();
+          }
+
+          if (triggered)
+          {
+              target->SetImpactActivated(true);
+              target->SetStatic(false);
+              target->SetSleeping(false);
+          }
+      };
+      activateEnvironment(ca, cb);
+      activateEnvironment(cb, ca);
 
       // Sleep support tracking
       if (ca->IsSleeping() && !ca->IsStatic() &&
@@ -488,6 +532,8 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
     // Wake sleeping objects that have lost geometric support
     for (const auto& ch : sleepingDynamics)
     {
+      if (ch->GetEntityKind() == Character::EntityKind::Environment && !ch->IsImpactActivated())
+        continue;
       if (supportConfirmed.find(ch.get()) != supportConfirmed.end())
         continue;
       if (SleepSupport::IsGeometricallySupported(ch, m_Elements, m_WorldFloorY))
@@ -499,4 +545,15 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       ch->SetSleeping(false);
     }
   }
+}
+
+void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
+                            const std::shared_ptr<Util::GameObject> &b,
+                            const glm::vec2 &contactNormal,
+                            float penetrationDepth,
+                            const glm::vec2 &contactPoint,
+                            bool stabilizing)
+{
+    // This function was removed in a previous version. It is now a no-op.
+    return;
 }

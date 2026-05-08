@@ -99,7 +99,7 @@ protected:
   float m_DebugDrawInterval = 0.05f;
 
   // World floor Y coordinate. Can be set by caller (e.g. GameScene after loading level)
-  float m_WorldFloorY = -320.0f;
+  float m_WorldFloorY = -294.0f;
   void SetWorldFloorY(float y) { m_WorldFloorY = y; }
   float GetWorldFloorY() const { return m_WorldFloorY; }
 
@@ -120,5 +120,13 @@ private:
   std::shared_ptr<Character> m_Controlled = nullptr;
   int m_Score = 0;
 };
+
+// Handle collision for two objects
+void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
+                      const std::shared_ptr<Util::GameObject> &b,
+                      const glm::vec2 &contactNormal,
+                      float penetrationDepth,
+                      const glm::vec2 &contactPoint,
+                      bool stabilizing);
 
 #endif // SCENE_HPP

@@ -44,6 +44,11 @@ ParsedLevelData LevelParser::Parse(const std::string &jsonStr)
         objectDefinition.scaleY = JsonParseUtils::ExtractFloat(entityJson, "scaleY");
         objectDefinition.rotation = JsonParseUtils::ExtractFloat(entityJson, "rotation");
         objectDefinition.groupId = JsonParseUtils::ExtractString(entityJson, "groupId");
+        objectDefinition.hasZIndex = JsonParseUtils::HasKey(entityJson, "zIndex");
+        if (objectDefinition.hasZIndex)
+        {
+            objectDefinition.zIndex = JsonParseUtils::ExtractFloat(entityJson, "zIndex");
+        }
 
         objectDefinition.hasSizePercent = JsonParseUtils::HasKey(entityJson, "sizePercent") || JsonParseUtils::HasKey(entityJson, "scalePercent");
         objectDefinition.hasWidthPercent = JsonParseUtils::HasKey(entityJson, "widthPercent") || JsonParseUtils::HasKey(entityJson, "scalePercentX");
