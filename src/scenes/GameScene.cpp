@@ -98,6 +98,11 @@ namespace
     constexpr float kGamePauseMenuLevelTitleScale = 0.5f;
 }
 
+namespace
+{
+    constexpr float kGrassTopRatio = 404.0f / 563.0f;
+}
+
 bool GameScene::LoadLevel(const std::string &levelPath)
 {
     m_ZoomScrollAccumulator = 0.0f;
