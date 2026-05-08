@@ -374,7 +374,11 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         if (objectDefinition.imageId.rfind("WOOD", 0) == 0 || objectDefinition.imageId.rfind("STONE", 0) == 0 ||
             objectDefinition.imageId.rfind("EARTH", 0) == 0)
         {
-            character->SetZIndex(50.0f);
+            character->SetZIndex(0.0f);
+        }
+        else if (objectDefinition.imageId.rfind("BIRD", 0) == 0)
+        {
+            character->SetZIndex(10.0f);
         }
     }
 

@@ -19,6 +19,7 @@ public:
     if (m_Background)
     {
       AddChild(m_Background);
+      m_Background->SetZIndex(-100.0f);
     }
   }
   ~Scene() = default;
