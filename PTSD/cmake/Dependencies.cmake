@@ -90,8 +90,8 @@ set(SDL2MIXER_FLAC OFF)
 set(SDL2MIXER_MIDI OFF)
 set(SDL2MIXER_MOD OFF)
 set(SDL2MIXER_OPUS OFF)
-set(SDL2MIXER_OGG ON)
-set(SDL2MIXER_VORBIS STB)
+set(SDL2MIXER_OGG OFF)
+set(SDL2MIXER_VORBIS OFF)
 set(SDL2MIXER_VOC OFF)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
