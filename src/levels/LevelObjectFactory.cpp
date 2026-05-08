@@ -270,6 +270,33 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetVisible(true);
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
+    const bool isDecor = objectDefinition.typeStr == "DECOR";
+
+    if (isDecor)
+    {
+        character->SetEntityKind(Character::EntityKind::Unknown);
+        character->SetMaterialType(Character::MaterialType::None);
+        character->SetStatic(true);
+        character->SetSleeping(true);
+        character->SetImpactActivated(false);
+        character->SetParticipatesInPhysics(false);
+        character->SetVelocity({0.0f, 0.0f});
+        character->SetAngularVelocity(0.0f);
+    }
+
+    if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
+    {
+        character->SetImpactActivated(false);
+        character->SetStatic(true);
+        character->SetSleeping(true);
+        character->SetVelocity({0.0f, 0.0f});
+        character->SetAngularVelocity(0.0f);
+    }
+    else
+    {
+        character->SetImpactActivated(true);
+    }
+
     if (objectDefinition.imageId == "SLINGSHOT_1")
     {
         character->SetZIndex(1.0f);
@@ -285,6 +312,11 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         {
             character->SetZIndex(50.0f);
         }
+    }
+
+    if (objectDefinition.hasZIndex)
+    {
+        character->SetZIndex(objectDefinition.zIndex);
     }
 
     return character;

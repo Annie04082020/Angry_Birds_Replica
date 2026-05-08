@@ -117,6 +117,23 @@ public:
 
   void SetSleeping(bool sleeping) { m_PhysicsState.isSleeping = sleeping; }
 
+  [[nodiscard]] bool IsImpactActivated() const { return m_ImpactActivated; }
+
+  void SetImpactActivated(bool impactActivated)
+  {
+    m_ImpactActivated = impactActivated;
+  }
+
+  [[nodiscard]] bool ParticipatesInPhysics() const
+  {
+    return m_ParticipatesInPhysics;
+  }
+
+  void SetParticipatesInPhysics(bool participatesInPhysics)
+  {
+    m_ParticipatesInPhysics = participatesInPhysics;
+  }
+
   [[nodiscard]] EntityKind GetEntityKind() const { return m_EntityKind; }
 
   void SetEntityKind(EntityKind entityKind) { m_EntityKind = entityKind; }
@@ -187,6 +204,8 @@ private:
   PhysicsState m_PhysicsState;
   EntityKind m_EntityKind = EntityKind::Unknown;
   MaterialType m_MaterialType = MaterialType::None;
+  bool m_ImpactActivated = true;
+  bool m_ParticipatesInPhysics = true;
 };
 
 #endif // CHARACTER_HPP

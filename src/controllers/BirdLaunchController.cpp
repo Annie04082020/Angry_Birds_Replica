@@ -109,8 +109,6 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
 
     constexpr float maxPullDistance = 140.0f;
     constexpr float launchPower = 9.0f;
-    constexpr float floorY = -320.0f;
-
     if (!m_HasLaunchedBird)
     {
         if (mousePressed)
@@ -161,9 +159,9 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     const float halfH = m_ActiveBird->GetSize().y * 0.5f;
 
     // Check bottom edge contact (center.y - halfHeight)
-    if (nextPos.y - halfH < floorY)
+    if (nextPos.y - halfH < m_WorldFloorY)
     {
-        nextPos.y = floorY + halfH;
+        nextPos.y = m_WorldFloorY + halfH;
         m_ActiveBird->SetPosition(nextPos);
         m_ActiveBird->SetVelocity({0.0f, 0.0f});
         m_ActiveBird->SetAngularVelocity(0.0f);

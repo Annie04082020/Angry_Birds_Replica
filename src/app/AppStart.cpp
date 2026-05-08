@@ -22,6 +22,10 @@ namespace
       return Resource::LEVEL_1_DATA;
     case 2:
       return Resource::LEVEL_2_DATA;
+    case 3:
+      return Resource::LEVEL_3_DATA;
+    case 5:
+      return Resource::LEVEL_5_DATA;
     case 9:
       return Resource::LEVEL_9_DATA;
     default:

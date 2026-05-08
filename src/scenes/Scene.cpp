@@ -72,6 +72,8 @@ void Scene::StabilizeEnvironment(int steps)
       auto ch = std::dynamic_pointer_cast<Character>(element);
       if (!ch)
         continue;
+      if (!ch->ParticipatesInPhysics())
+        continue;
       if (ch->GetEntityKind() != Character::EntityKind::Environment)
         continue;
       if (ch->IsStatic())
@@ -92,11 +94,13 @@ void Scene::StabilizeEnvironment(int steps)
   // After stabilization steps, mark settled environment objects as sleeping
   for (auto &element : m_Elements)
   {
-    auto ch = std::dynamic_pointer_cast<Character>(element);
-    if (!ch)
-      continue;
-    if (ch->GetEntityKind() != Character::EntityKind::Environment)
-      continue;
+      auto ch = std::dynamic_pointer_cast<Character>(element);
+      if (!ch)
+        continue;
+      if (!ch->ParticipatesInPhysics())
+        continue;
+      if (ch->GetEntityKind() != Character::EntityKind::Environment)
+        continue;
     if (ch->IsStatic())
       continue;
     if (glm::length(ch->GetVelocity()) < settleSpeedThreshold && std::fabs(ch->GetAngularVelocity()) < settleAngularThreshold)
@@ -131,6 +135,8 @@ void Scene::Update()
       auto ch = std::dynamic_pointer_cast<Character>(element);
       if (!ch)
         continue;
+      if (!ch->ParticipatesInPhysics())
+        continue;
       if (ch->IsStatic() || ch->IsSleeping())
         continue;
       auto v = ch->GetVelocity();
@@ -142,7 +148,7 @@ void Scene::Update()
     for (auto &element : m_Elements)
     {
       auto ch = std::dynamic_pointer_cast<Character>(element);
-      if (ch)
+      if (ch && ch->ParticipatesInPhysics())
       {
         ch->IntegratePhysics(m_PhysicsStep);
       }
@@ -152,7 +158,7 @@ void Scene::Update()
     for (auto &element : m_Elements)
     {
       auto ch = std::dynamic_pointer_cast<Character>(element);
-      if (!ch || ch->IsStatic())
+      if (!ch || !ch->ParticipatesInPhysics() || ch->IsStatic())
       {
         continue;
       }
@@ -258,7 +264,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   for (const auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
-    if (ch && ch->GetEntityKind() != Character::EntityKind::Slingshot)
+    if (ch && ch->ParticipatesInPhysics() && ch->GetEntityKind() != Character::EntityKind::Slingshot)
     {
       characters.push_back(ch);
       if (ch->IsSleeping() && !ch->IsStatic())
@@ -302,6 +308,8 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   {
     for (const auto &ch : sleepingDynamics)
     {
+      if (ch->GetEntityKind() == Character::EntityKind::Environment && !ch->IsImpactActivated())
+        continue;
       if (supportConfirmed.find(ch.get()) != supportConfirmed.end())
         continue;
       if (SleepSupport::IsGeometricallySupported(ch, m_Elements, m_WorldFloorY))

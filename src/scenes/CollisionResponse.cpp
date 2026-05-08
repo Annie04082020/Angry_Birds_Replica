@@ -10,6 +10,60 @@
 
 using namespace CollisionResponse;
 
+namespace
+{
+    bool CanTransferImpact(const std::shared_ptr<Character> &character)
+    {
+        if (!character)
+            return false;
+
+        if (character->GetEntityKind() == Character::EntityKind::Bird)
+            return true;
+
+        if (character->GetEntityKind() != Character::EntityKind::Environment)
+            return false;
+
+        return character->IsImpactActivated() && !character->IsSleeping();
+    }
+
+    bool ShouldActivateFromCollision(const std::shared_ptr<Character> &target,
+                                     const std::shared_ptr<Character> &other,
+                                     const glm::vec2 &deltaV,
+                                     float wakeThreshold)
+    {
+        if (!(target && other))
+            return false;
+        if (target->GetEntityKind() != Character::EntityKind::Environment)
+            return false;
+        if (target->IsImpactActivated())
+            return false;
+        if (other->GetEntityKind() == Character::EntityKind::Bird)
+            return true;
+
+        return CanTransferImpact(other) && glm::length(deltaV) > wakeThreshold;
+    }
+
+    void ActivateEnvironmentIfNeeded(const std::shared_ptr<Character> &target,
+                                     const std::shared_ptr<Character> &other)
+    {
+        if (!(target && other))
+            return;
+        if (target->GetEntityKind() != Character::EntityKind::Environment)
+            return;
+        if (target->IsImpactActivated())
+            return;
+
+        const bool triggeredByBird = other->GetEntityKind() == Character::EntityKind::Bird;
+        const bool triggeredByChain = CanTransferImpact(other);
+        if (!triggeredByBird && !triggeredByChain)
+            return;
+
+        target->SetImpactActivated(true);
+        target->SetStatic(false);
+        target->SetSleeping(false);
+    }
+}
+
 std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared_ptr<Character> &a,
                                                                const std::shared_ptr<Character> &b,
                                                                const glm::vec2 &contactNormal,
@@ -23,6 +77,9 @@ std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared
     auto cb = b;
     if (!(ca && cb))
         return debugOut;
+
+    ActivateEnvironmentIfNeeded(ca, cb);
+    ActivateEnvironmentIfNeeded(cb, ca);
 
     // Slingshot should be visual only
     if (ca->GetEntityKind() == Character::EntityKind::Slingshot ||
@@ -105,7 +162,12 @@ std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared
             if (ca->IsSleeping() && !aStaticOnly)
             {
                 const glm::vec2 deltaV = -(impulse + frictionImpulseVec) * invMassA;
-                if (glm::length(deltaV) > kWakeVelThreshold)
+                if (ShouldActivateFromCollision(ca, cb, deltaV, kWakeVelThreshold))
+                {
+                    ca->SetImpactActivated(true);
+                    ca->SetSleeping(false);
+                }
+                else if (ca->IsImpactActivated() && glm::length(deltaV) > kWakeVelThreshold)
                 {
                     ca->SetSleeping(false);
                 }
@@ -113,7 +175,12 @@ std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared
             if (cb->IsSleeping() && !bStaticOnly)
             {
                 const glm::vec2 deltaV = (impulse + frictionImpulseVec) * invMassB;
-                if (glm::length(deltaV) > kWakeVelThreshold)
+                if (ShouldActivateFromCollision(cb, ca, deltaV, kWakeVelThreshold))
+                {
+                    cb->SetImpactActivated(true);
+                    cb->SetSleeping(false);
+                }
+                else if (cb->IsImpactActivated() && glm::length(deltaV) > kWakeVelThreshold)
                 {
                     cb->SetSleeping(false);
                 }
