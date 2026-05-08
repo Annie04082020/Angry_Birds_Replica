@@ -157,6 +157,10 @@ public:
 
     void Draw();
 
+    // Compatibility helpers: many consumer classes expect Init/Update hooks.
+    virtual void Init() {}
+    virtual void Update() {}
+
 protected:
     std::shared_ptr<Core::Drawable> m_Drawable = nullptr;
     std::vector<std::shared_ptr<GameObject>> m_Children;

@@ -1,4 +1,5 @@
 #include "LevelManager.hpp"
+#include "Util/ViewportUtils.hpp"
 
 #include <algorithm>
 #include <cmath>

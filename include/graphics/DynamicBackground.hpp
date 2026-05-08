@@ -11,7 +11,7 @@ public:
   DynamicBackground(const std::string &path);
 
   // 更新背景位置，實現滾動邏輯
-  void Update() override;
+  void Update();
 
   // 設定滾動速度
   void SetSpeed(float speed) { m_Speed = speed; }

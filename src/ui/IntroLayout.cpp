@@ -3,6 +3,7 @@
 #include "JsonParseUtils.hpp"
 #include "LayoutParseUtils.hpp"
 #include "Util/TransformUtils.hpp"
+#include "Util/ViewportUtils.hpp"
 
 #include <fstream>
 #include <sstream>

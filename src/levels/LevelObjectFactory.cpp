@@ -8,6 +8,7 @@
 #include "EntityTemplateDatabase.hpp"
 #include "Resource.hpp"
 #include "Util/TransformUtils.hpp"
+#include "Util/ViewportUtils.hpp"
 
 #include <cctype>
 
