@@ -9,6 +9,7 @@
 #include "Util/Keycode.hpp"
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
+#include "Util/ViewportUtils.hpp"
 
 namespace
 {

@@ -23,8 +23,8 @@ public:
   }
   ~Scene() = default;
 
-  void Init() override;
-  void Update() override;
+  void Init();
+  void Update();
   void AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl);
   // Stabilize environment objects on load by running short physics steps
   void StabilizeEnvironment(int steps = 30);

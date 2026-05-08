@@ -151,10 +151,12 @@ public:
             std::remove(m_Children.begin(), m_Children.end(), child),
             m_Children.end());
     }
-    virtual void Init() {};
-    virtual void Update() {};
 
     void Draw();
+
+    // Compatibility helpers: many consumer classes expect Init/Update hooks.
+    virtual void Init() {}
+    virtual void Update() {}
 
 protected:
     std::shared_ptr<Core::Drawable> m_Drawable = nullptr;

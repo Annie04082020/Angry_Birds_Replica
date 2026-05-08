@@ -73,7 +73,7 @@ public:
     m_hoverMultiplier = multiplier;
   }
 
-  void Update() override
+  void Update()
   {
     auto mousePos = Util::Input::GetCursorPosition();
 
@@ -109,7 +109,7 @@ public:
     m_SFXPath = SFXPath;
     m_SFX = std::make_shared<SoundEffect>(m_SFXPath);
   }
-  void Init() override { m_Transform.scale = m_baseScale; }
+  void Init() { m_Transform.scale = m_baseScale; }
 
 private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }

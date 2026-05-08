@@ -8,6 +8,7 @@
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 #include "SDL.h"
+#include "Util/ViewportUtils.hpp"
 #include "Util/AnimationUtils.hpp"
 #include "Util/LayoutUtils.hpp"
 #include "Util/MouseUtils.hpp"

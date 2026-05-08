@@ -5,6 +5,7 @@
 #include "Util/GameObject.hpp"
 #include "Util/Image.hpp"
 #include "Util/TransformUtils.hpp"
+#include "Util/ViewportUtils.hpp"
 #include "config.hpp"
 #include "Resource.hpp"
 #include <string>
@@ -44,7 +45,7 @@ public:
     ApplyViewportScale();
   }
 
-  void Update() override
+  void Update()
   {
     ApplyViewportScale();
   }

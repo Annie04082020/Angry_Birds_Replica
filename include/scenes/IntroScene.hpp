@@ -13,7 +13,7 @@ class IntroScene : public Scene
 {
 public:
     static std::shared_ptr<IntroScene> Create();
-    void Update() override;
+    void Update();
 
     void SetOnPlayClickCallback(std::function<bool()> callback)
     {

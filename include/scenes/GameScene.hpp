@@ -25,7 +25,7 @@ public:
     }
 
     bool LoadLevel(const std::string &levelPath);
-    void Update() override;
+    void Update();
 
 private:
     std::shared_ptr<LevelManager> m_LevelManager = std::make_shared<LevelManager>();
