@@ -78,6 +78,9 @@ namespace
             {
                 character.SetMaterialType(definition->materialType);
             }
+            // Apply health from template
+            character.SetMaxHealth(definition->health);
+            character.SetHealth(definition->health);
         }
 
         if (character.GetEntityKind() == Character::EntityKind::Unknown)
@@ -139,6 +142,29 @@ namespace
         }
 
         return std::string();
+    }
+
+    // Count how many damage state variants are available for a given base image ID
+    // e.g., "WOOD_205" -> check WOOD_205_1, WOOD_205_2, ... and count them
+    int CountAvailableDamageStates(const std::string &baseImageId)
+    {
+        // Check how many _1, _2, _3, ... variants exist in Resource
+        int count = 0;
+        for (int i = 1; i <= 10; ++i) // Check up to 10 variants
+        {
+            const std::string variantId = baseImageId + "_" + std::to_string(i);
+            if (Resource::GetPath(variantId).empty())
+            {
+                // No more variants found
+                break;
+            }
+            count++; // Found variant _i
+        }
+        // If no explicit numbered variants found, but the base id maps to a resource,
+        // treat that as a single available state.
+        if (count == 0 && !Resource::GetPath(baseImageId).empty())
+            return 1;
+        return count;
     }
 } // namespace
 
@@ -268,6 +294,12 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetScale(glm::vec2(scaleX, scaleY));
     character->SetRotation(objectDefinition.rotation);
     character->SetVisible(true);
+    character->SetBaseImageId(objectDefinition.imageId); // Store base ID for damage state switching
+
+    // Detect and set the number of available damage state images
+    int numDamageStates = CountAvailableDamageStates(objectDefinition.imageId);
+    character->SetNumDamageStates(numDamageStates);
+
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
     if (objectDefinition.imageId == "SLINGSHOT_1")

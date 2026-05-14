@@ -112,6 +112,7 @@ namespace Resource
             {"BIRD_LAUNCH_SFX", BIRD_LAUNCH_SFX},
             {"SETTING_SFX", SETTING_SFX},
             {"LEVEL_1_DATA", LEVEL_1_DATA},
+            {"LEVEL_1_TEST_DATA", LEVEL_1_TEST_DATA},
             {"INTRO_LAYOUT_DATA", INTRO_LAYOUT_DATA},
             {"ENTITY_TEMPLATE_DATA", ENTITY_TEMPLATE_DATA}};
 

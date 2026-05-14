@@ -65,6 +65,14 @@ public:
   void SetControlledCharacter(const std::shared_ptr<Character> &ch) { m_Controlled = ch; }
   const std::shared_ptr<Character> &GetControlledCharacter() const { return m_Controlled; }
 
+  // Score system
+  [[nodiscard]] int GetScore() const { return m_Score; }
+  void AddScore(int points) { m_Score += points; }
+  void SetScore(int score) { m_Score = score; }
+
+  // Called when a character dies (can be overridden by subclasses)
+  virtual void OnCharacterDeath(const std::shared_ptr<Character> &) {}
+
 protected:
   // Runs a generic collision detection pass for children of this Scene.
   // Scenes may override `HandleCollision` to react to collisions. The
@@ -106,6 +114,7 @@ private:
   std::shared_ptr<Util::GameObject> m_Background;
   std::vector<std::shared_ptr<Util::GameObject>> m_Elements;
   std::shared_ptr<Character> m_Controlled = nullptr;
+  int m_Score = 0;
 };
 
 #endif // SCENE_HPP

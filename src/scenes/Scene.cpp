@@ -7,6 +7,7 @@
 // Collision detection and input
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Resource.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -16,6 +17,44 @@
 namespace
 {
   constexpr bool kEnableCollisionDebugBoxes = false;
+
+  // Build image ID with damage state suffix (_1, _2, _3, _4)
+  // Undamaged state uses _1, subsequent damage states use _2, _3, _4, etc.
+  std::string GetImageIdForDamageState(const std::string &baseImageId, Character::DamageState state)
+  {
+    // Extract base name without existing _1.._4 suffix
+    std::string baseName = baseImageId;
+    size_t lastUnderscore = baseName.rfind('_');
+    if (lastUnderscore != std::string::npos)
+    {
+      const std::string suffix = baseName.substr(lastUnderscore + 1);
+      // If last part is _1, _2, _3, or _4, remove it
+      if (suffix.length() == 1 && suffix[0] >= '1' && suffix[0] <= '9')
+      {
+        baseName = baseName.substr(0, lastUnderscore);
+      }
+    }
+
+    // Map damage state to image suffix
+    // DamageState::Undamaged (0) -> _1 (first/undamaged variant)
+    // DamageState::Light (1) -> _2, Moderate (2) -> _3, Heavy (3) -> _4, Critical (4) -> _5, etc.
+    int imageSuffix = static_cast<int>(state) + 1;
+    // If the generated id doesn't exist in resources, fallback to the highest
+    // existing lower-numbered variant so we never return a non-existent id.
+    std::string candidate = baseName + "_" + std::to_string(imageSuffix);
+    while (imageSuffix > 1 && Resource::GetPath(candidate).empty())
+    {
+      imageSuffix -= 1;
+      candidate = baseName + "_" + std::to_string(imageSuffix);
+    }
+    // If still not found, try the base id mapping (some resources map base id to _1)
+    if (Resource::GetPath(candidate).empty())
+    {
+      if (!Resource::GetPath(baseName).empty())
+        return baseName; // Resource maps baseName -> first variant
+    }
+    return candidate;
+  }
 }
 
 void Scene::AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl)
@@ -194,6 +233,90 @@ void Scene::Update()
   {
     element->Update();
   }
+
+  // Update sprite images based on damage state
+  for (auto &element : m_Elements)
+  {
+    auto character = std::dynamic_pointer_cast<Character>(element);
+    if (!character || character->GetBaseImageId().empty())
+      continue;
+
+    const Character::DamageState currentState = character->GetDamageState();
+    const Character::DamageState previousState = character->GetPreviousDamageState();
+
+    // If damage state changed, update the image
+    if (currentState != previousState)
+    {
+      character->SetPreviousDamageState(currentState);
+      const std::string baseId = character->GetBaseImageId();
+      const std::string newImageId = GetImageIdForDamageState(baseId, currentState);
+      const std::string imagePath = Resource::GetPath(newImageId);
+
+      std::cout << "[Damage Update] " << baseId
+                << " | State: " << static_cast<int>(previousState) << " -> " << static_cast<int>(currentState)
+                << " | NewImageId: " << newImageId
+                << " | ResourcePath: " << (imagePath.empty() ? "NOT FOUND" : imagePath) << std::endl;
+
+      if (!imagePath.empty())
+      {
+        character->SetImage(imagePath);
+        std::cout << "  -> Image updated successfully" << std::endl;
+      }
+      else
+      {
+        std::cout << "  -> Resource not found, keeping current image" << std::endl;
+      }
+    }
+  }
+
+  // Handle character deaths and award points
+  for (auto it = m_Elements.begin(); it != m_Elements.end();)
+  {
+    auto character = std::dynamic_pointer_cast<Character>(*it);
+    if (character && character->GetHealth() <= 0.0f && !character->IsDestroyed())
+    {
+      // Mark as destroyed once so we do not re-score every frame.
+      character->SetDestroyed(true);
+
+      // Award points based on character type
+      const Character::EntityKind kind = character->GetEntityKind();
+      if (kind == Character::EntityKind::Pig)
+      {
+        m_Score += 100; // Pig elimination bonus
+        character->SetVisible(false);
+        // TODO: Play pig death sound effect
+      }
+      else if (kind == Character::EntityKind::Environment)
+      {
+        m_Score += 10; // Structure destruction bonus
+        // TODO: Play destruction sound effect
+      }
+      else
+      {
+        character->SetVisible(false);
+      }
+
+      // Notify subclasses about character death
+      OnCharacterDeath(character);
+
+      // Remove pigs from the scene. Environment pieces stay visible in their
+      // final damaged state so the player can still see the broken object.
+      if (kind == Character::EntityKind::Pig || kind == Character::EntityKind::Unknown)
+      {
+        RemoveChild(*it);
+        it = m_Elements.erase(it);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+    else
+    {
+      ++it;
+    }
+  }
+
   // Update debug entities TTL and remove expired ones
   if (!m_DebugEntities.empty())
   {

@@ -80,6 +80,34 @@ std::vector<DebugDrawInfo> CollisionResponse::ResolveCollision(const std::shared
             const float j = (denom > 0.0f) ? (-(1.0f + e) * velAlongNormal / denom) : 0.0f;
             const glm::vec2 impulse = j * normal;
 
+            // Calculate and apply damage based on collision impulse
+            constexpr float kDamageImpactFactor = 0.15f; // Conversion factor from impulse to damage
+            constexpr float kMinDamageThreshold = 1.0f;  // Minimum impulse needed to cause damage
+            const float absJ = std::fabs(j);
+
+            if (absJ > kMinDamageThreshold)
+            {
+                // Damage distribution: both objects share damage proportionally to their inverse mass
+                // Static objects don't take damage, but moving objects do
+                const float baseDamage = (absJ - kMinDamageThreshold) * kDamageImpactFactor;
+
+                // Apply damage to object A
+                if (!aStaticOnly && baseDamage > 0.0f && ca->GetEntityKind() != Character::EntityKind::Bird)
+                {
+                    const float resistanceA = CollisionUtils::GetDamageResistance(ca->GetMaterialType());
+                    const float damageA = baseDamage / resistanceA;
+                    ca->ApplyDamage(damageA);
+                }
+
+                // Apply damage to object B
+                if (!bStaticOnly && baseDamage > 0.0f && cb->GetEntityKind() != Character::EntityKind::Bird)
+                {
+                    const float resistanceB = CollisionUtils::GetDamageResistance(cb->GetMaterialType());
+                    const float damageB = baseDamage / resistanceB;
+                    cb->ApplyDamage(damageB);
+                }
+            }
+
             // Friction
             glm::vec2 tangent = relVel - velAlongNormal * normal;
             float tangentLen = glm::length(tangent);

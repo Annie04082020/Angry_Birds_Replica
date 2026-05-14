@@ -40,6 +40,26 @@ namespace CollisionUtils
         }
     }
 
+    // Damage resistance factor: lower value = more easily damaged
+    float GetDamageResistance(Character::MaterialType mat)
+    {
+        switch (mat)
+        {
+        case Character::MaterialType::Flesh:
+            return 0.8f; // Living creatures take more damage
+        case Character::MaterialType::Wood:
+            return 1.0f; // Base damage resistance
+        case Character::MaterialType::Stone:
+            return 1.5f; // Stone is harder, needs more impact
+        case Character::MaterialType::Glass:
+            return 0.9f; // Glass is brittle
+        case Character::MaterialType::Ice:
+            return 0.7f; // Ice is fragile
+        default:
+            return 1.0f;
+        }
+    }
+
     bool ComputeOBBMTV(const Character &A, const Character &B,
                        glm::vec2 &outNormal, float &outDepth,
                        glm::vec2 &outContactPoint)

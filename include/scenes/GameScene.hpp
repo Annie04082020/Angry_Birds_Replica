@@ -33,6 +33,7 @@ private:
     std::shared_ptr<SceneInputController> m_SceneInputController = nullptr;
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
     float m_ZoomScrollAccumulator = 0.0f;
+    bool m_ShowDamageHud = false;
 };
 
 #endif // GAME_SCENE_HPP

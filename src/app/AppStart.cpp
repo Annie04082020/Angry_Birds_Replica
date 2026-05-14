@@ -66,9 +66,9 @@ bool App::TransitionToGame()
   }
   LOG_DEBUG("Transitioning to GAME state");
 
-  if (!LoadLevel(Resource::LEVEL_1_DATA))
+  if (!LoadLevel(Resource::LEVEL_1_TEST_DATA))
   {
-    LOG_ERROR("Failed to load level 1");
+    LOG_ERROR("Failed to load test level 1");
     return false;
   }
 

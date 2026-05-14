@@ -2,6 +2,7 @@
 #define CHARACTER_HPP
 
 #include <string>
+#include <algorithm>
 
 #include "Util/GameObject.hpp"
 #include "Util/Input.hpp"
@@ -40,6 +41,16 @@ public:
     bool isSleeping = false; // temporary sleep state (not permanently immovable)
   };
 
+  // Damage state levels for sprite/image switching
+  enum class DamageState
+  {
+    Undamaged = 0,
+    Light = 1,
+    Moderate = 2,
+    Heavy = 3,
+    Critical = 4
+  };
+
   explicit Character(const std::string &ImagePath);
 
   Character(const Character &) = delete;
@@ -51,6 +62,10 @@ public:
   Character &operator=(Character &&) = delete;
 
   [[nodiscard]] const std::string &GetImagePath() const { return m_ImagePath; }
+
+  [[nodiscard]] const std::string &GetBaseImageId() const { return m_BaseImageId; }
+
+  void SetBaseImageId(const std::string &id) { m_BaseImageId = id; }
 
   [[nodiscard]] const glm::vec2 &GetPosition() const
   {
@@ -177,6 +192,83 @@ public:
       m_Transform.scale = {1.0f, 1.0f};
     }
   }
+
+  // Health and damage system
+  [[nodiscard]] float GetHealth() const { return m_Health; }
+
+  [[nodiscard]] float GetMaxHealth() const { return m_MaxHealth; }
+
+  void SetHealth(float health)
+  {
+    m_Health = health;
+    m_MaxHealth = std::max(m_MaxHealth, health);
+  }
+
+  void SetMaxHealth(float maxHealth)
+  {
+    if (maxHealth > 0.0f)
+    {
+      m_MaxHealth = maxHealth;
+      m_Health = std::min(m_Health, m_MaxHealth);
+    }
+  }
+
+  // Set number of available damage state images for dynamic threshold calculation
+  void SetNumDamageStates(int numStates)
+  {
+    m_NumDamageStates = std::max(1, numStates);
+  }
+
+  [[nodiscard]] int GetNumDamageStates() const { return m_NumDamageStates; }
+
+  // Returns true if entity dies (health <= 0), false otherwise
+  bool ApplyDamage(float damageAmount)
+  {
+    if (damageAmount < 0.0f)
+      damageAmount = 0.0f;
+    m_Health = std::max(0.0f, m_Health - damageAmount);
+    return m_Health <= 0.0f;
+  }
+
+  // Get current damage state for sprite selection
+  // Dynamically calculates damage state based on number of available damage variant images
+  [[nodiscard]] DamageState GetDamageState() const
+  {
+    if (m_MaxHealth <= 0.0f)
+      return DamageState::Undamaged;
+
+    const float healthPercent = m_Health / m_MaxHealth;
+
+    // With m_NumDamageStates variants (e.g., 3 images = _1, _2, _3),
+    // we can have (m_NumDamageStates - 1) distinct damage thresholds
+    // Example: 3 variants -> thresholds at 66.7%, 33.3% -> states [0, 1, 2]
+    const int maxStateValue = std::max(0, m_NumDamageStates - 2);
+    if (maxStateValue <= 0)
+      return DamageState::Undamaged;
+
+    // Calculate which damage state based on health percentage
+    for (int i = 0; i <= maxStateValue; ++i)
+    {
+      const float threshold = 1.0f - (static_cast<float>(i) / static_cast<float>(m_NumDamageStates - 1));
+      if (healthPercent > threshold)
+      {
+        return static_cast<DamageState>(i);
+      }
+    }
+
+    // If health is at or below all thresholds, return highest damage state
+    return static_cast<DamageState>(maxStateValue);
+  }
+
+  // Store previous damage state for detecting changes
+  [[nodiscard]] DamageState GetPreviousDamageState() const { return m_PreviousDamageState; }
+
+  void SetPreviousDamageState(DamageState state) { m_PreviousDamageState = state; }
+
+  [[nodiscard]] bool IsDestroyed() const { return m_IsDestroyed; }
+
+  void SetDestroyed(bool destroyed) { m_IsDestroyed = destroyed; }
+
   // TODO: Add and implement more methods and properties as needed to finish
   // Giraffe Adventure.
 
@@ -184,9 +276,15 @@ private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }
 
   std::string m_ImagePath;
+  std::string m_BaseImageId; // Original image ID for damage state switching
   PhysicsState m_PhysicsState;
   EntityKind m_EntityKind = EntityKind::Unknown;
   MaterialType m_MaterialType = MaterialType::None;
+  float m_Health = 1.0f;
+  float m_MaxHealth = 1.0f;
+  DamageState m_PreviousDamageState = DamageState::Undamaged;
+  bool m_IsDestroyed = false;
+  int m_NumDamageStates = 5; // Default to 5 states (undamaged + 4 variants)
 };
 
 #endif // CHARACTER_HPP
