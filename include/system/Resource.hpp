@@ -91,8 +91,11 @@ namespace Resource
     const std::string STONE_21x20_3 = RESOURCE_DIR "/Image/stone/sprite_109.png";
 
     // ice 1 to 4: complete to broken
-    const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
-
+    const std::string ICE_83x20_1 = RESOURCE_DIR "/Image/ice/sprite_005.png";
+    const std::string ICE_83x20_2 = RESOURCE_DIR "/Image/ice/sprite_002.png";
+    const std::string ICE_83x20_3 = RESOURCE_DIR "/Image/ice/sprite_065.png";
+    const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
+    
     // UI
     const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
     const std::string Exit_Button = RESOURCE_DIR "/Image/ui/button/sprite_070.png";

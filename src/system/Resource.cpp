@@ -18,7 +18,12 @@ namespace Resource
             {"BIRD_BLUE", BIRD_B},
             {"SLINGSHOT_1", SLINGSHOT_1},
             {"SLINGSHOT_2", SLINGSHOT_2},
-            {"ICE_005", RESOURCE_DIR "/Image/ice/sprite_005.png"},
+            // Ice entries
+            {"ICE_83x20",   ICE_83x20_1},
+            {"ICE_83x20_1", ICE_83x20_1},
+            {"ICE_83x20_2", ICE_83x20_2},
+            {"ICE_83x20_3", ICE_83x20_3},
+            {"ICE_83x20_4", ICE_83x20_4},
             {"PIG_SMALL", PIG_SMALL},
             // Wood entries (matching updated Resource.hpp)
             {"WOOD_stage", WOOD_stage},
