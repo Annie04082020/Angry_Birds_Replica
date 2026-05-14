@@ -151,6 +151,9 @@ namespace
             // Apply health from template
             character.SetMaxHealth(definition->health);
             character.SetHealth(definition->health);
+            // Apply health from template
+            character.SetMaxHealth(definition->health);
+            character.SetHealth(definition->health);
         }
 
         if (character.GetEntityKind() == Character::EntityKind::Unknown)

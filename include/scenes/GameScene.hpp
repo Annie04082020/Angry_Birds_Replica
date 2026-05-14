@@ -66,7 +66,6 @@ private:
     bool m_PauseMenuInputBlockedUntilRelease = false;
     bool m_IsMusicMuted = false;
     float m_ZoomScrollAccumulator = 0.0f;
-    float m_DamageOutputTimer = 0.0f;
     bool m_ShowDamageHud = false;
 };
 

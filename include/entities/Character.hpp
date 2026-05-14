@@ -270,22 +270,24 @@ public:
 
     const float healthPercent = m_Health / m_MaxHealth;
 
-    // With m_NumDamageStates variants, we have equally spaced thresholds.
-    // Example: 4 states -> >75% (0), >50% (1), >25% (2), <=25% (3).
-    const int maxStateValue = m_NumDamageStates - 1;
+    // With m_NumDamageStates variants (e.g., 3 images = _1, _2, _3),
+    // we can have (m_NumDamageStates - 1) distinct damage thresholds
+    // Example: 3 variants -> thresholds at 66.7%, 33.3% -> states [0, 1, 2]
+    const int maxStateValue = std::max(0, m_NumDamageStates - 2);
     if (maxStateValue <= 0)
       return DamageState::Undamaged;
 
-    for (int i = 0; i < maxStateValue; ++i)
+    // Calculate which damage state based on health percentage
+    for (int i = 0; i <= maxStateValue; ++i)
     {
-      const float threshold = 1.0f - (static_cast<float>(i + 1) / static_cast<float>(m_NumDamageStates));
+      const float threshold = 1.0f - (static_cast<float>(i) / static_cast<float>(m_NumDamageStates - 1));
       if (healthPercent > threshold)
       {
         return static_cast<DamageState>(i);
       }
     }
 
-    // If health is at or below the lowest threshold, return highest damage state
+    // If health is at or below all thresholds, return highest damage state
     return static_cast<DamageState>(maxStateValue);
   }
 
@@ -305,9 +307,15 @@ private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }
 
   std::string m_ImagePath;
+  std::string m_BaseImageId; // Original image ID for damage state switching
   PhysicsState m_PhysicsState;
   EntityKind m_EntityKind = EntityKind::Unknown;
   MaterialType m_MaterialType = MaterialType::None;
+  float m_Health = 1.0f;
+  float m_MaxHealth = 1.0f;
+  DamageState m_PreviousDamageState = DamageState::Undamaged;
+  bool m_IsDestroyed = false;
+  int m_NumDamageStates = 5; // Default to 5 states (undamaged + 4 variants)
 };
 
 #endif // CHARACTER_HPP
