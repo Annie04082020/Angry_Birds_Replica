@@ -8,6 +8,7 @@
 
 #include "config.hpp"
 
+#include "Resource.hpp"
 #include "Util/Input.hpp"
 #include "Util/Text.hpp"
 #include "Util/TransformUtils.hpp"
@@ -15,7 +16,6 @@
 namespace
 {
     constexpr float kGrassTopRatio = 404.0f / 563.0f;
-
     std::string GetHudLabel(const std::shared_ptr<Character> &object)
     {
         if (!object)
@@ -63,6 +63,11 @@ namespace
 
         return out.str();
     }
+
+    constexpr float kGameHudButtonScale = 0.75f;
+    constexpr float kGameHudLeftPadding = 52.0f;
+    constexpr float kGameHudTopPadding = 52.0f;
+    constexpr float kGameHudButtonSpacing = 92.0f;
 }
 
 bool GameScene::LoadLevel(const std::string &levelPath)
@@ -104,6 +109,9 @@ bool GameScene::LoadLevel(const std::string &levelPath)
         std::cout << "\n=== Test Level Loaded: " << m_LevelManager->GetLevelName() << " ===\n";
         std::cout << BuildDamageHudText(objects) << std::endl;
     }
+
+    BuildLevelHud();
+    UpdateHudPositions();
 
     m_SceneInputController = std::make_shared<SceneInputController>(m_DynamicBackground, m_LevelManager);
 
@@ -176,5 +184,47 @@ void GameScene::Update()
         }
     }
 
+    UpdateHudPositions();
     Scene::Update();
+}
+
+void GameScene::BuildLevelHud()
+{
+    m_LeftTopButton093 = std::make_shared<Button>(Resource::Game_Button_093);
+    m_LeftTopButton093->SetZIndex(95.0f);
+    m_LeftTopButton093->SetScale({kGameHudButtonScale, kGameHudButtonScale});
+    m_LeftTopButton093->SetVisible(true);
+    AddElements(m_LeftTopButton093);
+
+    m_LeftTopButton039 = std::make_shared<Button>(Resource::Game_Button_039);
+    m_LeftTopButton039->SetZIndex(95.0f);
+    m_LeftTopButton039->SetScale({kGameHudButtonScale, kGameHudButtonScale});
+    m_LeftTopButton039->SetVisible(true);
+    AddElements(m_LeftTopButton039);
+}
+
+void GameScene::UpdateHudPositions()
+{
+    if (!m_LeftTopButton093 && !m_LeftTopButton039)
+    {
+        return;
+    }
+
+    const glm::vec2 cameraPos = Util::GetCameraPosition();
+    const glm::vec2 viewportSize = Util::GetViewportSize();
+    const float zoom = Util::GetCameraZoom();
+    const glm::vec2 topLeftAnchor = cameraPos +
+                                    glm::vec2{
+                                        -viewportSize.x * 0.5f / zoom + kGameHudLeftPadding / zoom,
+                                        viewportSize.y * 0.5f / zoom - kGameHudTopPadding / zoom};
+
+    if (m_LeftTopButton093)
+    {
+        m_LeftTopButton093->SetPosition(topLeftAnchor);
+    }
+
+    if (m_LeftTopButton039)
+    {
+        m_LeftTopButton039->SetPosition(topLeftAnchor + glm::vec2{kGameHudButtonSpacing / zoom, 0.0f});
+    }
 }

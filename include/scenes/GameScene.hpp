@@ -6,6 +6,7 @@
 #include "BirdLaunchController.hpp"
 #include "SceneInputController.hpp"
 #include "Scene.hpp"
+#include "ui/Button.hpp"
 
 class GameScene : public Scene
 {
@@ -28,10 +29,15 @@ public:
     void Update() override;
 
 private:
+    void BuildLevelHud();
+    void UpdateHudPositions();
+
     std::shared_ptr<LevelManager> m_LevelManager = std::make_shared<LevelManager>();
     std::shared_ptr<BirdLaunchController> m_BirdLaunchController = std::make_shared<BirdLaunchController>();
     std::shared_ptr<SceneInputController> m_SceneInputController = nullptr;
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
+    std::shared_ptr<Button> m_LeftTopButton093 = nullptr;
+    std::shared_ptr<Button> m_LeftTopButton039 = nullptr;
     float m_ZoomScrollAccumulator = 0.0f;
     bool m_ShowDamageHud = false;
 };
