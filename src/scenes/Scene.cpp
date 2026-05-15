@@ -209,8 +209,18 @@ void Scene::Update()
         glm::vec2 pos = ch->GetPosition();
         pos.y = this->m_WorldFloorY + worldHalfY;
         ch->SetPosition(pos);
-        ch->SetVelocity({0.0f, 0.0f});
-        ch->SetAngularVelocity(0.0f);
+        
+        glm::vec2 vel = ch->GetVelocity();
+        if (vel.y < 0.0f) vel.y = 0.0f;
+        
+        // Apply ground friction when sliding on the global floor 
+        // (since it's a hardcoded boundary, not an OBB with friction)
+        vel.x *= 0.95f; 
+        
+        ch->SetVelocity(vel);
+        
+        // Add a slight angular damping when rolling on the global floor
+        ch->SetAngularVelocity(ch->GetAngularVelocity() * 0.95f);
       }
     }
 

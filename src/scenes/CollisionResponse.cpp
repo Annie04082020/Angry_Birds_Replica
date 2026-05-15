@@ -237,8 +237,10 @@ void CollisionResponse::SolveVelocity(ContactManifold& cm, bool damageEnabled)
 // ─────────────────────────────────────────────
 void CollisionResponse::SolvePosition(ContactManifold& cm)
 {
-    constexpr float kBeta = 0.25f; // correction factor (Box2D default 0.2)
-    constexpr float kSlop = 0.01f; // allow small penetration
+    // Box2D default is 0.2. A lower value (0.15) makes objects push apart softer,
+    // reducing the "bouncy" jitter feeling when heavy stacks push against each other.
+    constexpr float kBeta = 0.15f; 
+    constexpr float kSlop = 0.01f;
 
     if (cm.penetration <= kSlop) return;
 
