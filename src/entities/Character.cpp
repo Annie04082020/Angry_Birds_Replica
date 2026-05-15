@@ -56,8 +56,9 @@ void Character::IntegratePhysics(float deltaTimeSeconds)
     m_Transform.translation += m_PhysicsState.velocity * deltaTimeSeconds;
     m_Transform.rotation += m_PhysicsState.angularVelocity * deltaTimeSeconds;
 
-    // Apply angular damping to reduce runaway spinning (exponential decay)
-    constexpr float kAngularDamping = 3.0f; // per second
+    // Apply angular damping to reduce runaway spinning (exponential decay).
+    // 8.0/s: after 0.5s angular velocity decays to ~2% of original.
+    constexpr float kAngularDamping = 8.0f; // per second
     m_PhysicsState.angularVelocity *= std::exp(-kAngularDamping * deltaTimeSeconds);
 }
 

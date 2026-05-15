@@ -3,6 +3,7 @@
 
 #include "BGM.hpp"
 #include "Util/GameObject.hpp"
+#include "scenes/ContactManifold.hpp"
 #include <functional>
 #include <memory>
 #include <vector>
@@ -79,14 +80,8 @@ protected:
   // collision now provides SAT/MTV contact data (normal, depth and
   // an approximate contact point) to allow accurate positional correction
   // and torque computation.
-  virtual void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                               const std::shared_ptr<Util::GameObject> &b,
-                               const glm::vec2 &contactNormal,
-                               float penetrationDepth,
-                               const glm::vec2 &contactPoint,
-                               bool stabilizing = false);
-  // Run collision detection with optional multiple passes. When `stabilizing` is true
-  // positional correction uses more aggressive constants to converge overlaps.
+  // Rebuild contact manifold list and run the SI solver.
+  // stabilizing=true: position-only correction, no velocity solve, no warm-start.
   void RunCollisionDetection(int passes = 1, bool stabilizing = false);
 
   // Physics fixed-timestep accumulator (seconds)
@@ -107,6 +102,15 @@ protected:
   float m_WorldFloorY = -320.0f;
   void SetWorldFloorY(float y) { m_WorldFloorY = y; }
   float GetWorldFloorY() const { return m_WorldFloorY; }
+
+  // Grace period: no damage is applied for this many seconds after level load.
+  // This prevents initial settling impulses (which are NOT covered by !stabilizing)
+  // from destroying objects before the first bird is even launched.
+  float m_DamageImmunityTimer = 2.0f;
+  [[nodiscard]] bool IsDamageImmune() const { return m_DamageImmunityTimer > 0.0f; }
+
+  // Persisted contact manifolds for warm-starting the SI solver.
+  std::vector<ContactManifold> m_Contacts;
 
 private:
   std::function<void()> m_OnUpdate = nullptr;

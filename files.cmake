@@ -39,6 +39,7 @@ set(INCLUDE_FILES
     scenes/Scene.hpp
     scenes/CollisionUtils.hpp
     scenes/CollisionResponse.hpp
+    scenes/ContactManifold.hpp
     scenes/SleepSupport.hpp
     scenes/DebugUtils.hpp
     controllers/BirdLaunchController.hpp

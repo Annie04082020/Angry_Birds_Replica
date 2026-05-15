@@ -81,7 +81,7 @@ void Scene::Init()
   }
 
   // Run a short stabilization pass so environment pieces settle before gameplay
-  StabilizeEnvironment(40);
+  StabilizeEnvironment(120);
 }
 
 void Scene::StabilizeEnvironment(int steps)
@@ -96,8 +96,8 @@ void Scene::StabilizeEnvironment(int steps)
   // First, run a few positional-only relaxation passes with no gravity to remove
   // tiny initial overlaps caused by level placement rounding. This prevents gravity
   // from immediately driving pieces through small gaps and creating cascade collapse.
-  constexpr int kInitialRelaxPasses = 12;
-  RunCollisionDetection(8, true); // one initial pass to ensure basic corrections
+  constexpr int kInitialRelaxPasses = 25; // more passes to clear initial overlaps first
+  RunCollisionDetection(8, true);
   for (int r = 0; r < kInitialRelaxPasses; ++r)
   {
     RunCollisionDetection(8, true);
@@ -128,23 +128,21 @@ void Scene::StabilizeEnvironment(int steps)
     RunCollisionDetection(kStabilizationPasses, true);
   }
 
-  // After stabilization steps, mark settled environment objects as sleeping
+  // Force ALL environment objects to sleep and zero their velocity.
+  // Impulse-based physics cannot perfectly converge to static equilibrium in a
+  // finite number of steps. Objects that haven't settled within the step budget
+  // would carry residual velocity into gameplay and continue to wobble.
+  // The 2-second grace period (m_DamageImmunityTimer) handles any remaining
+  // micro-settling after this forced freeze.
   for (auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
-    if (!ch)
-      continue;
-    if (ch->GetEntityKind() != Character::EntityKind::Environment)
-      continue;
-    if (ch->IsStatic())
-      continue;
-    if (glm::length(ch->GetVelocity()) < settleSpeedThreshold && std::fabs(ch->GetAngularVelocity()) < settleAngularThreshold)
-    {
-      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "stabilize_settled");
-      ch->SetSleeping(true);
-      ch->SetVelocity({0.0f, 0.0f});
-      ch->SetAngularVelocity(0.0f);
-    }
+    if (!ch) continue;
+    if (ch->GetEntityKind() != Character::EntityKind::Environment) continue;
+    if (ch->IsStatic()) continue;
+    ch->SetSleeping(true);
+    ch->SetVelocity({0.0f, 0.0f});
+    ch->SetAngularVelocity(0.0f);
   }
 }
 
@@ -159,6 +157,9 @@ void Scene::Update()
 
   m_Accumulator += deltaSec;
   m_DebugDrawCooldown = std::max(0.0f, m_DebugDrawCooldown - deltaSec);
+  // Count down the post-load grace period during which no damage is applied.
+  if (m_DamageImmunityTimer > 0.0f)
+    m_DamageImmunityTimer = std::max(0.0f, m_DamageImmunityTimer - deltaSec);
 
   int substeps = 0;
   while (m_Accumulator >= m_PhysicsStep && substeps < m_MaxSubSteps)
@@ -213,7 +214,6 @@ void Scene::Update()
       }
     }
 
-    // Run collision detection per physics step
     RunCollisionDetection();
 
     m_Accumulator -= m_PhysicsStep;
@@ -371,107 +371,140 @@ void Scene::Update()
 
 void Scene::RunCollisionDetection(int passes, bool stabilizing)
 {
-  if (passes <= 0)
-    passes = 1;
+  if (passes <= 0) passes = 1;
+
+  // ── Build character list ──────────────────────────────────────────────
   std::vector<std::shared_ptr<Character>> characters;
   characters.reserve(m_Elements.size());
   std::vector<std::shared_ptr<Character>> sleepingDynamics;
   auto supportConfirmed = SleepSupport::CreateSupportConfirmedSet();
 
-  for (const auto &element : m_Elements)
+  for (const auto& element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
     if (ch && ch->GetEntityKind() != Character::EntityKind::Slingshot)
     {
       characters.push_back(ch);
       if (ch->IsSleeping() && !ch->IsStatic())
-      {
         sleepingDynamics.push_back(ch);
-      }
     }
   }
 
-  for (int pass = 0; pass < passes; ++pass)
+  // ── BroadPhase + NarrowPhase: update ContactManifold list ─────────────
+  // Mark all existing contacts as inactive; they'll be reactivated if still colliding.
+  for (auto& cm : m_Contacts) cm.active = false;
+
+  for (size_t i = 0; i < characters.size(); ++i)
   {
-    for (size_t i = 0; i < characters.size(); ++i)
+    for (size_t j = i + 1; j < characters.size(); ++j)
     {
-      for (size_t j = i + 1; j < characters.size(); ++j)
+      auto ca = characters[i];
+      auto cb = characters[j];
+
+      glm::vec2 normal, contactPoint;
+      float penetration = 0.f;
+      if (!CollisionUtils::ComputeOBBMTV(*ca, *cb, normal, penetration, contactPoint))
+        continue;
+
+      // Sleep support tracking
+      if (ca->IsSleeping() && !ca->IsStatic() &&
+          SleepSupport::IsBottomSupportContact(ca, cb, contactPoint))
+        supportConfirmed.insert(ca.get());
+      if (cb->IsSleeping() && !cb->IsStatic() &&
+          SleepSupport::IsBottomSupportContact(cb, ca, contactPoint))
+        supportConfirmed.insert(cb.get());
+
+      // Find or create manifold for this pair
+      ContactManifold* found = nullptr;
+      for (auto& cm : m_Contacts)
       {
-        auto ca = characters[i];
-        auto cb = characters[j];
-
-        glm::vec2 contactNormal, contactPoint;
-        float penetration = 0.0f;
-        if (CollisionUtils::ComputeOBBMTV(*ca, *cb, contactNormal, penetration, contactPoint))
+        if (cm.Matches(ca.get(), cb.get()))
         {
-          // Track whether sleeping objects still have bottom support contact.
-          if (ca->IsSleeping() && !ca->IsStatic() && SleepSupport::IsBottomSupportContact(ca, cb, contactPoint))
-          {
-            supportConfirmed.insert(ca.get());
-          }
-          if (cb->IsSleeping() && !cb->IsStatic() && SleepSupport::IsBottomSupportContact(cb, ca, contactPoint))
-          {
-            supportConfirmed.insert(cb.get());
-          }
-
-          HandleCollision(ca, cb, contactNormal, penetration, contactPoint, stabilizing);
+          found = &cm;
+          break;
         }
       }
+
+      if (!found)
+      {
+        // New contact – create fresh manifold (no warm-start yet)
+        ContactManifold cm;
+        cm.a = ca.get();
+        cm.b = cb.get();
+        m_Contacts.push_back(cm);
+        found = &m_Contacts.back();
+      }
+
+      // If contact was stored in reversed order, flip accumulated impulses
+      bool flip = !found->SameOrder(ca.get(), cb.get());
+
+      found->a            = ca.get();
+      found->b            = cb.get();
+      found->normal       = normal;  // always a→b
+      found->tangent      = glm::vec2(-normal.y, normal.x);
+      found->contactPoint = contactPoint;
+      found->penetration  = penetration;
+      found->active       = true;
+      if (flip)
+      {
+        // Normal flipped – negate accumulated tangent (friction reversed too)
+        found->normalImpulse  = found->normalImpulse; // stays positive
+        found->tangentImpulse = -found->tangentImpulse;
+      }
     }
   }
 
-  // During gameplay, wake sleeping objects that have truly lost support.
-  if (!stabilizing)
+  // Remove stale (no-longer-colliding) contacts and zero their impulses
+  m_Contacts.erase(
+    std::remove_if(m_Contacts.begin(), m_Contacts.end(),
+                   [](const ContactManifold& cm) { return !cm.active; }),
+    m_Contacts.end());
+
+  // ── Solve ──────────────────────────────────────────────────────────────
+  if (stabilizing)
   {
-    for (const auto &ch : sleepingDynamics)
+    // Stabilization: position-only (no velocity changes, no warm-start).
+    // We want a stable static layout, not accurate velocity propagation.
+    for (int p = 0; p < passes; ++p)
+      for (auto& cm : m_Contacts)
+        CollisionResponse::SolvePosition(cm);
+
+    // Zero accumulated impulses so stabilization doesn't pollute gameplay warm-start
+    for (auto& cm : m_Contacts)
+    {
+      cm.normalImpulse  = 0.f;
+      cm.tangentImpulse = 0.f;
+    }
+  }
+  else
+  {
+    // Gameplay: warm-start → velocity iterations → position iterations
+    for (auto& cm : m_Contacts)
+      CollisionResponse::WarmStart(cm);
+
+    const bool damageEnabled = !IsDamageImmune();
+    constexpr int kVelIterations = 10;
+    for (int iter = 0; iter < kVelIterations; ++iter)
+      for (auto& cm : m_Contacts)
+        CollisionResponse::SolveVelocity(cm, damageEnabled);
+
+    constexpr int kPosIterations = 3;
+    for (int iter = 0; iter < kPosIterations; ++iter)
+      for (auto& cm : m_Contacts)
+        CollisionResponse::SolvePosition(cm);
+
+    // Wake sleeping objects that have lost geometric support
+    for (const auto& ch : sleepingDynamics)
     {
       if (supportConfirmed.find(ch.get()) != supportConfirmed.end())
         continue;
       if (SleepSupport::IsGeometricallySupported(ch, m_Elements, m_WorldFloorY))
         continue;
 
-      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "lost_support_wake");
+      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(),
+                                   ch->GetVelocity(), ch->GetAngularVelocity(),
+                                   "lost_support_wake");
       ch->SetSleeping(false);
-    }
-  }
-}
-
-void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                            const std::shared_ptr<Util::GameObject> &b,
-                            const glm::vec2 &contactNormal,
-                            float penetrationDepth,
-                            const glm::vec2 &contactPoint,
-                            bool stabilizing)
-{
-  // Delegate physics resolution to the CollisionResponse helper which returns debug draw entries.
-  auto ca = std::dynamic_pointer_cast<Character>(a);
-  auto cb = std::dynamic_pointer_cast<Character>(b);
-  if (!(ca && cb))
-    return;
-
-  if (ca->GetEntityKind() == Character::EntityKind::Slingshot || cb->GetEntityKind() == Character::EntityKind::Slingshot)
-    return;
-
-  auto debugInfos = CollisionResponse::ResolveCollision(ca, cb, contactNormal, penetrationDepth, contactPoint, stabilizing);
-
-  if (!debugInfos.empty() && kEnableCollisionDebugBoxes && m_DebugDrawCooldown <= 0.0f)
-  {
-    m_DebugDrawCooldown = m_DebugDrawInterval;
-    try
-    {
-      for (const auto &info : debugInfos)
-      {
-        auto debugDraw = std::make_shared<Util::DebugBox>(info.color, 0.02f);
-        auto go = std::make_shared<Util::GameObject>(debugDraw, 100.0f);
-        go->m_Transform.translation = info.pos;
-        go->m_Transform.rotation = info.rotation;
-        go->m_Transform.scale = info.scale;
-        AddElements(go);
-        m_DebugEntities.push_back({go, info.ttl});
-      }
-    }
-    catch (...)
-    {
     }
   }
 }

@@ -29,7 +29,7 @@ namespace CollisionUtils
         case Character::MaterialType::Flesh:
             return 0.6f;
         case Character::MaterialType::Wood:
-            return 0.7f;
+            return 1.2f; // High friction - wood is rough, especially the stage floor
         case Character::MaterialType::Stone:
             return 0.9f;
         case Character::MaterialType::Glass:
@@ -97,6 +97,7 @@ namespace CollisionUtils
             outAxisDir = n;
             return overlap >= 0.0f;
         };
+
 
         // Test axes and find minimum penetration
         float minOverlap = FLT_MAX;
