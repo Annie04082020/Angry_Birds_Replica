@@ -299,17 +299,10 @@ void Scene::Update()
       // Notify subclasses about character death
       OnCharacterDeath(character);
 
-      // Remove pigs from the scene. Environment pieces stay visible in their
-      // final damaged state so the player can still see the broken object.
-      if (kind == Character::EntityKind::Pig || kind == Character::EntityKind::Unknown)
-      {
-        RemoveChild(*it);
-        it = m_Elements.erase(it);
-      }
-      else
-      {
-        ++it;
-      }
+      // Remove dead objects from the scene (Pigs and Environment blocks like wood/ice)
+      // When their health reaches 0, they should shatter/disappear.
+      RemoveChild(*it);
+      it = m_Elements.erase(it);
     }
     else
     {
