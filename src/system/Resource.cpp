@@ -118,6 +118,9 @@ namespace Resource
             {"SETTING_SFX", SETTING_SFX},
             {"LEVEL_1_DATA", LEVEL_1_DATA},
             {"LEVEL_1_TEST_DATA", LEVEL_1_TEST_DATA},
+            {"LEVEL_2_DATA", LEVEL_2_DATA},
+            {"LEVEL_9_DATA", LEVEL_9_DATA},
+            {"DEFAULT_LEVEL_DATA", DEFAULT_LEVEL_DATA},
             {"INTRO_LAYOUT_DATA", INTRO_LAYOUT_DATA},
             {"ENTITY_TEMPLATE_DATA", ENTITY_TEMPLATE_DATA}};
 

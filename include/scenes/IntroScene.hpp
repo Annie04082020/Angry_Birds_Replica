@@ -14,6 +14,7 @@ class IntroScene : public Scene
 public:
     static std::shared_ptr<IntroScene> Create();
     void Update() override;
+    void SetMenuVisible(bool visible);
 
     void SetOnPlayClickCallback(std::function<bool()> callback)
     {
@@ -24,6 +25,8 @@ protected:
     IntroScene(std::shared_ptr<DynamicBackground> bg);
 
 private:
+    void HideExitPanel();
+
     std::shared_ptr<DynamicBackground> m_movingBg;
     std::shared_ptr<Character> m_bird;
     std::shared_ptr<Button> m_playbutton;
