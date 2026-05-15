@@ -270,24 +270,22 @@ public:
 
     const float healthPercent = m_Health / m_MaxHealth;
 
-    // With m_NumDamageStates variants (e.g., 3 images = _1, _2, _3),
-    // we can have (m_NumDamageStates - 1) distinct damage thresholds
-    // Example: 3 variants -> thresholds at 66.7%, 33.3% -> states [0, 1, 2]
-    const int maxStateValue = std::max(0, m_NumDamageStates - 2);
+    // With m_NumDamageStates variants, we have equally spaced thresholds.
+    // Example: 4 states -> >75% (0), >50% (1), >25% (2), <=25% (3).
+    const int maxStateValue = m_NumDamageStates - 1;
     if (maxStateValue <= 0)
       return DamageState::Undamaged;
 
-    // Calculate which damage state based on health percentage
-    for (int i = 0; i <= maxStateValue; ++i)
+    for (int i = 0; i < maxStateValue; ++i)
     {
-      const float threshold = 1.0f - (static_cast<float>(i) / static_cast<float>(m_NumDamageStates - 1));
+      const float threshold = 1.0f - (static_cast<float>(i + 1) / static_cast<float>(m_NumDamageStates));
       if (healthPercent > threshold)
       {
         return static_cast<DamageState>(i);
       }
     }
 
-    // If health is at or below all thresholds, return highest damage state
+    // If health is at or below the lowest threshold, return highest damage state
     return static_cast<DamageState>(maxStateValue);
   }
 
