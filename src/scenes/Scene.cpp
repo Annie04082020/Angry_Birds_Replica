@@ -461,38 +461,29 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
     m_Contacts.end());
 
   // ── Solve ──────────────────────────────────────────────────────────────
+  // We ALWAYS need to run velocity solver, even during stabilizing,
+  // otherwise gravity keeps accelerating objects and they explode.
+  
+  for (auto& cm : m_Contacts)
+    CollisionResponse::WarmStart(cm);
+
+  const bool damageEnabled = !stabilizing && !IsDamageImmune();
+  constexpr int kVelIterations = 10;
+  for (int iter = 0; iter < kVelIterations; ++iter)
+    for (auto& cm : m_Contacts)
+      CollisionResponse::SolveVelocity(cm, damageEnabled);
+
+  constexpr int kPosIterations = 3;
+  for (int iter = 0; iter < kPosIterations; ++iter)
+    for (auto& cm : m_Contacts)
+      CollisionResponse::SolvePosition(cm);
+
   if (stabilizing)
   {
-    // Stabilization: position-only (no velocity changes, no warm-start).
-    // We want a stable static layout, not accurate velocity propagation.
-    for (int p = 0; p < passes; ++p)
-      for (auto& cm : m_Contacts)
-        CollisionResponse::SolvePosition(cm);
-
-    // Zero accumulated impulses so stabilization doesn't pollute gameplay warm-start
-    for (auto& cm : m_Contacts)
-    {
-      cm.normalImpulse  = 0.f;
-      cm.tangentImpulse = 0.f;
-    }
+    // During stabilizing, we just want to settle, no need to wake things up yet
   }
   else
   {
-    // Gameplay: warm-start → velocity iterations → position iterations
-    for (auto& cm : m_Contacts)
-      CollisionResponse::WarmStart(cm);
-
-    const bool damageEnabled = !IsDamageImmune();
-    constexpr int kVelIterations = 10;
-    for (int iter = 0; iter < kVelIterations; ++iter)
-      for (auto& cm : m_Contacts)
-        CollisionResponse::SolveVelocity(cm, damageEnabled);
-
-    constexpr int kPosIterations = 3;
-    for (int iter = 0; iter < kPosIterations; ++iter)
-      for (auto& cm : m_Contacts)
-        CollisionResponse::SolvePosition(cm);
-
     // Wake sleeping objects that have lost geometric support
     for (const auto& ch : sleepingDynamics)
     {

@@ -83,7 +83,8 @@ Bodies Setup(ContactManifold& cm)
 // Wake an object if the velocity change is large enough
 void WakeCheck(Character* c, const glm::vec2& dv, float invM)
 {
-    constexpr float kWakeThreshold = 8.f;
+    // Threshold is 15.f (higher than gravity delta ~12.f)
+    constexpr float kWakeThreshold = 15.f;
     if (!c->IsStatic() && c->IsSleeping())
     {
         if (glm::length(dv * invM) > kWakeThreshold)
@@ -121,8 +122,10 @@ void CollisionResponse::WarmStart(ContactManifold& cm)
 
     glm::vec2 P = cm.normalImpulse * cm.normal + cm.tangentImpulse * cm.tangent;
 
-    WakeCheck(bd.a, -P, bd.invMa);
-    WakeCheck(bd.b,  P, bd.invMb);
+    // DO NOT WakeCheck here! Warm starting is just restoring the solver state
+    // for resting contact. A resting contact has a continuous impulse to counteract
+    // gravity (e.g., > 11.6 per frame). If we check it here, it will instantly wake
+    // up sleeping objects every frame!
 
     ApplyImpulse(bd.a, bd.rA, P, bd.invMa, bd.invIa, -1.f);
     ApplyImpulse(bd.b, bd.rB, P, bd.invMb, bd.invIb, +1.f);
@@ -149,8 +152,9 @@ void CollisionResponse::SolveVelocity(ContactManifold& cm, bool damageEnabled)
 
         float e = 0.5f * (CollisionUtils::GetRestitution(bd.a->GetMaterialType()) +
                           CollisionUtils::GetRestitution(bd.b->GetMaterialType()));
-        // Zero out restitution for slow contacts to prevent micro-bounce
-        if (std::fabs(velN) < 2.f) e = 0.f;
+        // Zero out restitution for slow contacts to prevent micro-bounce.
+        // Gravity applies ~11.6 px/s per frame, so threshold should be higher than that.
+        if (std::fabs(velN) < 30.f) e = 0.f;
 
         float denom = EffMass(bd.invMa, bd.invIa, bd.rA, cm.normal) +
                       EffMass(bd.invMb, bd.invIb, bd.rB, cm.normal);
