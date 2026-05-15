@@ -9,6 +9,7 @@
 #include "Util/GameObject.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Util/TransformUtils.hpp"
 
 class Button : public Util::GameObject
 {
@@ -55,12 +56,15 @@ public:
 
   [[nodiscard]] bool IsHovering(const glm::vec2 &mousePos) const
   {
+    const float zoom = Util::GetCameraZoom();
+    const glm::vec2 cameraPos = Util::GetCameraPosition();
+    const glm::vec2 mouseWorldPos = mousePos / zoom + cameraPos;
     auto thisPos = GetPosition();
     auto thisSize = GetSize();
-    return (mousePos.x >= thisPos.x - thisSize.x / 2 &&
-            mousePos.x <= thisPos.x + thisSize.x / 2 &&
-            mousePos.y >= thisPos.y - thisSize.y / 2 &&
-            mousePos.y <= thisPos.y + thisSize.y / 2);
+    return (mouseWorldPos.x >= thisPos.x - thisSize.x / 2 &&
+            mouseWorldPos.x <= thisPos.x + thisSize.x / 2 &&
+            mouseWorldPos.y >= thisPos.y - thisSize.y / 2 &&
+            mouseWorldPos.y <= thisPos.y + thisSize.y / 2);
   }
 
   void SetOnClickFunction(std::function<void()> onClick)

@@ -24,8 +24,12 @@ namespace
       return Resource::LEVEL_2_DATA;
     case 3:
       return Resource::LEVEL_3_DATA;
+    case 4:
+      return Resource::LEVEL_4_DATA;
     case 5:
       return Resource::LEVEL_5_DATA;
+    case 6:
+      return Resource::LEVEL_6_DATA;
     case 9:
       return Resource::LEVEL_9_DATA;
     default:
@@ -128,13 +132,13 @@ bool App::TransitionToGame(const int levelNumber)
   const std::string levelPath = ResolveLevelPath(levelNumber);
   if (levelPath.empty())
   {
-    LOG_WARN("Level %d is not implemented yet", levelNumber);
+    LOG_WARN("Level {} is not implemented yet", levelNumber);
     return false;
   }
 
   if (!LoadLevel(levelPath))
   {
-    LOG_ERROR("Failed to load level %d", levelNumber);
+    LOG_ERROR("Failed to load level {}", levelNumber);
     return false;
   }
 
@@ -151,7 +155,7 @@ bool App::LoadLevel(const std::string &levelPath)
 
   if (m_gameScene && m_gameScene->LoadLevel(levelPath))
   {
-    LOG_DEBUG("Level loaded successfully: %s", levelPath.c_str());
+    LOG_DEBUG("Level loaded successfully: {}", levelPath);
     m_loadingScene->SetVisible(false);
     if (m_introScene)
     {

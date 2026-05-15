@@ -18,7 +18,7 @@
       "scaleMultiplier": 1.55,
       "scalePosition": true,
       "offsetXPercent": 0.0,
-      "offsetYPercent": -0.5,
+      "offsetYPercent": 0.0,
       "scalePivotXPercent": 0.0,
       "scalePivotYPercent": 0.0
     }
@@ -65,21 +65,91 @@
     {
       "type": "BIRD",
       "imageId": "BIRD_BLUE",
-      "heightPercent": 3,
+      "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -22,
       "yPercent": -20
     },
     {
-      "type": "STONE",
-      "imageId": "STONE_205_1",
+      "type": "WOOD",
+      "imageId": "WOOD_ball_1",
       "groupId": "Environment",
-      "widthPercent": 7.0,
-      "heightPercent": 1.25,
-      "rotation": 0.82,
-      "xPercent": 11.6,
-      "yPercent": -8.7
+      "sizePercent": 3,
+      "sizeBase": "width",
+      "rotation": 0.0,
+      "xPercent": 8,
+      "yPercent": 0
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 1.2,
+      "rotation": -1.57,
+      "xPercent": 17.5,
+      "yPercent": -11
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 1.2,
+      "rotation": -1.57,
+      "xPercent": 21,
+      "yPercent": -11
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 1.2,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": -6.8
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 3.5,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": -4.3
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": -1.5
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_41x20",
+      "groupId": "Environment",
+      "widthPercent": 1.6,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": 0.3
+    },
+    {
+      "type": "WOOD",
+      "imageId": "SMILE",
+      "groupId": "Environment",
+      "sizePercent": 3,
+      "sizeBase": "width",
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": 5
     }
     
   ]
