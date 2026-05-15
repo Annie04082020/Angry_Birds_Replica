@@ -23,6 +23,7 @@ set(SRC_FILES
     entities/EntityTemplateDatabase.cpp
     scenes/GameScene.cpp
     scenes/IntroScene.cpp
+    scenes/LevelSelectScene.cpp
     levels/LevelManager.cpp
     system/Resource.cpp
 )
@@ -56,6 +57,7 @@ set(INCLUDE_FILES
     levels/LevelObjectFactory.hpp
     scenes/GameScene.hpp
     scenes/IntroScene.hpp
+    scenes/LevelSelectScene.hpp
     levels/LevelManager.hpp
     system/Resource.hpp
 )

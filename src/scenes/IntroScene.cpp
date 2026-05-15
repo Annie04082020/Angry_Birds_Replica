@@ -1,4 +1,5 @@
 #include "IntroScene.hpp"
+
 #include "BGM.hpp"
 #include "IntroLayout.hpp"
 #include "Resource.hpp"
@@ -39,7 +40,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         layout.additionalButtonBase.xPercent, layout.additionalButtonBase.yPercent, viewportSize);
 
     m_playbutton = std::make_shared<Button>(Resource::Play_Button);
-    // Store menu configuration from JSON
     m_menuItemSpacing = layout.menuConfig.itemSpacing;
     m_menuInitialOffset = layout.menuConfig.initialOffset;
     m_menuAnimationDistance = layout.menuConfig.animationDistance;
@@ -73,7 +73,8 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_menuItem017->SetVisible(false);
         m_additionalMenuItem108->SetVisible(false);
         m_additionalMenuItem006->SetVisible(false);
-        m_additionalMenuItem041->SetVisible(false); });
+        m_additionalMenuItem041->SetVisible(false); 
+        HideExitPanel(); });
 
     m_exitbutton = std::make_shared<Button>(Resource::Exit_Button);
     m_exitbutton->SetZIndex(50);
@@ -90,12 +91,10 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         m_exitDialog->SetVisible(true);
         m_exitPanelVisible = true; });
 
-    // scale: group multiplier, baseScale/overlayScale: per-layer multipliers.
     const float settingBaseScaleValue = layout.settingButtonBase.scale * layout.settingButtonBase.baseScale;
     const float settingOverlayScaleValue =
         layout.settingButtonOverlay.scale * layout.settingButtonOverlay.overlayScale;
 
-    // 使用底圖與覆層分開的按鈕：底圖保留光影設計，覆層（齒輪）單獨旋轉
     m_settingScale = {settingOverlayScaleValue, settingOverlayScaleValue};
     m_settingScaleHover = m_settingScale * layout.settingButtonOverlay.hoverScaleMultiplier;
 
@@ -104,7 +103,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_settingbutton->SetPosition(m_settingButtonPosition);
     m_settingbutton->SetScale({settingBaseScaleValue, settingBaseScaleValue});
     m_settingbutton->SetVisible(true);
-    m_settingbutton->SetHoverScaleMultiplier(layout.settingButtonOverlay.hoverScaleMultiplier); // 啟用 hover 縮放
+    m_settingbutton->SetHoverScaleMultiplier(layout.settingButtonOverlay.hoverScaleMultiplier);
     m_settingbutton->SetSFX(Resource::SETTING_SFX);
     m_settingbutton->SetOnClickFunction([this]()
                                         {
@@ -113,19 +112,16 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation + 3.14159265f);
             m_settingMenuOpen = false;
-            m_menuItemsAnimating = true;  // 啟動動畫回到原位置
-            // 菜單項保持可見，直到動畫完成
+            m_menuItemsAnimating = true;
         } else {
             // 展開菜單：順時針旋轉 180 度
             if (m_settingAnimated)
                 m_settingAnimated->SetOverlayTargetRotation(m_settingOverlay->m_Transform.rotation - 3.14159265f);
             m_settingMenuOpen = true;
             m_menuItemsAnimating = true;
-            // 菜單項visibility由動畫邏輯控制
         }
         if (m_settingAnimated) { /* animation started via SetOverlayTargetRotation */ } });
 
-    // 建立覆層（齒輪），比底圖 z-index 高一層
     m_settingOverlay = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Button_Overlay), 51);
     m_settingOverlay->m_Transform.translation = m_settingButtonPosition + glm::vec2{0.0f, 6.0f};
@@ -148,15 +144,12 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_additionalButton = std::make_shared<Button>(Resource::Additional_Button_Base);
     m_additionalButton->SetZIndex(50);
     m_additionalButton->SetPosition(m_additionalButtonPosition);
-    m_additionalButton->SetScale(
-        {additionalBaseScaleValue, additionalBaseScaleValue});
+    m_additionalButton->SetScale({additionalBaseScaleValue, additionalBaseScaleValue});
     m_additionalButton->SetVisible(true);
-    m_additionalButton->SetHoverScaleMultiplier(
-        layout.additionalButtonOverlay.hoverScaleMultiplier);
+    m_additionalButton->SetHoverScaleMultiplier(layout.additionalButtonOverlay.hoverScaleMultiplier);
     m_additionalButton->SetSFX(Resource::SETTING_SFX);
     m_additionalButton->SetOnClickFunction([this]()
                                            {
-        // Handle menu opening/closing
         if (m_additionalMenuOpen) {
             // Close menu: rotate back
             if (m_additionalAnimated)
@@ -184,7 +177,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
     // Use LayoutUtils helpers for group scaling and menu item layout.
 
-    // Setting menu items - apply JSON configuration and group scaling
     m_menuItem043 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Setting_Menu_Item_043), 20);
     Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem043, layout.settingMenuItems.items, "043", m_settingButtonPosition, layout);
@@ -200,7 +192,6 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem017, layout.settingMenuItems.items, "017", m_settingButtonPosition, layout);
     m_menuItem017->SetVisible(false);
 
-    // Additional menu items - apply JSON configuration and group scaling
     m_additionalMenuItem108 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_108), 20);
     Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem108, layout.additionalMenuItems.items, "108", m_additionalButtonPosition, layout);
@@ -216,37 +207,32 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem041, layout.additionalMenuItems.items, "041", m_additionalButtonPosition, layout);
     m_additionalMenuItem041->SetVisible(false);
 
-    // Exit confirm panel: 048 in the center with 105 (left) and 95 (right) below
     m_exitConfirm048 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Confirm_048), 60);
     m_exitConfirm048->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitConfirm.xPercent, layout.exitConfirm.yPercent, viewportSize);
-    m_exitConfirm048->m_Transform.scale =
-        glm::vec2{layout.exitConfirm.scale, layout.exitConfirm.scale};
+    m_exitConfirm048->m_Transform.scale = glm::vec2{layout.exitConfirm.scale, layout.exitConfirm.scale};
     m_exitConfirm048->SetVisible(false);
 
     m_exitButton105 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_105), 61);
     m_exitButton105->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitNo.xPercent, layout.exitNo.yPercent, viewportSize);
-    m_exitButton105->m_Transform.scale =
-        glm::vec2{layout.exitNo.scale, layout.exitNo.scale};
+    m_exitButton105->m_Transform.scale = glm::vec2{layout.exitNo.scale, layout.exitNo.scale};
     m_exitButton105->SetVisible(false);
 
     m_exitButton95 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Button_95), 61);
     m_exitButton95->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitYes.xPercent, layout.exitYes.yPercent, viewportSize);
-    m_exitButton95->m_Transform.scale =
-        glm::vec2{layout.exitYes.scale, layout.exitYes.scale};
+    m_exitButton95->m_Transform.scale = glm::vec2{layout.exitYes.scale, layout.exitYes.scale};
     m_exitButton95->SetVisible(false);
 
     m_exitDialog = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Exit_Dialog), 62);
     m_exitDialog->m_Transform.translation = UILayout::PercentToWorldPosition(
         layout.exitDialog.xPercent, layout.exitDialog.yPercent, viewportSize);
-    m_exitDialog->m_Transform.scale =
-        glm::vec2{layout.exitDialog.scale, layout.exitDialog.scale};
+    m_exitDialog->m_Transform.scale = glm::vec2{layout.exitDialog.scale, layout.exitDialog.scale};
     m_exitDialog->SetVisible(false);
 
     AddElements(m_playbutton);
@@ -267,10 +253,44 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     AddElements(m_exitDialog);
 }
 
+void IntroScene::SetMenuVisible(const bool visible)
+{
+    m_playbutton->SetVisible(visible);
+    m_exitbutton->SetVisible(visible);
+    m_settingbutton->SetVisible(visible);
+    m_settingOverlay->SetVisible(visible);
+    m_additionalButton->SetVisible(visible);
+    m_additionalButtonOverlay->SetVisible(visible);
+
+    if (!visible)
+    {
+        m_settingMenuOpen = false;
+        m_additionalMenuOpen = false;
+        m_menuItemsAnimating = false;
+        m_additionalMenuItemsAnimating = false;
+        HideExitPanel();
+    }
+
+    m_menuItem043->SetVisible(visible && m_settingMenuOpen);
+    m_menuItem032->SetVisible(visible && m_settingMenuOpen);
+    m_menuItem017->SetVisible(visible && m_settingMenuOpen);
+    m_additionalMenuItem108->SetVisible(visible && m_additionalMenuOpen);
+    m_additionalMenuItem006->SetVisible(visible && m_additionalMenuOpen);
+    m_additionalMenuItem041->SetVisible(visible && m_additionalMenuOpen);
+}
+
+void IntroScene::HideExitPanel()
+{
+    m_exitConfirm048->SetVisible(false);
+    m_exitButton105->SetVisible(false);
+    m_exitButton95->SetVisible(false);
+    m_exitDialog->SetVisible(false);
+    m_exitPanelVisible = false;
+}
+
 void IntroScene::Update()
 {
-    // Handle ESC key to show exit confirmation
-    if (Util::Input::IsKeyDown(Util::Keycode::ESCAPE) && !m_exitPanelVisible)
+    if (Util::Input::IsKeyDown(Util::Keycode::ESCAPE) && !m_exitPanelVisible && m_exitbutton->GetVisibility())
     {
         m_exitConfirm048->SetVisible(true);
         m_exitButton105->SetVisible(true);
@@ -300,13 +320,12 @@ void IntroScene::Update()
     }
     auto mousePos = Util::Input::GetCursorPosition();
 
-    // Handle exit panel button clicks (095 and 105)
     if (m_exitPanelVisible && m_exitButton95 && m_exitButton105)
     {
-        auto exitButton95Size = m_exitButton95->GetScaledSize();
-        auto exitButton105Size = m_exitButton105->GetScaledSize();
-        auto pos95 = m_exitButton95->m_Transform.translation;
-        auto pos105 = m_exitButton105->m_Transform.translation;
+        const auto exitButton95Size = m_exitButton95->GetScaledSize();
+        const auto exitButton105Size = m_exitButton105->GetScaledSize();
+        const auto pos95 = m_exitButton95->m_Transform.translation;
+        const auto pos105 = m_exitButton105->m_Transform.translation;
 
         // Check if 095 (right button) is clicked - exit game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton95, Util::Keycode::MOUSE_LB))
@@ -319,12 +338,7 @@ void IntroScene::Update()
         // Check if 105 (left button) is clicked - continue game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton105, Util::Keycode::MOUSE_LB))
         {
-            // Cancel exit - hide exit panel
-            m_exitConfirm048->SetVisible(false);
-            m_exitButton105->SetVisible(false);
-            m_exitButton95->SetVisible(false);
-            m_exitDialog->SetVisible(false);
-            m_exitPanelVisible = false;
+            HideExitPanel();
         }
     }
 
