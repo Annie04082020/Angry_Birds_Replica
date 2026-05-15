@@ -80,12 +80,11 @@ void App::Start()
   m_introScene->SetOnPlayClickCallback([this]()
                                        {
                                          this->ShowLevelSelectScene();
-                                         return true;
-                                       });
+                                         return true; });
   m_levelSelectScene->SetOnBackClickCallback([this]()
                                              { this->ShowIntroScene(); });
   m_levelSelectScene->SetOnLevelSelectCallback([this](const int levelNumber)
-                                         { return this->TransitionToGame(levelNumber); });
+                                               { return this->TransitionToGame(levelNumber); });
 
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
@@ -161,9 +160,7 @@ bool App::LoadLevel(const std::string &levelPath)
   m_gameScene->SetOnRestartLevelCallback([this]()
                                          { m_pendingGameAction = PendingGameAction::RestartCurrentLevel; });
   m_gameScene->SetOnOpenLevelSelectCallback([this]()
-                                            {
-                                              m_pendingGameAction = PendingGameAction::OpenLevelSelect;
-                                            });
+                                            { m_pendingGameAction = PendingGameAction::OpenLevelSelect; });
 
   if (m_gameScene && m_gameScene->LoadLevel(levelPath))
   {
