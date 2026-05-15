@@ -101,6 +101,10 @@ namespace
 namespace
 {
     constexpr float kGrassTopRatio = 404.0f / 563.0f;
+    constexpr float kGameHudButtonScale = 0.75f;
+    constexpr float kGameHudLeftPadding = 52.0f;
+    constexpr float kGameHudTopPadding = 52.0f;
+    constexpr float kGameHudButtonSpacing = 92.0f;
 }
 
 bool GameScene::LoadLevel(const std::string &levelPath)
