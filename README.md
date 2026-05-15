@@ -9,12 +9,6 @@ Please change `PTSD/cmake/Dependencies.cmake` file in line 93 and 94 to turn on 
 set(SDL2MIXER_OGG ON)
 set(SDL2MIXER_VORBIS STB)
 ```
-Add 
-```hpp
-    virtual void Init() override {};
-    virtual void Update() override {};
-```
-to `PTSD/include/Util/GameObject.hpp` in public section
 
 # Developing Time
 
@@ -24,7 +18,7 @@ OOPL 2026 Spring Semester
 
 # Team Member
 
-- 111310452 黃安華
+- 111310452 黃安華 (PM)
 - 113590039 許兆雲 
 
 # Game Introduction
