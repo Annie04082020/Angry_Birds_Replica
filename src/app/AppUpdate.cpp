@@ -41,6 +41,23 @@ void App::Update()
     m_gameScene->Update();
   }
 
+  if (m_pendingGameAction != PendingGameAction::None)
+  {
+    const PendingGameAction action = m_pendingGameAction;
+    m_pendingGameAction = PendingGameAction::None;
+
+    if (action == PendingGameAction::RestartCurrentLevel)
+    {
+      RestartCurrentLevel();
+    }
+    else if (action == PendingGameAction::OpenLevelSelect)
+    {
+      UnloadCurrentGameScene();
+      ShowLevelSelectScene();
+      m_CurrentState = State::UPDATE;
+    }
+  }
+
   m_Root.Update();
 
   if (Util::Input::IsKeyUp(Util::Keycode::ESCAPE) || Util::Input::IfExit())
