@@ -11,6 +11,7 @@
 ParsedLevelData LevelParser::Parse(const std::string &jsonStr)
 {
     ParsedLevelData data;
+    data.levelNumber = JsonParseUtils::ExtractInt(jsonStr, "level");
     data.levelName = JsonParseUtils::ExtractString(jsonStr, "name");
     data.backgroundImage = JsonParseUtils::ExtractString(jsonStr, "background");
     data.birdCount = JsonParseUtils::ExtractInt(jsonStr, "birds");

@@ -30,8 +30,14 @@ namespace
       return Resource::LEVEL_5_DATA;
     case 6:
       return Resource::LEVEL_6_DATA;
+    case 7:
+      return Resource::LEVEL_7_DATA;
+    case 8:
+      return Resource::LEVEL_8_DATA;
     case 9:
       return Resource::LEVEL_9_DATA;
+    case 10:
+      return Resource::LEVEL_10_DATA;
     default:
       return "";
     }
@@ -123,10 +129,6 @@ void App::ShowLevelSelectScene()
 
 bool App::TransitionToGame(const int levelNumber)
 {
-  if (m_CurrentState == State::GAME)
-  {
-    return true;
-  }
   LOG_DEBUG("Transitioning to GAME state");
 
   const std::string levelPath = ResolveLevelPath(levelNumber);
@@ -135,6 +137,9 @@ bool App::TransitionToGame(const int levelNumber)
     LOG_WARN("Level {} is not implemented yet", levelNumber);
     return false;
   }
+
+  m_currentLevelNumber = levelNumber;
+  m_currentLevelPath = levelPath;
 
   if (!LoadLevel(levelPath))
   {
@@ -152,6 +157,13 @@ bool App::LoadLevel(const std::string &levelPath)
 
   m_gameScene = std::make_shared<GameScene>(
       std::make_shared<DynamicBackground>(Resource::MOVING_BG_IMAGE));
+
+  m_gameScene->SetOnRestartLevelCallback([this]()
+                                         { m_pendingGameAction = PendingGameAction::RestartCurrentLevel; });
+  m_gameScene->SetOnOpenLevelSelectCallback([this]()
+                                            {
+                                              m_pendingGameAction = PendingGameAction::OpenLevelSelect;
+                                            });
 
   if (m_gameScene && m_gameScene->LoadLevel(levelPath))
   {
@@ -178,6 +190,26 @@ bool App::LoadLevel(const std::string &levelPath)
   // cleanup on failure
   m_gameScene.reset();
   return false;
+}
+
+bool App::RestartCurrentLevel()
+{
+  if (m_currentLevelNumber > 0)
+  {
+    const std::string levelPath = ResolveLevelPath(m_currentLevelNumber);
+    if (!levelPath.empty())
+    {
+      m_currentLevelPath = levelPath;
+      return LoadLevel(levelPath);
+    }
+  }
+
+  if (m_currentLevelPath.empty())
+  {
+    return false;
+  }
+
+  return LoadLevel(m_currentLevelPath);
 }
 
 void App::UnloadCurrentGameScene()

@@ -34,6 +34,7 @@ struct ParsedLevelData
     std::string levelName;
     std::string backgroundImage;
     int birdCount = 0;
+    int levelNumber = 0;
     std::unordered_map<std::string, std::string> resourceMap;
     std::unordered_map<std::string, GroupAdjustment> groupAdjustments;
     std::vector<LevelObjectDefinition> objects;

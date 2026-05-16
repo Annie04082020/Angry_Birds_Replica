@@ -56,6 +56,15 @@ public:
     }
 
     /**
+     * @brief Get the level number
+     * @return Level number of the current level
+     */
+    int GetLevel() const
+    {
+        return m_levelNumber;
+    }
+
+    /**
      * @brief Get background image path for the level
      * @return Path to the background image
      */
@@ -72,6 +81,7 @@ public:
         m_gameObjects.clear();
         m_resourceMap.clear();
         m_birdCount = 0;
+        m_levelNumber = 0;
         m_levelName = "";
         m_backgroundImage = "";
     }
@@ -87,6 +97,7 @@ private:
     std::vector<std::shared_ptr<Character>> m_gameObjects;      ///< All game objects in the current level
     std::unordered_map<std::string, std::string> m_resourceMap; ///< Local resource map (resourceId -> path)
     int m_birdCount = 0;                                        ///< Number of birds available
+    int m_levelNumber = 0;                                      ///< Level number
     std::string m_levelName = "";                               ///< Name of the current level
     std::string m_backgroundImage = "";                         ///< Background image path
 };

@@ -25,6 +25,13 @@ public:
     END,
   };
 
+  enum class PendingGameAction
+  {
+    None,
+    RestartCurrentLevel,
+    OpenLevelSelect,
+  };
+
   State GetCurrentState() const { return m_CurrentState; }
 
   void Start();
@@ -37,6 +44,7 @@ public:
   void ShowIntroScene();
   void ShowLevelSelectScene();
   bool LoadLevel(const std::string &levelPath);
+  bool RestartCurrentLevel();
   void UnloadCurrentGameScene();
 
 private:
@@ -49,6 +57,9 @@ private:
   std::shared_ptr<IntroScene> m_introScene;
   std::shared_ptr<LevelSelectScene> m_levelSelectScene;
   std::shared_ptr<GameScene> m_gameScene;
+  int m_currentLevelNumber = 0;
+  std::string m_currentLevelPath;
+  PendingGameAction m_pendingGameAction = PendingGameAction::None;
   float m_startTime = 0.0f;
   bool m_isSplashDone = false;
   Util::Renderer m_Root;

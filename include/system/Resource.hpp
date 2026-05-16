@@ -139,7 +139,25 @@ namespace Resource
     const std::string Additional_Menu_Item_006 = RESOURCE_DIR "/Image/ui/button/sprite_006.png";
     const std::string Additional_Menu_Item_041 = RESOURCE_DIR "/Image/ui/button/sprite_041.png";
     const std::string Game_Button_093 = RESOURCE_DIR "/Image/ui/button/sprite_093.png";
-    const std::string Game_Button_039 = RESOURCE_DIR "/Image/ui/button/sprite_039.png";
+    const std::string Game_Button_031 = RESOURCE_DIR "/Image/ui/button/sprite_031.png";
+    const std::string Game_Menu_Item_069 = RESOURCE_DIR "/Image/ui/button/sprite_069.png";
+    const std::string Game_Menu_Item_082 = RESOURCE_DIR "/Image/ui/button/sprite_082.png";
+    const std::string Game_Menu_Item_073 = RESOURCE_DIR "/Image/ui/button/sprite_073.png";
+    const std::string Game_Menu_Item_005 = RESOURCE_DIR "/Image/ui/button/sprite_005.png";
+    const std::string Game_Menu_Item_063 = RESOURCE_DIR "/Image/ui/button/sprite_063.png";
+    const std::string Game_Menu_Item_040 = RESOURCE_DIR "/Image/ui/button/sprite_040.png";
+
+    // Level Titles
+    const std::string Level_Title_1_1 = RESOURCE_DIR "/Image/word/1-1.png";
+    const std::string Level_Title_1_2 = RESOURCE_DIR "/Image/word/1-2.png";
+    const std::string Level_Title_1_3 = RESOURCE_DIR "/Image/word/1-3.png";
+    const std::string Level_Title_1_4 = RESOURCE_DIR "/Image/word/1-4.png";
+    const std::string Level_Title_1_5 = RESOURCE_DIR "/Image/word/1-5.png";
+    const std::string Level_Title_1_6 = RESOURCE_DIR "/Image/word/1-6.png";
+    const std::string Level_Title_1_7 = RESOURCE_DIR "/Image/word/1-7.png";
+    const std::string Level_Title_1_8 = RESOURCE_DIR "/Image/word/1-8.png";
+    const std::string Level_Title_1_9 = RESOURCE_DIR "/Image/word/1-9.png";
+    const std::string Level_Title_1_10 = RESOURCE_DIR "/Image/word/1-10.png";
 
     // Audio - Music
     const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.ogg";
@@ -156,7 +174,10 @@ namespace Resource
     const std::string LEVEL_4_DATA = RESOURCE_DIR "/levels/level_4.json";
     const std::string LEVEL_5_DATA = RESOURCE_DIR "/levels/level_5.json";
     const std::string LEVEL_6_DATA = RESOURCE_DIR "/levels/level_6.json";
+    const std::string LEVEL_7_DATA = RESOURCE_DIR "/levels/level_7.json";
+    const std::string LEVEL_8_DATA = RESOURCE_DIR "/levels/level_8.json";
     const std::string LEVEL_9_DATA = RESOURCE_DIR "/levels/level_9.json";
+    const std::string LEVEL_10_DATA = RESOURCE_DIR "/levels/level_10.json";
     const std::string DEFAULT_LEVEL_DATA = LEVEL_2_DATA;
     const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
     const std::string ENTITY_TEMPLATE_DATA = RESOURCE_DIR "/entities/entity_templates.json";
