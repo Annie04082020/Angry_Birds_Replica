@@ -4,9 +4,11 @@
 #include "DynamicBackground.hpp"
 #include "LevelManager.hpp"
 #include "BirdLaunchController.hpp"
+#include "ScoringSystem.hpp"
 #include "SceneInputController.hpp"
 #include "Scene.hpp"
 #include "Util/GameObject.hpp"
+#include "Util/Text.hpp"
 #include "ui/Button.hpp"
 #include <functional>
 
@@ -41,6 +43,13 @@ public:
 private:
     void BuildLevelHud();
     void UpdateHudPositions();
+    void UpdateScoreHud();
+    void ResetScoreState();
+    void UpdateWinState();
+    void SpawnFloatingScore(const glm::vec2 &position, int points, const Util::Color &frontColor);
+    void SpawnOutlinedFloatingScore(const glm::vec2 &position, const std::string &text, const Util::Color &frontColor);
+    void FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition);
+    void OnCharacterDeath(const std::shared_ptr<Character> &character) override;
     void SetPauseMenuVisible(bool visible);
     void TogglePauseMenu();
     void ToggleMusicMute();
@@ -50,6 +59,12 @@ private:
     std::shared_ptr<BirdLaunchController> m_BirdLaunchController = std::make_shared<BirdLaunchController>();
     std::shared_ptr<SceneInputController> m_SceneInputController = nullptr;
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
+    std::shared_ptr<Util::GameObject> m_ScoreLabel = nullptr;
+    std::shared_ptr<Util::GameObject> m_ScoreValue = nullptr;
+    std::shared_ptr<Util::Text> m_ScoreValueDrawable = nullptr;
+    std::shared_ptr<Util::GameObject> m_HighScoreLabel = nullptr;
+    std::shared_ptr<Util::GameObject> m_HighScoreValue = nullptr;
+    std::shared_ptr<Util::Text> m_HighScoreValueDrawable = nullptr;
     std::shared_ptr<Button> m_LeftTopButton093 = nullptr;
     std::shared_ptr<Button> m_LeftTopButton031 = nullptr;
     std::shared_ptr<Button> m_PauseMenu069 = nullptr;
@@ -68,6 +83,10 @@ private:
     float m_ZoomScrollAccumulator = 0.0f;
     float m_DamageOutputTimer = 0.0f;
     bool m_ShowDamageHud = false;
+    ScoringSystem m_ScoringSystem;
+    int m_RemainingPigCount = 0;
+    bool m_LevelCleared = false;
+    bool m_LeftoverBirdsAwarded = false;
 };
 
 #endif // GAME_SCENE_HPP

@@ -169,7 +169,7 @@
       "heightPercent": 2.8,
       "rotation": 0.0,
       "xPercent": 11.75,
-      "yPercent": -4
+      "yPercent": -4.7
     },
     {
         "type": "STONE",
@@ -269,7 +269,7 @@
         "heightPercent": 2.8,
         "rotation": 0.0,
         "xPercent": 20.75,
-        "yPercent": 6
+        "yPercent": 5.3
     }
   ]
 }

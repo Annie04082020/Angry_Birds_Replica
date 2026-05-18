@@ -300,6 +300,17 @@ public:
 
   void SetDestroyed(bool destroyed) { m_IsDestroyed = destroyed; }
 
+  void ResetHealth()
+  {
+    m_Health = m_MaxHealth;
+    m_IsDestroyed = false;
+    m_PreviousDamageState = DamageState::Undamaged;
+  }
+
+  [[nodiscard]] bool IsSpecialItem() const { return m_IsSpecialItem; }
+
+  void SetSpecialItem(bool isSpecialItem) { m_IsSpecialItem = isSpecialItem; }
+
   // TODO: Add and implement more methods and properties as needed to finish
   // Giraffe Adventure.
 
@@ -323,6 +334,7 @@ private:
   PhysicsState m_PhysicsState;
   EntityKind m_EntityKind = EntityKind::Unknown;
   MaterialType m_MaterialType = MaterialType::None;
+  bool m_IsSpecialItem = false;
 };
 
 #endif // CHARACTER_HPP

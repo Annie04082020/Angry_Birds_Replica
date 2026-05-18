@@ -564,7 +564,9 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
     // Wake sleeping objects that have lost geometric support
     for (const auto &ch : sleepingDynamics)
     {
-      if (ch->GetEntityKind() == Character::EntityKind::Environment && !ch->IsImpactActivated())
+      if ((ch->GetEntityKind() == Character::EntityKind::Environment ||
+           ch->GetEntityKind() == Character::EntityKind::Pig) &&
+          !ch->IsImpactActivated())
         continue;
       if (supportConfirmed.find(ch.get()) != supportConfirmed.end())
         continue;

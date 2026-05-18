@@ -29,6 +29,7 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
     m_CurrentBirdIndex = 0;
     m_IsHoldingBird = false;
     m_HasLaunchedBird = false;
+    m_HasAnyBirdBeenLaunched = false;
     m_BirdVelocity = {0.0f, 0.0f};
 
     std::vector<glm::vec2> slingshotPositions;
@@ -90,6 +91,27 @@ bool BirdLaunchController::Update()
     return HandleBirdLaunchPhysics();
 }
 
+int BirdLaunchController::GetRemainingBirdCountForBonus() const
+{
+    if (m_BirdQueue.empty())
+    {
+        return 0;
+    }
+
+    int remaining = 0;
+    if (m_ActiveBird && !m_HasLaunchedBird && m_CurrentBirdIndex < m_BirdQueue.size())
+    {
+        ++remaining;
+    }
+
+    if (m_CurrentBirdIndex + 1 < m_BirdQueue.size())
+    {
+        remaining += static_cast<int>(m_BirdQueue.size() - (m_CurrentBirdIndex + 1));
+    }
+
+    return remaining;
+}
+
 glm::vec2 BirdLaunchController::GetMouseWorldPosition() const
 {
     const glm::vec2 mousePos = Util::Input::GetCursorPosition();
@@ -147,6 +169,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             m_ActiveBird->SetVelocity(m_BirdVelocity);
             m_IsHoldingBird = false;
             m_HasLaunchedBird = true;
+            m_HasAnyBirdBeenLaunched = true;
             return true;
         }
 

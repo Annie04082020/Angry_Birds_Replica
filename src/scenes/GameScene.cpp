@@ -1,6 +1,7 @@
 #include "GameScene.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -9,15 +10,18 @@
 #include "config.hpp"
 
 #include "Resource.hpp"
+#include "Util/Color.hpp"
 #include "Util/DebugBox.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
 #include "Util/Text.hpp"
+#include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 #include <SDL_mixer.h>
 
 namespace
 {
+    constexpr const char *kUIFont = RESOURCE_DIR "/font/angrybirds-regular.ttf";
     constexpr float kGrassTopRatio = 404.0f / 563.0f;
     std::string GetHudLabel(const std::shared_ptr<Character> &object)
     {
@@ -71,6 +75,16 @@ namespace
     constexpr float kGameHudLeftPadding = 50.0f;
     constexpr float kGameHudTopPadding = 50.0f;
     constexpr float kGameHudButtonSpacing = 92.0f;
+    constexpr float kGameHudScoreOffsetX = -180.0f;  // Right side positioning
+    constexpr float kGameHudScoreLabelOffsetY = -4.0f;
+    constexpr float kGameHudScoreValueOffsetY = -40.0f;
+    constexpr int kGameHudScoreLabelSize = 22;
+    constexpr int kGameHudScoreValueSize = 30;
+    constexpr float kGameHudHighScoreOffsetX = -180.0f;  // Same X as SCORE, but different Y
+    constexpr float kGameHudHighScoreLabelOffsetY = -100.0f;  // Below SCORE label
+    constexpr float kGameHudHighScoreValueOffsetY = -130.0f;  // Below SCORE value
+    constexpr int kGameHudHighScoreLabelSize = 22;
+    constexpr int kGameHudHighScoreValueSize = 30;
     constexpr float kGamePauseMenuBackdropWidth = 500.0f;
     constexpr float kGamePauseMenuBackdropHeightRatio = 0.99f;
     constexpr float kGamePauseMenuBackdropCenterOffsetX = 100.0f;
@@ -96,6 +110,159 @@ namespace
     constexpr float kGamePauseMenuLevelTitleOffsetX = 280.0f;
     constexpr float kGamePauseMenuLevelTitleOffsetY = 450.0f;
     constexpr float kGamePauseMenuLevelTitleScale = 0.5f;
+
+    std::string FormatScore(const int score)
+    {
+        std::ostringstream stream;
+        stream << score;
+        return stream.str();
+    }
+
+    class FloatingTextObject : public Util::GameObject
+    {
+    public:
+        FloatingTextObject(const std::shared_ptr<Util::Text> &drawable,
+                           const glm::vec2 &position,
+                           const glm::vec2 &velocity,
+                           const Util::Color &baseColor,
+                           const float zIndex,
+                           const float lifeTime)
+            : Util::GameObject(drawable, zIndex),
+              m_DrawableText(drawable),
+              m_Velocity(velocity),
+              m_BaseColor(baseColor),
+              m_LifeTime(lifeTime),
+              m_RemainingLife(lifeTime)
+        {
+            m_Transform.translation = position;
+        }
+
+        void Update() override
+        {
+            if (!m_DrawableText || m_RemainingLife <= 0.0f)
+            {
+                return;
+            }
+
+            const float deltaSec = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
+            m_RemainingLife = std::max(0.0f, m_RemainingLife - deltaSec);
+            m_Transform.translation += m_Velocity * deltaSec;
+
+            const float ratio = (m_LifeTime > 0.0f) ? (m_RemainingLife / m_LifeTime) : 0.0f;
+            Util::Color fadedColor = m_BaseColor;
+            fadedColor.a = std::max(0.0f, 255.0f * ratio);
+            m_DrawableText->SetColor(fadedColor);
+        }
+
+    private:
+        std::shared_ptr<Util::Text> m_DrawableText = nullptr;
+        glm::vec2 m_Velocity{0.0f, 45.0f};
+        Util::Color m_BaseColor = Util::Color::FromRGB(255, 255, 255);
+        float m_LifeTime = 0.8f;
+        float m_RemainingLife = 0.8f;
+    };
+
+    std::shared_ptr<Util::GameObject> CreateTextObject(const std::string &text,
+                                                       const int fontSize,
+                                                       const glm::vec2 &position,
+                                                       const float zIndex,
+                                                       const Util::Color &color,
+                                                       std::shared_ptr<Util::Text> *outDrawable = nullptr)
+    {
+        auto drawable = std::make_shared<Util::Text>(kUIFont, fontSize, text, color);
+        if (outDrawable)
+        {
+            *outDrawable = drawable;
+        }
+
+        auto object = std::make_shared<Util::GameObject>(drawable, zIndex);
+        object->m_Transform.translation = position;
+        return object;
+    }
+
+    float ComputeImpactSpeed(const std::shared_ptr<Character> &a,
+                             const std::shared_ptr<Character> &b,
+                             const glm::vec2 &contactNormal)
+    {
+        if (!(a && b))
+        {
+            return 0.0f;
+        }
+
+        const glm::vec2 relativeVelocity = b->GetVelocity() - a->GetVelocity();
+        return std::max(0.0f, std::fabs(glm::dot(relativeVelocity, contactNormal)));
+    }
+
+    float GetDamageScale(const std::shared_ptr<Character> &target,
+                         const std::shared_ptr<Character> &other)
+    {
+        if (!(target && other))
+        {
+            return 0.0f;
+        }
+
+        if (target->GetEntityKind() == Character::EntityKind::Pig)
+        {
+            return 0.22f;
+        }
+
+        float scale = 0.08f;
+        switch (target->GetMaterialType())
+        {
+        case Character::MaterialType::Glass:
+        case Character::MaterialType::Ice:
+            scale = 0.12f;
+            break;
+        case Character::MaterialType::Wood:
+            scale = 0.09f;
+            break;
+        case Character::MaterialType::Stone:
+            scale = 0.05f;
+            break;
+        default:
+            break;
+        }
+
+        if (other->GetEntityKind() == Character::EntityKind::Bird)
+        {
+            scale *= 1.2f;
+
+            const std::string &resourceId = other->GetResourceId();
+            if (resourceId.find("BIRD_BLUE") != std::string::npos &&
+                target->GetMaterialType() == Character::MaterialType::Stone)
+            {
+                scale *= 0.45f;
+            }
+            else if (resourceId.find("BIRD_YELLOW") != std::string::npos &&
+                     target->GetMaterialType() == Character::MaterialType::Wood)
+            {
+                scale *= 1.35f;
+            }
+        }
+        else if (other->GetEntityKind() == Character::EntityKind::Environment)
+        {
+            scale *= 1.1f;
+        }
+
+        return scale;
+    }
+
+    bool IsDestructible(const std::shared_ptr<Character> &character)
+    {
+        if (!character || character->IsDestroyed() || !character->ParticipatesInPhysics())
+        {
+            return false;
+        }
+
+        if (character->GetEntityKind() == Character::EntityKind::Pig)
+        {
+            return true;
+        }
+
+        return character->GetEntityKind() == Character::EntityKind::Environment &&
+               character->GetMaterialType() != Character::MaterialType::None &&
+               character->GetMaxHealth() < 9000.0f;
+    }
 }
 
 bool GameScene::LoadLevel(const std::string &levelPath)
@@ -139,8 +306,10 @@ bool GameScene::LoadLevel(const std::string &levelPath)
         std::cout << BuildDamageHudText(objects) << std::endl;
     }
 
+    ResetScoreState();
     BuildLevelHud();
     UpdateHudPositions();
+    UpdateScoreHud();
 
     m_SceneInputController = std::make_shared<SceneInputController>(m_DynamicBackground, m_LevelManager);
 
@@ -220,11 +389,36 @@ void GameScene::Update()
     }
 
     UpdateHudPositions();
+    UpdateWinState();
     Scene::Update();
 }
 
 void GameScene::BuildLevelHud()
 {
+    if (!m_ScoreLabel)
+    {
+        m_ScoreLabel = CreateTextObject("SCORE", kGameHudScoreLabelSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 239, 214));
+        AddElements(m_ScoreLabel);
+    }
+
+    if (!m_ScoreValue)
+    {
+        m_ScoreValue = CreateTextObject("0", kGameHudScoreValueSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 255, 255), &m_ScoreValueDrawable);
+        AddElements(m_ScoreValue);
+    }
+
+    if (!m_HighScoreLabel)
+    {
+        m_HighScoreLabel = CreateTextObject("HIGHSCORE", kGameHudHighScoreLabelSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 239, 214));
+        AddElements(m_HighScoreLabel);
+    }
+
+    if (!m_HighScoreValue)
+    {
+        m_HighScoreValue = CreateTextObject("0", kGameHudHighScoreValueSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 255, 255), &m_HighScoreValueDrawable);
+        AddElements(m_HighScoreValue);
+    }
+
     m_LeftTopButton093 = std::make_shared<Button>(Resource::Game_Button_093);
     m_LeftTopButton093->SetZIndex(95.0f);
     m_LeftTopButton093->SetScale({kGameHudButtonScale, kGameHudButtonScale});
@@ -321,7 +515,7 @@ void GameScene::BuildLevelHud()
 
 void GameScene::UpdateHudPositions()
 {
-    if (!m_LeftTopButton093 && !m_LeftTopButton031)
+    if (!m_LeftTopButton093 && !m_LeftTopButton031 && !m_ScoreLabel && !m_ScoreValue)
     {
         return;
     }
@@ -342,6 +536,34 @@ void GameScene::UpdateHudPositions()
     if (m_LeftTopButton031)
     {
         m_LeftTopButton031->SetPosition(topLeftAnchor + glm::vec2{kGameHudButtonSpacing / zoom, 0.0f});
+    }
+
+    // High score positioned at top right
+    const glm::vec2 topRightAnchor = cameraPos +
+                                     glm::vec2{
+                                         viewportSize.x * 0.5f / zoom - kGameHudLeftPadding / zoom,
+                                         viewportSize.y * 0.5f / zoom - kGameHudTopPadding / zoom};
+
+    const glm::vec2 scoreAnchor = topRightAnchor + glm::vec2{kGameHudScoreOffsetX / zoom, 0.0f};
+    if (m_ScoreLabel)
+    {
+        m_ScoreLabel->m_Transform.translation = scoreAnchor + glm::vec2{0.0f, kGameHudScoreLabelOffsetY / zoom};
+    }
+
+    if (m_ScoreValue)
+    {
+        m_ScoreValue->m_Transform.translation = scoreAnchor + glm::vec2{0.0f, kGameHudScoreValueOffsetY / zoom};
+    }
+
+    const glm::vec2 highScoreAnchor = topRightAnchor + glm::vec2{kGameHudHighScoreOffsetX / zoom, 0.0f};
+    if (m_HighScoreLabel)
+    {
+        m_HighScoreLabel->m_Transform.translation = highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreLabelOffsetY / zoom};
+    }
+
+    if (m_HighScoreValue)
+    {
+        m_HighScoreValue->m_Transform.translation = highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreValueOffsetY / zoom};
     }
 
     if (m_PauseMenu069)
@@ -504,6 +726,150 @@ void GameScene::SetPauseMenuVisible(const bool visible)
         m_PauseMenuInputBlockedUntilRelease = false;
         SetPauseMenuButtonsInputEnabled(true);
     }
+}
+
+void GameScene::UpdateScoreHud()
+{
+    if (m_ScoreValueDrawable)
+    {
+        m_ScoreValueDrawable->SetText(FormatScore(m_ScoringSystem.GetScore()));
+    }
+
+    if (m_HighScoreValueDrawable)
+    {
+        m_HighScoreValueDrawable->SetText(FormatScore(m_ScoringSystem.GetHighScore()));
+    }
+}
+
+void GameScene::ResetScoreState()
+{
+    m_ScoringSystem.Reset();
+    m_RemainingPigCount = 0;
+    m_LevelCleared = false;
+    m_LeftoverBirdsAwarded = false;
+
+    for (const auto &object : m_LevelManager->GetGameObjects())
+    {
+        if (!object)
+        {
+            continue;
+        }
+
+        object->SetDestroyed(false);
+        object->ResetHealth();
+        object->SetVisible(true);
+        object->SetParticipatesInPhysics(true);
+
+        if (object->GetEntityKind() == Character::EntityKind::Pig)
+        {
+            ++m_RemainingPigCount;
+        }
+
+    }
+}
+
+void GameScene::UpdateWinState()
+{
+    if (!m_LevelCleared || m_LeftoverBirdsAwarded)
+    {
+        return;
+    }
+
+    if (m_BirdLaunchController)
+    {
+        m_ScoringSystem.AwardLeftoverBirds(m_BirdLaunchController->GetRemainingBirdCountForBonus());
+    }
+    m_LeftoverBirdsAwarded = true;
+    UpdateScoreHud();
+}
+
+void GameScene::SpawnOutlinedFloatingScore(const glm::vec2 &position,
+                                           const std::string &text,
+                                           const Util::Color &frontColor)
+{
+    const Util::Color outlineColor = Util::Color::FromRGB(170, 110, 80, 255);
+    const std::array<glm::vec2, 4> offsets = {
+        glm::vec2{-2.0f, 0.0f},
+        glm::vec2{2.0f, 0.0f},
+        glm::vec2{0.0f, -2.0f},
+        glm::vec2{0.0f, 2.0f}};
+
+    for (const auto &offset : offsets)
+    {
+        auto shadowDrawable = std::make_shared<Util::Text>(kUIFont, 30, text, outlineColor);
+        auto shadowObject = std::make_shared<FloatingTextObject>(
+            shadowDrawable,
+            position + offset,
+            glm::vec2{0.0f, 48.0f},
+            outlineColor,
+            98.0f,
+            0.85f);
+        AddDebugEntity(shadowObject, 0.85f);
+    }
+
+    auto frontDrawable = std::make_shared<Util::Text>(kUIFont, 30, text, frontColor);
+    auto frontObject = std::make_shared<FloatingTextObject>(
+        frontDrawable,
+        position,
+        glm::vec2{0.0f, 52.0f},
+        frontColor,
+        99.0f,
+        0.85f);
+    AddDebugEntity(frontObject, 0.85f);
+}
+
+void GameScene::SpawnFloatingScore(const glm::vec2 &position,
+                                   const int points,
+                                   const Util::Color &frontColor)
+{
+    if (points <= 0)
+    {
+        return;
+    }
+
+    SpawnOutlinedFloatingScore(position, FormatScore(points), frontColor);
+}
+
+void GameScene::FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition)
+{
+    if (!character)
+    {
+        return;
+    }
+
+    int awarded = 0;
+    if (character->GetEntityKind() == Character::EntityKind::Pig)
+    {
+        awarded = m_ScoringSystem.AwardPigDestroyed();
+        if (m_RemainingPigCount > 0)
+        {
+            --m_RemainingPigCount;
+        }
+        if (m_RemainingPigCount == 0)
+        {
+            m_LevelCleared = true;
+        }
+    }
+    else if (character->IsSpecialItem())
+    {
+        awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
+    }
+    else if (character->GetEntityKind() == Character::EntityKind::Environment)
+    {
+        awarded = m_ScoringSystem.AwardBlockDestroyed(character->GetMaterialType());
+    }
+
+    if (awarded > 0)
+    {
+        SpawnFloatingScore(atPosition, awarded, Util::Color::FromRGB(255, 255, 255));
+    }
+
+    UpdateScoreHud();
+}
+
+void GameScene::OnCharacterDeath(const std::shared_ptr<Character> &character)
+{
+    FinalizeScoreForCharacter(character, character ? character->GetPosition() : glm::vec2{0.0f, 0.0f});
 }
 
 void GameScene::TogglePauseMenu()
