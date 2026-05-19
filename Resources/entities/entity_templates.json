@@ -54,7 +54,7 @@
             "centerOfMassOffsetX": 0.0,
             "centerOfMassOffsetY": 0.0,
             "isStatic": false,
-            "health": 50.0
+            "health": 150.0
         },
         {
             "id": "WOOD_stage",
@@ -83,7 +83,7 @@
             "centerOfMassOffsetX": 0.0,
             "centerOfMassOffsetY": 0.0,
             "isStatic": false,
-            "health": 200.0
+            "health": 350.0
         },
         {
             "id": "STONE_DEFAULT",
@@ -98,7 +98,7 @@
             "centerOfMassOffsetX": 0.0,
             "centerOfMassOffsetY": 0.0,
             "isStatic": false,
-            "health": 400.0
+            "health": 900.0
         },
         {
             "id": "ICE_DEFAULT",
@@ -113,7 +113,7 @@
             "centerOfMassOffsetX": 0.0,
             "centerOfMassOffsetY": 0.0,
             "isStatic": false,
-            "health": 100.0
+            "health": 250.0
         }
     ]
 }

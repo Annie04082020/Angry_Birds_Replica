@@ -184,8 +184,12 @@ void CollisionResponse::SolveVelocity(ContactManifold& cm, bool damageEnabled)
         // ── Damage ───────────────────────────────────────────────────────
         if (damageEnabled)
         {
-            constexpr float kDamageThreshold  = 80.f;
-            constexpr float kDamageFactor     = 0.12f;
+            // Higher threshold = requires a harder hit to deal any damage at all.
+            // Lower factor = each hit above threshold deals less damage.
+            // Together these give structures enough HP to show intermediate
+            // damage sprites before they break.
+            constexpr float kDamageThreshold  = 150.f;
+            constexpr float kDamageFactor     = 0.05f;
             float absJn = std::fabs(actualJn);
             if (absJn > kDamageThreshold)
             {
@@ -245,22 +249,33 @@ void CollisionResponse::SolvePosition(ContactManifold& cm)
 {
     // Box2D default is 0.2. A lower value (0.15) makes objects push apart softer,
     // reducing the "bouncy" jitter feeling when heavy stacks push against each other.
-    constexpr float kBeta = 0.15f; 
+    constexpr float kBeta       = 0.15f;
+    // Sleeping objects also get gentle position correction (much smaller beta).
+    // This silently removes residual penetration left over from StabilizeEnvironment
+    // so that when a sleeping body eventually wakes up there is no stored overlap
+    // that would make it snap/explode outward.
+    constexpr float kBetaSleep  = 0.05f;
     constexpr float kSlop = 0.01f;
 
     if (cm.penetration <= kSlop) return;
-
-    float corr = kBeta * (cm.penetration - kSlop);
 
     auto bd = Setup(cm);
     float invMassSum = bd.invMa + bd.invMb;
     if (invMassSum <= 0.f) return;
 
-    float corrA = corr * bd.invMa / invMassSum;
-    float corrB = corr * bd.invMb / invMassSum;
+    // Choose beta per-body depending on sleep state
+    bool aSleep = !bd.aStatic && bd.a->IsSleeping();
+    bool bSleep = !bd.bStatic && bd.b->IsSleeping();
 
-    if (!bd.aStatic && !bd.a->IsSleeping())
+    // If BOTH sides are sleeping we still want to nudge them apart (very gently)
+    float betaA = aSleep ? kBetaSleep : kBeta;
+    float betaB = bSleep ? kBetaSleep : kBeta;
+
+    float corrA = betaA * (cm.penetration - kSlop) * bd.invMa / invMassSum;
+    float corrB = betaB * (cm.penetration - kSlop) * bd.invMb / invMassSum;
+
+    if (!bd.aStatic)
         bd.a->SetPosition(bd.a->GetPosition() - corrA * cm.normal);
-    if (!bd.bStatic && !bd.b->IsSleeping())
+    if (!bd.bStatic)
         bd.b->SetPosition(bd.b->GetPosition() + corrB * cm.normal);
 }

@@ -85,8 +85,12 @@ namespace SleepSupport
         if (sBottom <= worldFloorY + kFloorSupportEps)
             return true;
 
-        constexpr float kMaxGap = 3.0f;
-        constexpr float kMaxPenetration = 2.5f;
+        // Allow larger gaps/penetrations so objects that are just barely out of
+        // perfect alignment after StabilizeEnvironment are still treated as
+        // "supported" and are not spuriously woken up (which would cause them to
+        // free-fall a few pixels and produce damaging collision impulses).
+        constexpr float kMaxGap = 6.0f;
+        constexpr float kMaxPenetration = 5.0f;
         for (const auto &element : elements)
         {
             auto other = std::dynamic_pointer_cast<Character>(element);
