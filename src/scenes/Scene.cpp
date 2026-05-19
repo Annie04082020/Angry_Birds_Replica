@@ -91,8 +91,6 @@ void Scene::StabilizeEnvironment(int steps)
 
   constexpr float localDt = 1.0f / 120.0f; // finer substeps for stabilization
   constexpr float gravity = 700.0f;
-  const float settleSpeedThreshold = 6.0f;   // px/sec (stricter)
-  const float settleAngularThreshold = 2.0f; // rad/sec
   // First, run a few positional-only relaxation passes with no gravity to remove
   // tiny initial overlaps caused by level placement rounding. This prevents gravity
   // from immediately driving pieces through small gaps and creating cascade collapse.
