@@ -9,6 +9,34 @@
 namespace Util {
 
 /**
+ * @brief Set global camera zoom factor (apply to all rendered objects).
+ * @param zoom Zoom factor (1.0 = normal, > 1.0 = zoom in, < 1.0 = zoom out)
+ */
+void SetCameraZoom(float zoom);
+
+/**
+ * @brief Get current global camera zoom factor.
+ */
+float GetCameraZoom();
+
+/**
+ * @brief Set global camera position (pan/offset the view).
+ * @param position Camera position in world coordinates
+ */
+void SetCameraPosition(const glm::vec2 &position);
+
+/**
+ * @brief Get current global camera position.
+ */
+glm::vec2 GetCameraPosition();
+
+/**
+ * @brief Get the current drawable viewport size.
+ * @return vec2(width, height) in pixels.
+ */
+glm::vec2 GetViewportSize();
+
+/**
  * @brief Converts a Transform object into uniform buffer data.
  *
  * Converts transform data in Core::UniformBuffer format.

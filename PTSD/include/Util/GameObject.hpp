@@ -151,6 +151,8 @@ public:
             std::remove(m_Children.begin(), m_Children.end(), child),
             m_Children.end());
     }
+    virtual void Init() {};
+    virtual void Update() {};
 
     void Draw();
 
