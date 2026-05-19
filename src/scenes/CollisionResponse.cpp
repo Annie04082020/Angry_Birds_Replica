@@ -92,19 +92,25 @@ void WakeCheck(Character* c, const glm::vec2& dv, float invM)
     }
 }
 
-// Sleep check: if both speeds are low enough, sleep the dynamic body
-void SleepCheck(Character* c, bool counterpartIsStatic)
+// Sleep check: only allow sleeping on stable upward support from a static body
+void SleepCheck(Character* c, bool counterpartIsStatic, float supportNormalY, float penetration)
 {
     if (c->IsStatic() || c->IsSleeping()) return;
     constexpr float kSleepV = 10.f;
     constexpr float kSleepW = 1.5f;
+    constexpr float kSupportNormalY = 0.6f;
+    constexpr float kMinSupportPenetration = 0.01f;
+
+    if (!counterpartIsStatic) return;
+    if (supportNormalY < kSupportNormalY) return;
+    if (penetration < kMinSupportPenetration) return;
+
     if (glm::length(c->GetVelocity()) < kSleepV &&
         std::fabs(c->GetAngularVelocity()) < kSleepW)
     {
         DebugUtils::LogSleepDecision(c->GetImagePath(), c->GetPosition(),
                                      c->GetVelocity(), c->GetAngularVelocity(),
-                                     counterpartIsStatic ? "static_support_settled"
-                                                         : "mutual_resting");
+                                     "static_support_settled");
         c->SetSleeping(true);
         c->SetVelocity({0.f, 0.f});
         c->SetAngularVelocity(0.f);
@@ -228,8 +234,8 @@ void CollisionResponse::SolveVelocity(ContactManifold& cm, bool damageEnabled)
 
     // ── Sleep check ───────────────────────────────────────────────────────
     sleep_check:
-    if (!bd.aStatic) SleepCheck(bd.a, bd.bStatic);
-    if (!bd.bStatic) SleepCheck(bd.b, bd.aStatic);
+    if (!bd.aStatic) SleepCheck(bd.a, bd.bStatic, -cm.normal.y, cm.penetration);
+    if (!bd.bStatic) SleepCheck(bd.b, bd.aStatic,  cm.normal.y, cm.penetration);
 }
 
 // ─────────────────────────────────────────────
