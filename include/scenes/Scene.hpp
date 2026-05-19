@@ -120,13 +120,4 @@ private:
   std::shared_ptr<Character> m_Controlled = nullptr;
   int m_Score = 0;
 };
-
-// Handle collision for two objects
-void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                      const std::shared_ptr<Util::GameObject> &b,
-                      const glm::vec2 &contactNormal,
-                      float penetrationDepth,
-                      const glm::vec2 &contactPoint,
-                      bool stabilizing);
-
 #endif // SCENE_HPP

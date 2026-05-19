@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include "Util/DebugBox.hpp"
 #include "Util/Time.hpp"
 
 namespace
@@ -553,15 +552,4 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       ch->SetSleeping(false);
     }
   }
-}
-
-void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                            const std::shared_ptr<Util::GameObject> &b,
-                            const glm::vec2 &contactNormal,
-                            float penetrationDepth,
-                            const glm::vec2 &contactPoint,
-                            bool stabilizing)
-{
-    // This function was removed in a previous version. It is now a no-op.
-    return;
 }
