@@ -160,7 +160,7 @@ namespace Resource
     const std::string Level_Title_1_10 = RESOURCE_DIR "/Image/word/1-10.png";
 
     // Audio - Music
-    const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.ogg";
+    const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.mp3";
 
     // Audio - SFX
     const std::string BIRD_LAUNCH_SFX = RESOURCE_DIR "/Audio/sfx/bird_launch.wav";
