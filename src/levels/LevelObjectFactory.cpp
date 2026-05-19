@@ -327,13 +327,15 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         character->SetImpactActivated(true);
     }
 
-    if (objectDefinition.imageId == "SLINGSHOT_1")
+    if (objectDefinition.imageId == "SLINGSHOT_1" || 
+        objectDefinition.imageId == "SLINGSHOT_2" ||
+        objectDefinition.imageId == "sprite_147" ||
+        objectDefinition.imageId == "sprite_154")
     {
-        character->SetZIndex(1.0f);
-    }
-    else if (objectDefinition.imageId == "SLINGSHOT_2")
-    {
-        character->SetZIndex(-1.0f);
+        character->SetEntityKind(Character::EntityKind::Slingshot);
+        character->SetParticipatesInPhysics(false);
+        if (objectDefinition.imageId == "SLINGSHOT_1") character->SetZIndex(1.0f);
+        else if (objectDefinition.imageId == "SLINGSHOT_2") character->SetZIndex(-1.0f);
     }
 
     if (!objectDefinition.imageId.empty())
