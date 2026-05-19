@@ -1,0 +1,76 @@
+{
+  "level": 10,
+  "name": "Level 10",
+  "background": "Image/background.png",
+  "birds": 3,
+  "groups": [
+    {
+      "id": "slingshot",
+      "scaleMultiplier": 3,
+      "scalePosition": false,
+      "offsetXPercent": -5.0,
+      "offsetYPercent": 0.0,
+      "scalePivotXPercent": -19.85,
+      "scalePivotYPercent": -7.14
+    },
+    {
+      "id": "Environment",
+      "scaleMultiplier": 1.55,
+      "scalePosition": true,
+      "offsetXPercent": 0.0,
+      "offsetYPercent": -0.5,
+      "scalePivotXPercent": 0.0,
+      "scalePivotYPercent": 0.0
+    }
+  ],
+  "objects": [
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_1",
+      "groupId": "slingshot",
+      "sizePercent": 4.592593,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -19.166667,
+      "yPercent": -6.444444
+    },
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_2",
+      "groupId": "slingshot",
+      "sizePercent": 7.37037,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -17.59375,
+      "yPercent": -11.074074
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -23,
+      "yPercent": -16
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_YELLOW",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -21,
+      "yPercent": -18
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_BLUE",
+      "heightPercent": 3,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -22,
+      "yPercent": -20
+    }
+    
+  ]
+}

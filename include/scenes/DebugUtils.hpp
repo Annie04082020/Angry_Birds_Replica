@@ -7,7 +7,7 @@
 namespace DebugUtils
 {
     // Toggle logging for collision/sleep debug
-    inline constexpr bool kEnableCollisionLog = true;
+    inline constexpr bool kEnableCollisionLog = false;
 
     inline void LogSleepDecision(const std::string &id, const glm::vec2 &pos, const glm::vec2 &vel, float ang, const char *reason)
     {

@@ -11,6 +11,7 @@ class BirdLaunchController
 public:
     bool LoadLevelObjects(const std::vector<std::shared_ptr<Character>> &objects);
     bool Update();
+    void SetWorldFloorY(float y) { m_WorldFloorY = y; }
 
     [[nodiscard]] bool IsHoldingBird() const { return m_IsHoldingBird; }
 
@@ -26,6 +27,7 @@ private:
     size_t m_CurrentBirdIndex = 0;
     bool m_IsHoldingBird = false;
     bool m_HasLaunchedBird = false;
+    float m_WorldFloorY = -294.0f;
     // stop detection now uses velocity/angle thresholds
 };
 

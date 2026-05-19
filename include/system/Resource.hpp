@@ -15,11 +15,22 @@ namespace Resource
     const std::string BIRD_R = RESOURCE_DIR "/Image/birds/red_birds/sprite_003.png";
     const std::string BIRD_Y = RESOURCE_DIR "/Image/birds/yellow_birds/sprite_000.png";
     const std::string BIRD_B = RESOURCE_DIR "/Image/birds/blue_birds/sprite_070.png";
+    const std::string BIRD_K = RESOURCE_DIR "/Image/birds/black_birds/sprite_086.png";
     const std::string SLINGSHOT_1 = RESOURCE_DIR "/Image/assets/sprite_147.png";
     const std::string SLINGSHOT_2 = RESOURCE_DIR "/Image/assets/sprite_154.png";
 
     // Pigs
-    const std::string PIG_SMALL = RESOURCE_DIR "/Image/pigs/pig_small/sprite_001.png";
+    const std::string PIG_SMALL = RESOURCE_DIR "/Image/pigs/pig_small/sprite_009.png";
+    const std::string PIG_SMALL_1 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_021.png";
+    const std::string PIG_SMALL_2 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_002.png";
+    const std::string PIG_SMALL_3 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_027.png";
+    const std::string PIG_SMALL_4 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_039.png";
+    const std::string PIG_MEDIUM = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
+    const std::string PIG_MEDIUM_1 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_062.png";
+    const std::string PIG_MEDIUM_2 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_075.png";
+    const std::string PIG_MEDIUM_3 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_074.png";
+    const std::string PIG_MEDIUM_076 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_076.png";
+    const std::string PIG_MEDIUM_076_1 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
     // Wood 1 to 4: complete to broken
     const std::string WOOD_stage = RESOURCE_DIR "/Image/wood/sprite_013.png";
     const std::string WOOD_ball_1 = RESOURCE_DIR "/Image/wood/sprite_161.png";
@@ -63,6 +74,7 @@ namespace Resource
     const std::string WOOD_42x41_1 = RESOURCE_DIR "/Image/wood/sprite_070.png";
     const std::string WOOD_42x41_2 = RESOURCE_DIR "/Image/wood/sprite_110.png";
     const std::string WOOD_42x41_3 = RESOURCE_DIR "/Image/wood/sprite_082.png";
+    const std::string SMILE = RESOURCE_DIR "/Image/smile/sprite_156.png";
 
     // stone 1 to 4: complete to broken
     const std::string STONE_ball_b_1 = RESOURCE_DIR "/Image/stone/sprite_201.png";
@@ -92,6 +104,8 @@ namespace Resource
     const std::string STONE_21x20_1 = RESOURCE_DIR "/Image/stone/sprite_019.png";
     const std::string STONE_21x20_2 = RESOURCE_DIR "/Image/stone/sprite_000.png";
     const std::string STONE_21x20_3 = RESOURCE_DIR "/Image/stone/sprite_109.png";
+    const std::string STONE_83x20_1 = RESOURCE_DIR "/Image/stone/sprite_064.png";
+
 
     // ice 1 to 4: complete to broken
     const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
@@ -104,6 +118,8 @@ namespace Resource
     const std::string ICE_83x20_2 = RESOURCE_DIR "/Image/ice/sprite_065.png";
     const std::string ICE_83x20_3 = RESOURCE_DIR "/Image/ice/sprite_002.png";
     const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
+    const std::string ICE_205x20_1 = RESOURCE_DIR "/Image/ice/sprite_063.png";
+    const std::string ICE_41x20_1 = RESOURCE_DIR "/Image/ice/sprite_001.png";
 
     // UI
     const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
@@ -122,6 +138,26 @@ namespace Resource
     const std::string Additional_Menu_Item_108 = RESOURCE_DIR "/Image/ui/button/sprite_108.png";
     const std::string Additional_Menu_Item_006 = RESOURCE_DIR "/Image/ui/button/sprite_006.png";
     const std::string Additional_Menu_Item_041 = RESOURCE_DIR "/Image/ui/button/sprite_041.png";
+    const std::string Game_Button_093 = RESOURCE_DIR "/Image/ui/button/sprite_093.png";
+    const std::string Game_Button_031 = RESOURCE_DIR "/Image/ui/button/sprite_031.png";
+    const std::string Game_Menu_Item_069 = RESOURCE_DIR "/Image/ui/button/sprite_069.png";
+    const std::string Game_Menu_Item_082 = RESOURCE_DIR "/Image/ui/button/sprite_082.png";
+    const std::string Game_Menu_Item_073 = RESOURCE_DIR "/Image/ui/button/sprite_073.png";
+    const std::string Game_Menu_Item_005 = RESOURCE_DIR "/Image/ui/button/sprite_005.png";
+    const std::string Game_Menu_Item_063 = RESOURCE_DIR "/Image/ui/button/sprite_063.png";
+    const std::string Game_Menu_Item_040 = RESOURCE_DIR "/Image/ui/button/sprite_040.png";
+
+    // Level Titles
+    const std::string Level_Title_1_1 = RESOURCE_DIR "/Image/word/1-1.png";
+    const std::string Level_Title_1_2 = RESOURCE_DIR "/Image/word/1-2.png";
+    const std::string Level_Title_1_3 = RESOURCE_DIR "/Image/word/1-3.png";
+    const std::string Level_Title_1_4 = RESOURCE_DIR "/Image/word/1-4.png";
+    const std::string Level_Title_1_5 = RESOURCE_DIR "/Image/word/1-5.png";
+    const std::string Level_Title_1_6 = RESOURCE_DIR "/Image/word/1-6.png";
+    const std::string Level_Title_1_7 = RESOURCE_DIR "/Image/word/1-7.png";
+    const std::string Level_Title_1_8 = RESOURCE_DIR "/Image/word/1-8.png";
+    const std::string Level_Title_1_9 = RESOURCE_DIR "/Image/word/1-9.png";
+    const std::string Level_Title_1_10 = RESOURCE_DIR "/Image/word/1-10.png";
 
     // Audio - Music
     const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.ogg";
@@ -133,7 +169,14 @@ namespace Resource
     // Level Data
     const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
     const std::string LEVEL_2_DATA = RESOURCE_DIR "/levels/level_2.json";
+    const std::string LEVEL_3_DATA = RESOURCE_DIR "/levels/level_3.json";
+    const std::string LEVEL_4_DATA = RESOURCE_DIR "/levels/level_4.json";
+    const std::string LEVEL_5_DATA = RESOURCE_DIR "/levels/level_5.json";
+    const std::string LEVEL_6_DATA = RESOURCE_DIR "/levels/level_6.json";
+    const std::string LEVEL_7_DATA = RESOURCE_DIR "/levels/level_7.json";
+    const std::string LEVEL_8_DATA = RESOURCE_DIR "/levels/level_8.json";
     const std::string LEVEL_9_DATA = RESOURCE_DIR "/levels/level_9.json";
+    const std::string LEVEL_10_DATA = RESOURCE_DIR "/levels/level_10.json";
     const std::string DEFAULT_LEVEL_DATA = LEVEL_2_DATA;
     const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
     const std::string ENTITY_TEMPLATE_DATA = RESOURCE_DIR "/entities/entity_templates.json";

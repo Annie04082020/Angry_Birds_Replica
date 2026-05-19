@@ -9,6 +9,7 @@
 #include "Util/GameObject.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Util/TransformUtils.hpp"
 
 class Button : public Util::GameObject
 {
@@ -55,12 +56,15 @@ public:
 
   [[nodiscard]] bool IsHovering(const glm::vec2 &mousePos) const
   {
+    const float zoom = Util::GetCameraZoom();
+    const glm::vec2 cameraPos = Util::GetCameraPosition();
+    const glm::vec2 mouseWorldPos = mousePos / zoom + cameraPos;
     auto thisPos = GetPosition();
     auto thisSize = GetSize();
-    return (mousePos.x >= thisPos.x - thisSize.x / 2 &&
-            mousePos.x <= thisPos.x + thisSize.x / 2 &&
-            mousePos.y >= thisPos.y - thisSize.y / 2 &&
-            mousePos.y <= thisPos.y + thisSize.y / 2);
+    return (mouseWorldPos.x >= thisPos.x - thisSize.x / 2 &&
+            mouseWorldPos.x <= thisPos.x + thisSize.x / 2 &&
+            mouseWorldPos.y >= thisPos.y - thisSize.y / 2 &&
+            mouseWorldPos.y <= thisPos.y + thisSize.y / 2);
   }
 
   void SetOnClickFunction(std::function<void()> onClick)
@@ -73,6 +77,11 @@ public:
     m_hoverMultiplier = multiplier;
   }
 
+  void SetInputEnabled(bool enabled)
+  {
+    m_InputEnabled = enabled;
+  }
+
   void Update() override
   {
     if (!m_Visible)
@@ -83,7 +92,6 @@ public:
 
     auto mousePos = Util::Input::GetCursorPosition();
 
-    // 使用基礎縮放乘以 hover 倍數
     if (IsHovering(mousePos))
     {
       m_Transform.scale = m_baseScale * m_hoverMultiplier;
@@ -93,8 +101,13 @@ public:
       m_Transform.scale = m_baseScale;
     }
 
-    // 處理 Click 邏輯
-    bool isClickedNow =
+    if (!m_InputEnabled)
+    {
+      m_IsPressed = Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
+      return;
+    }
+
+    const bool isClickedNow =
         IsHovering(mousePos) && Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
 
     if (isClickedNow && !m_IsPressed)
@@ -105,16 +118,18 @@ public:
       }
       if (m_OnClick)
       {
-        m_OnClick(); // 執行回呼函數！
+        m_OnClick();
       }
     }
     m_IsPressed = Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
   }
+
   void SetSFX(const std::string &SFXPath)
   {
     m_SFXPath = SFXPath;
     m_SFX = std::make_shared<SoundEffect>(m_SFXPath);
   }
+
   void Init() override { m_Transform.scale = m_baseScale; }
 
 private:
@@ -124,8 +139,9 @@ private:
   std::string m_SFXPath;
   std::shared_ptr<SoundEffect> m_SFX;
   glm::vec2 m_baseScale = {1.0f, 1.0f};
-  float m_hoverMultiplier = 1.125f; // {0.9f, 0.9f} / {0.8f, 0.8f} ≈ 1.125
+  float m_hoverMultiplier = 1.125f;
   bool m_IsPressed = false;
+  bool m_InputEnabled = true;
   std::function<void()> m_OnClick = nullptr;
 };
 

@@ -9,7 +9,7 @@
       "scaleMultiplier": 3,
       "scalePosition": false,
       "offsetXPercent": -5.0,
-      "offsetYPercent": -1.0,
+      "offsetYPercent": 0.0,
       "scalePivotXPercent": -19.854167,
       "scalePivotYPercent": -7.148148
     },
@@ -18,7 +18,7 @@
       "scaleMultiplier": 1.5,
       "scalePosition": true,
       "offsetXPercent": 0.0,
-      "offsetYPercent": -2.0,
+      "offsetYPercent": 0.0,
       "scalePivotXPercent": 0.0,
       "scalePivotYPercent": 0.0
     }

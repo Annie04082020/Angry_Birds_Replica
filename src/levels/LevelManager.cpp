@@ -58,6 +58,7 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
     const float runtimeScale = GetRuntimeLevelScale();
     const ParsedLevelData parsedLevelData = LevelParser::Parse(jsonStr);
 
+    m_levelNumber = parsedLevelData.levelNumber;
     m_levelName = parsedLevelData.levelName;
     m_backgroundImage = parsedLevelData.backgroundImage;
     m_birdCount = parsedLevelData.birdCount;

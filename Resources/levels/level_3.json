@@ -1,0 +1,156 @@
+{
+  "level": 3,
+  "name": "Level 3",
+  "background": "Image/background.png",
+  "birds": 3,
+  "groups": [
+    {
+      "id": "slingshot",
+      "scaleMultiplier": 3,
+      "scalePosition": false,
+      "offsetXPercent": -5.0,
+      "offsetYPercent": 0.0,
+      "scalePivotXPercent": -19.85,
+      "scalePivotYPercent": -7.14
+    },
+    {
+      "id": "Environment",
+      "scaleMultiplier": 1.55,
+      "scalePosition": true,
+      "offsetXPercent": 0.0,
+      "offsetYPercent": 0.0,
+      "scalePivotXPercent": 0.0,
+      "scalePivotYPercent": 0.0
+    }
+  ],
+  "objects": [
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_1",
+      "groupId": "slingshot",
+      "sizePercent": 4.592593,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -19.166667,
+      "yPercent": -6.444444
+    },
+    {
+      "type": "SLINGSHOT",
+      "imageId": "SLINGSHOT_2",
+      "groupId": "slingshot",
+      "sizePercent": 7.37037,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -17.59375,
+      "yPercent": -11.074074
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -23,
+      "yPercent": -16
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_YELLOW",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -21,
+      "yPercent": -18
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_BLUE",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -22,
+      "yPercent": -20
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_ball_1",
+      "groupId": "Environment",
+      "sizePercent": 3,
+      "sizeBase": "width",
+      "rotation": 0.0,
+      "xPercent": 8,
+      "yPercent": 0
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 1.2,
+      "rotation": -1.57,
+      "xPercent": 17.5,
+      "yPercent": -11
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 1.2,
+      "rotation": -1.57,
+      "xPercent": 21,
+      "yPercent": -11
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_83x20_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 1.2,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": -6.8
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_83x41_1",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 3.5,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": -4.3
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": -1.5
+    },
+    {
+      "type": "WOOD",
+      "imageId": "WOOD_41x20",
+      "groupId": "Environment",
+      "widthPercent": 1.6,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": 0.3
+    },
+    {
+      "type": "WOOD",
+      "imageId": "SMILE",
+      "groupId": "Environment",
+      "sizePercent": 3,
+      "sizeBase": "width",
+      "rotation": 0.0,
+      "xPercent": 19.2,
+      "yPercent": 5
+    }
+    
+  ]
+}
