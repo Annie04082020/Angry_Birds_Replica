@@ -416,8 +416,6 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
     {
-        character->SetImpactActivated(false);
-        character->SetStatic(true);
         character->SetSleeping(true);
         character->SetVelocity({0.0f, 0.0f});
         character->SetAngularVelocity(0.0f);
