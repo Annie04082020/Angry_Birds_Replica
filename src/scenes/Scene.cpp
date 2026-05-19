@@ -418,6 +418,14 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       auto ca = characters[i];
       auto cb = characters[j];
 
+      // Ignore collisions involving the Slingshot
+      if (ca->GetEntityKind() == Character::EntityKind::Slingshot || cb->GetEntityKind() == Character::EntityKind::Slingshot)
+        continue;
+        
+      // Ignore collisions between birds (e.g. active bird vs waiting birds)
+      if (ca->GetEntityKind() == Character::EntityKind::Bird && cb->GetEntityKind() == Character::EntityKind::Bird)
+        continue;
+
       glm::vec2 normal, contactPoint;
       float penetration = 0.f;
       if (!CollisionUtils::ComputeOBBMTV(*ca, *cb, normal, penetration, contactPoint))
