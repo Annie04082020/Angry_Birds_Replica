@@ -1,5 +1,7 @@
 #include "LevelObjectFactory.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 
 #include "Character.hpp"
@@ -144,15 +146,31 @@ namespace
         return std::string();
     }
 
+    std::string NormalizeDamageBaseImageId(const std::string &imageId)
+    {
+        const std::size_t lastUnderscore = imageId.rfind('_');
+        if (lastUnderscore == std::string::npos || lastUnderscore + 1 >= imageId.size())
+        {
+            return imageId;
+        }
+
+        const std::string suffix = imageId.substr(lastUnderscore + 1);
+        const bool isNumericSuffix = std::all_of(suffix.begin(), suffix.end(), [](unsigned char ch) {
+            return std::isdigit(ch) != 0;
+        });
+        return isNumericSuffix ? imageId.substr(0, lastUnderscore) : imageId;
+    }
+
     // Count how many damage state variants are available for a given base image ID
     // e.g., "WOOD_205" -> check WOOD_205_1, WOOD_205_2, ... and count them
     int CountAvailableDamageStates(const std::string &baseImageId)
     {
+        const std::string normalizedBaseImageId = NormalizeDamageBaseImageId(baseImageId);
         // Check how many _1, _2, _3, ... variants exist in Resource
         int count = 0;
         for (int i = 1; i <= 10; ++i) // Check up to 10 variants
         {
-            const std::string variantId = baseImageId + "_" + std::to_string(i);
+            const std::string variantId = normalizedBaseImageId + "_" + std::to_string(i);
             if (Resource::GetPath(variantId).empty())
             {
                 // No more variants found
@@ -162,7 +180,7 @@ namespace
         }
         // If no explicit numbered variants found, but the base id maps to a resource,
         // treat that as a single available state.
-        if (count == 0 && !Resource::GetPath(baseImageId).empty())
+        if (count == 0 && !Resource::GetPath(normalizedBaseImageId).empty())
             return 1;
         return count;
     }

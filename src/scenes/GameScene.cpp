@@ -101,6 +101,7 @@ namespace
 bool GameScene::LoadLevel(const std::string &levelPath)
 {
     m_ZoomScrollAccumulator = 0.0f;
+    m_DamageOutputTimer = 0.0f;
     m_ShowDamageHud = false;
 
     Util::SetCameraZoom(1.0f);
@@ -151,13 +152,12 @@ void GameScene::Update()
     const bool isBirdHolding = m_BirdLaunchController && m_BirdLaunchController->IsHoldingBird();
 
     // Output damage stats to console periodically during test level
-    static float damageOutputTimer = 0.0f;
     if (m_ShowDamageHud && m_LevelManager)
     {
-        damageOutputTimer += Util::Time::GetDeltaTimeMs() / 1000.0f;
-        if (damageOutputTimer >= 2.0f) // Output every 2 seconds
+        m_DamageOutputTimer += Util::Time::GetDeltaTimeMs() / 1000.0f;
+        if (m_DamageOutputTimer >= 2.0f) // Output every 2 seconds
         {
-            damageOutputTimer = 0.0f;
+            m_DamageOutputTimer = 0.0f;
             std::cout << "\n=== Damage Status ===\n"
                       << BuildDamageHudText(m_LevelManager->GetGameObjects()) << std::endl;
         }

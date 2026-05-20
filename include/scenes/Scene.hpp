@@ -81,7 +81,8 @@ protected:
   // an approximate contact point) to allow accurate positional correction
   // and torque computation.
   // Rebuild contact manifold list and run the SI solver.
-  // stabilizing=true: position-only correction, no velocity solve, no warm-start.
+  // `stabilizing` selects stabilization tuning constants while still running
+  // warm-start, velocity solve, and position correction.
   void RunCollisionDetection(int passes = 1, bool stabilizing = false);
 
   // Physics fixed-timestep accumulator (seconds)

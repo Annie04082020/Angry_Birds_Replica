@@ -130,12 +130,11 @@ void Scene::StabilizeEnvironment(int steps)
     RunCollisionDetection(kStabilizationPasses, true);
   }
 
-  // Force ALL environment objects to sleep and zero their velocity.
+  // Sleep and zero velocity only for environment objects that are below settle
+  // thresholds after stabilization. Objects still above thresholds remain awake.
   // Impulse-based physics cannot perfectly converge to static equilibrium in a
-  // finite number of steps. Objects that haven't settled within the step budget
-  // would carry residual velocity into gameplay and continue to wobble.
-  // The 2-second grace period (m_DamageImmunityTimer) handles any remaining
-  // micro-settling after this forced freeze.
+  // finite number of steps, and the 2-second grace period
+  // (m_DamageImmunityTimer) handles remaining micro-settling.
   for (auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
@@ -275,19 +274,9 @@ void Scene::Update()
       const std::string newImageId = GetImageIdForDamageState(baseId, currentState);
       const std::string imagePath = Resource::GetPath(newImageId);
 
-      std::cout << "[Damage Update] " << baseId
-                << " | State: " << static_cast<int>(previousState) << " -> " << static_cast<int>(currentState)
-                << " | NewImageId: " << newImageId
-                << " | ResourcePath: " << (imagePath.empty() ? "NOT FOUND" : imagePath) << std::endl;
-
       if (!imagePath.empty())
       {
         character->SetImage(imagePath);
-        std::cout << "  -> Image updated successfully" << std::endl;
-      }
-      else
-      {
-        std::cout << "  -> Resource not found, keeping current image" << std::endl;
       }
     }
   }
