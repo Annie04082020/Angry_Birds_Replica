@@ -152,6 +152,9 @@ public:
             m_Children.end());
     }
 
+    virtual void Init() {}
+    virtual void Update() {}
+
     void Draw();
 
 protected:

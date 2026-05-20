@@ -23,6 +23,14 @@ namespace Util {
 Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
                                           const glm::vec2 &size, float zIndex);
 
+void SetCameraZoom(float zoom);
+float GetCameraZoom();
+
+void SetCameraPosition(const glm::vec2 &position);
+glm::vec2 GetCameraPosition();
+
+glm::vec2 GetViewportSize();
+
 } // namespace Util
 
 #endif // UTIL_TRANSFORM_UTILS_HPP
