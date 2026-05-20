@@ -46,9 +46,9 @@ set(SRC_FILES
     ${SRC_DIR}/Util/BGM.cpp
     ${SRC_DIR}/Util/Image.cpp
     ${SRC_DIR}/Util/Text.cpp
-    ${SRC_DIR}/Util/DebugBox.cpp
     ${SRC_DIR}/Util/TransformUtils.cpp
     ${SRC_DIR}/Util/GameObject.cpp
+    ${SRC_DIR}/Util/DebugBox.cpp
     ${SRC_DIR}/Util/Renderer.cpp
     ${SRC_DIR}/Util/Color.cpp
     ${SRC_DIR}/Util/Animation.cpp
@@ -82,9 +82,9 @@ set(INCLUDE_FILES
     ${INCLUDE_DIR}/Util/Image.hpp
     ${INCLUDE_DIR}/Util/Text.hpp
     ${INCLUDE_DIR}/Util/Transform.hpp
-    ${INCLUDE_DIR}/Util/DebugBox.hpp
     ${INCLUDE_DIR}/Util/TransformUtils.hpp
     ${INCLUDE_DIR}/Util/GameObject.hpp
+    ${INCLUDE_DIR}/Util/DebugBox.hpp
     ${INCLUDE_DIR}/Util/Renderer.hpp
     ${INCLUDE_DIR}/Util/Color.hpp
     ${INCLUDE_DIR}/Util/MissingTexture.hpp

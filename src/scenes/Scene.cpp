@@ -7,15 +7,56 @@
 // Collision detection and input
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Resource.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include "Util/DebugBox.hpp"
 #include "Util/Time.hpp"
 
 namespace
 {
   constexpr bool kEnableCollisionDebugBoxes = false;
+
+  // Build image ID with damage state suffix (_1, _2, _3, _4)
+  // Undamaged state uses _1, subsequent damage states use _2, _3, _4, etc.
+  std::string GetImageIdForDamageState(const std::string &baseImageId, Character::DamageState state)
+  {
+    // Extract base name without existing _1.._4 suffix
+    std::string baseName = baseImageId;
+    size_t lastUnderscore = baseName.rfind('_');
+    if (lastUnderscore != std::string::npos)
+    {
+      const std::string suffix = baseName.substr(lastUnderscore + 1);
+      // If last part is _1, _2, _3, or _4, remove it
+      if (suffix.length() == 1 && suffix[0] >= '1' && suffix[0] <= '9')
+      {
+        baseName = baseName.substr(0, lastUnderscore);
+      }
+    }
+
+    // Map damage state to image suffix
+    // DamageState::Undamaged (0) -> _1 (first/undamaged variant)
+    // DamageState::Light (1) -> _2, Moderate (2) -> _3, Heavy (3) -> _4, Critical (4) -> _5, etc.
+    int imageSuffix = static_cast<int>(state) + 1;
+    // If the generated id doesn't exist in resources, fallback to the highest
+    // existing lower-numbered variant so we never return a non-existent id.
+    std::string candidate = baseName + "_" + std::to_string(imageSuffix);
+    while (imageSuffix > 1 && Resource::GetPath(candidate).empty())
+    {
+      imageSuffix -= 1;
+      candidate = baseName + "_" + std::to_string(imageSuffix);
+    }
+    // If still not found, try the base id mapping (some resources map base id to _1)
+    if (Resource::GetPath(candidate).empty())
+    {
+      if (!Resource::GetPath(baseName).empty())
+        return baseName; // Resource maps baseName -> first variant
+    }
+    return candidate;
+  }
+
+  constexpr float settleSpeedThreshold = 6.0f;   // px/sec (stricter)
+  constexpr float settleAngularThreshold = 2.0f; // rad/sec
 }
 
 void Scene::AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl)
@@ -42,7 +83,7 @@ void Scene::Init()
   }
 
   // Run a short stabilization pass so environment pieces settle before gameplay
-  StabilizeEnvironment(40);
+  StabilizeEnvironment(120);
 }
 
 void Scene::StabilizeEnvironment(int steps)
@@ -52,13 +93,11 @@ void Scene::StabilizeEnvironment(int steps)
 
   constexpr float localDt = 1.0f / 120.0f; // finer substeps for stabilization
   constexpr float gravity = 700.0f;
-  const float settleSpeedThreshold = 6.0f;   // px/sec (stricter)
-  const float settleAngularThreshold = 2.0f; // rad/sec
   // First, run a few positional-only relaxation passes with no gravity to remove
   // tiny initial overlaps caused by level placement rounding. This prevents gravity
   // from immediately driving pieces through small gaps and creating cascade collapse.
-  constexpr int kInitialRelaxPasses = 12;
-  RunCollisionDetection(8, true); // one initial pass to ensure basic corrections
+  constexpr int kInitialRelaxPasses = 25; // more passes to clear initial overlaps first
+  RunCollisionDetection(8, true);
   for (int r = 0; r < kInitialRelaxPasses; ++r)
   {
     RunCollisionDetection(8, true);
@@ -91,24 +130,28 @@ void Scene::StabilizeEnvironment(int steps)
     RunCollisionDetection(kStabilizationPasses, true);
   }
 
-  // After stabilization steps, mark settled environment objects as sleeping
+  // Sleep and zero velocity only for environment objects that are below settle
+  // thresholds after stabilization. Objects still above thresholds remain awake.
+  // Impulse-based physics cannot perfectly converge to static equilibrium in a
+  // finite number of steps, and the 2-second grace period
+  // (m_DamageImmunityTimer) handles remaining micro-settling.
   for (auto &element : m_Elements)
   {
-      auto ch = std::dynamic_pointer_cast<Character>(element);
-      if (!ch)
+    auto ch = std::dynamic_pointer_cast<Character>(element);
+    if (!ch)
         continue;
-      if (!ch->ParticipatesInPhysics())
+    if (!ch->ParticipatesInPhysics())
         continue;
-      if (ch->GetEntityKind() != Character::EntityKind::Environment)
+    if (ch->GetEntityKind() != Character::EntityKind::Environment)
         continue;
     if (ch->IsStatic())
-      continue;
+        continue;
     if (glm::length(ch->GetVelocity()) < settleSpeedThreshold && std::fabs(ch->GetAngularVelocity()) < settleAngularThreshold)
     {
-      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "stabilize_settled");
-      ch->SetSleeping(true);
-      ch->SetVelocity({0.0f, 0.0f});
-      ch->SetAngularVelocity(0.0f);
+        DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "stabilize_settled");
+        ch->SetSleeping(true);
+        ch->SetVelocity({0.0f, 0.0f});
+        ch->SetAngularVelocity(0.0f);
     }
   }
 }
@@ -124,6 +167,9 @@ void Scene::Update()
 
   m_Accumulator += deltaSec;
   m_DebugDrawCooldown = std::max(0.0f, m_DebugDrawCooldown - deltaSec);
+  // Count down the post-load grace period during which no damage is applied.
+  if (m_DamageImmunityTimer > 0.0f)
+    m_DamageImmunityTimer = std::max(0.0f, m_DamageImmunityTimer - deltaSec);
 
   int substeps = 0;
   while (m_Accumulator >= m_PhysicsStep && substeps < m_MaxSubSteps)
@@ -175,12 +221,21 @@ void Scene::Update()
         glm::vec2 pos = ch->GetPosition();
         pos.y = this->m_WorldFloorY + worldHalfY;
         ch->SetPosition(pos);
-        ch->SetVelocity({0.0f, 0.0f});
-        ch->SetAngularVelocity(0.0f);
+        
+        glm::vec2 vel = ch->GetVelocity();
+        if (vel.y < 0.0f) vel.y = 0.0f;
+        
+        // Apply ground friction when sliding on the global floor 
+        // (since it's a hardcoded boundary, not an OBB with friction)
+        vel.x *= 0.95f; 
+        
+        ch->SetVelocity(vel);
+        
+        // Add a slight angular damping when rolling on the global floor
+        ch->SetAngularVelocity(ch->GetAngularVelocity() * 0.95f);
       }
     }
 
-    // Run collision detection per physics step
     RunCollisionDetection();
 
     m_Accumulator -= m_PhysicsStep;
@@ -200,6 +255,73 @@ void Scene::Update()
   {
     element->Update();
   }
+
+  // Update sprite images based on damage state
+  for (auto &element : m_Elements)
+  {
+    auto character = std::dynamic_pointer_cast<Character>(element);
+    if (!character || character->GetBaseImageId().empty())
+      continue;
+
+    const Character::DamageState currentState = character->GetDamageState();
+    const Character::DamageState previousState = character->GetPreviousDamageState();
+
+    // If damage state changed, update the image
+    if (currentState != previousState)
+    {
+      character->SetPreviousDamageState(currentState);
+      const std::string baseId = character->GetBaseImageId();
+      const std::string newImageId = GetImageIdForDamageState(baseId, currentState);
+      const std::string imagePath = Resource::GetPath(newImageId);
+
+      if (!imagePath.empty())
+      {
+        character->SetImage(imagePath);
+      }
+    }
+  }
+
+  // Handle character deaths and award points
+  for (auto it = m_Elements.begin(); it != m_Elements.end();)
+  {
+    auto character = std::dynamic_pointer_cast<Character>(*it);
+    if (character && character->GetHealth() <= 0.0f && !character->IsDestroyed())
+    {
+      // Mark as destroyed once so we do not re-score every frame.
+      character->SetDestroyed(true);
+
+      // Award points based on character type
+      const Character::EntityKind kind = character->GetEntityKind();
+      if (kind == Character::EntityKind::Pig)
+      {
+        m_Score += 100; // Pig elimination bonus
+        character->SetVisible(false);
+        // TODO: Play pig death sound effect
+      }
+      else if (kind == Character::EntityKind::Environment)
+      {
+        m_Score += 10; // Structure destruction bonus
+        // TODO: Play destruction sound effect
+      }
+      else
+      {
+        character->SetVisible(false);
+      }
+
+      // Notify subclasses about character death
+      OnCharacterDeath(character);
+
+      // Remove dead objects from the scene (Pigs and Environment blocks like wood/ice)
+      // When their health reaches 0, they should shatter/disappear.
+      RemoveChild(*it);
+      it = m_Elements.erase(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+
   // Update debug entities TTL and remove expired ones
   if (!m_DebugEntities.empty())
   {
@@ -254,59 +376,157 @@ void Scene::Update()
 
 void Scene::RunCollisionDetection(int passes, bool stabilizing)
 {
-  if (passes <= 0)
-    passes = 1;
+  if (passes <= 0) passes = 1;
+
+  // ── Build character list ──────────────────────────────────────────────
   std::vector<std::shared_ptr<Character>> characters;
   characters.reserve(m_Elements.size());
   std::vector<std::shared_ptr<Character>> sleepingDynamics;
   auto supportConfirmed = SleepSupport::CreateSupportConfirmedSet();
 
-  for (const auto &element : m_Elements)
+  for (const auto& element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
     if (ch && ch->ParticipatesInPhysics() && ch->GetEntityKind() != Character::EntityKind::Slingshot)
     {
       characters.push_back(ch);
       if (ch->IsSleeping() && !ch->IsStatic())
-      {
         sleepingDynamics.push_back(ch);
-      }
     }
   }
 
-  for (int pass = 0; pass < passes; ++pass)
+  // ── BroadPhase + NarrowPhase: update ContactManifold list ─────────────
+  // Mark all existing contacts as inactive; they'll be reactivated if still colliding.
+  for (auto& cm : m_Contacts) cm.active = false;
+
+  for (size_t i = 0; i < characters.size(); ++i)
   {
-    for (size_t i = 0; i < characters.size(); ++i)
+    for (size_t j = i + 1; j < characters.size(); ++j)
     {
-      for (size_t j = i + 1; j < characters.size(); ++j)
+      auto ca = characters[i];
+      auto cb = characters[j];
+
+      // Ignore collisions involving the Slingshot
+      if (ca->GetEntityKind() == Character::EntityKind::Slingshot || cb->GetEntityKind() == Character::EntityKind::Slingshot)
+        continue;
+        
+      // Ignore collisions between birds (e.g. active bird vs waiting birds)
+      if (ca->GetEntityKind() == Character::EntityKind::Bird && cb->GetEntityKind() == Character::EntityKind::Bird)
+        continue;
+
+      glm::vec2 normal, contactPoint;
+      float penetration = 0.f;
+      if (!CollisionUtils::ComputeOBBMTV(*ca, *cb, normal, penetration, contactPoint))
+        continue;
+
+      // Impact activation check: wake environmental objects if hit by birds or already activated objects
+      auto activateEnvironment = [](const std::shared_ptr<Character>& target, const std::shared_ptr<Character>& other) {
+          if (!target || target->GetEntityKind() != Character::EntityKind::Environment)
+              return;
+          if (target->IsImpactActivated())
+              return;
+
+          bool triggered = false;
+          if (other->GetEntityKind() == Character::EntityKind::Bird)
+          {
+              triggered = true;
+          }
+          else if (other->GetEntityKind() == Character::EntityKind::Environment)
+          {
+              // Can transfer impact if other is already activated and not sleeping
+              triggered = other->IsImpactActivated() && !other->IsSleeping();
+          }
+
+          if (triggered)
+          {
+              target->SetImpactActivated(true);
+              target->SetStatic(false);
+              target->SetSleeping(false);
+          }
+      };
+      activateEnvironment(ca, cb);
+      activateEnvironment(cb, ca);
+
+      // Sleep support tracking
+      if (ca->IsSleeping() && !ca->IsStatic() &&
+          SleepSupport::IsBottomSupportContact(ca, cb, contactPoint))
+        supportConfirmed.insert(ca.get());
+      if (cb->IsSleeping() && !cb->IsStatic() &&
+          SleepSupport::IsBottomSupportContact(cb, ca, contactPoint))
+        supportConfirmed.insert(cb.get());
+
+      // Find or create manifold for this pair
+      ContactManifold* found = nullptr;
+      for (auto& cm : m_Contacts)
       {
-        auto ca = characters[i];
-        auto cb = characters[j];
-
-        glm::vec2 contactNormal, contactPoint;
-        float penetration = 0.0f;
-        if (CollisionUtils::ComputeOBBMTV(*ca, *cb, contactNormal, penetration, contactPoint))
+        if (cm.Matches(ca.get(), cb.get()))
         {
-          // Track whether sleeping objects still have bottom support contact.
-          if (ca->IsSleeping() && !ca->IsStatic() && SleepSupport::IsBottomSupportContact(ca, cb, contactPoint))
-          {
-            supportConfirmed.insert(ca.get());
-          }
-          if (cb->IsSleeping() && !cb->IsStatic() && SleepSupport::IsBottomSupportContact(cb, ca, contactPoint))
-          {
-            supportConfirmed.insert(cb.get());
-          }
-
-          HandleCollision(ca, cb, contactNormal, penetration, contactPoint, stabilizing);
+          found = &cm;
+          break;
         }
       }
+
+      if (!found)
+      {
+        // New contact – create fresh manifold (no warm-start yet)
+        ContactManifold cm;
+        cm.a = ca.get();
+        cm.b = cb.get();
+        m_Contacts.push_back(cm);
+        found = &m_Contacts.back();
+      }
+
+      // If contact was stored in reversed order, flip accumulated impulses
+      bool flip = !found->SameOrder(ca.get(), cb.get());
+
+      found->a            = ca.get();
+      found->b            = cb.get();
+      found->normal       = normal;  // always a→b
+      found->tangent      = glm::vec2(-normal.y, normal.x);
+      found->contactPoint = contactPoint;
+      found->penetration  = penetration;
+      found->active       = true;
+      if (flip)
+      {
+        // Normal flipped – negate accumulated tangent (friction reversed too)
+        found->normalImpulse  = found->normalImpulse; // stays positive
+        found->tangentImpulse = -found->tangentImpulse;
+      }
     }
   }
 
-  // During gameplay, wake sleeping objects that have truly lost support.
-  if (!stabilizing)
+  // Remove stale (no-longer-colliding) contacts and zero their impulses
+  m_Contacts.erase(
+    std::remove_if(m_Contacts.begin(), m_Contacts.end(),
+                   [](const ContactManifold& cm) { return !cm.active; }),
+    m_Contacts.end());
+
+  // ── Solve ──────────────────────────────────────────────────────────────
+  // We ALWAYS need to run velocity solver, even during stabilizing,
+  // otherwise gravity keeps accelerating objects and they explode.
+  
+  for (auto& cm : m_Contacts)
+    CollisionResponse::WarmStart(cm);
+
+  const bool damageEnabled = !stabilizing && !IsDamageImmune();
+  constexpr int kVelIterations = 10;
+  for (int iter = 0; iter < kVelIterations; ++iter)
+    for (auto& cm : m_Contacts)
+      CollisionResponse::SolveVelocity(cm, damageEnabled);
+
+  constexpr int kPosIterations = 3;
+  for (int iter = 0; iter < kPosIterations; ++iter)
+    for (auto& cm : m_Contacts)
+      CollisionResponse::SolvePosition(cm);
+
+  if (stabilizing)
   {
-    for (const auto &ch : sleepingDynamics)
+    // During stabilizing, we just want to settle, no need to wake things up yet
+  }
+  else
+  {
+    // Wake sleeping objects that have lost geometric support
+    for (const auto& ch : sleepingDynamics)
     {
       if (ch->GetEntityKind() == Character::EntityKind::Environment && !ch->IsImpactActivated())
         continue;
@@ -315,48 +535,10 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       if (SleepSupport::IsGeometricallySupported(ch, m_Elements, m_WorldFloorY))
         continue;
 
-      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "lost_support_wake");
+      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(),
+                                   ch->GetVelocity(), ch->GetAngularVelocity(),
+                                   "lost_support_wake");
       ch->SetSleeping(false);
-    }
-  }
-}
-
-void Scene::HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                            const std::shared_ptr<Util::GameObject> &b,
-                            const glm::vec2 &contactNormal,
-                            float penetrationDepth,
-                            const glm::vec2 &contactPoint,
-                            bool stabilizing)
-{
-  // Delegate physics resolution to the CollisionResponse helper which returns debug draw entries.
-  auto ca = std::dynamic_pointer_cast<Character>(a);
-  auto cb = std::dynamic_pointer_cast<Character>(b);
-  if (!(ca && cb))
-    return;
-
-  if (ca->GetEntityKind() == Character::EntityKind::Slingshot || cb->GetEntityKind() == Character::EntityKind::Slingshot)
-    return;
-
-  auto debugInfos = CollisionResponse::ResolveCollision(ca, cb, contactNormal, penetrationDepth, contactPoint, stabilizing);
-
-  if (!debugInfos.empty() && kEnableCollisionDebugBoxes && m_DebugDrawCooldown <= 0.0f)
-  {
-    m_DebugDrawCooldown = m_DebugDrawInterval;
-    try
-    {
-      for (const auto &info : debugInfos)
-      {
-        auto debugDraw = std::make_shared<Util::DebugBox>(info.color, 0.02f);
-        auto go = std::make_shared<Util::GameObject>(debugDraw, 100.0f);
-        go->m_Transform.translation = info.pos;
-        go->m_Transform.rotation = info.rotation;
-        go->m_Transform.scale = info.scale;
-        AddElements(go);
-        m_DebugEntities.push_back({go, info.ttl});
-      }
-    }
-    catch (...)
-    {
     }
   }
 }

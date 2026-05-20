@@ -20,6 +20,8 @@ namespace Resource
             {"BIRD_BLACK", BIRD_K},
             {"SLINGSHOT_1", SLINGSHOT_1},
             {"SLINGSHOT_2", SLINGSHOT_2},
+            // Ice entries
+            {"ICE_83x20",   ICE_83x20_1},
             {"ICE_005", ICE_83x20_1},
             {"ICE_014", ICE_83x41_1},
             {"ICE_056", ICE_056},
@@ -153,6 +155,7 @@ namespace Resource
             {"BIRD_LAUNCH_SFX", BIRD_LAUNCH_SFX},
             {"SETTING_SFX", SETTING_SFX},
             {"LEVEL_1_DATA", LEVEL_1_DATA},
+            {"LEVEL_1_TEST_DATA", LEVEL_1_TEST_DATA},
             {"LEVEL_2_DATA", LEVEL_2_DATA},
             {"LEVEL_3_DATA", LEVEL_3_DATA},
             {"LEVEL_4_DATA", LEVEL_4_DATA},

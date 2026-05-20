@@ -1,15 +1,9 @@
 #ifndef SCENES_COLLISION_RESPONSE_HPP
 #define SCENES_COLLISION_RESPONSE_HPP
 
-#include <vector>
-#include <memory>
 #include <glm/glm.hpp>
 
-namespace Util
-{
-    class GameObject;
-}
-class Character;
+struct ContactManifold;
 
 struct DebugDrawInfo
 {
@@ -22,13 +16,18 @@ struct DebugDrawInfo
 
 namespace CollisionResponse
 {
-    // Resolve collision between two characters. Returns optional debug draw entries.
-    std::vector<DebugDrawInfo> ResolveCollision(const std::shared_ptr<Character> &a,
-                                                const std::shared_ptr<Character> &b,
-                                                const glm::vec2 &contactNormal,
-                                                float penetrationDepth,
-                                                const glm::vec2 &contactPoint,
-                                                bool stabilizing);
+    // Pre-apply accumulated impulses from the previous frame (warm-start).
+    // Call once per contact after the contact list is refreshed.
+    void WarmStart(ContactManifold& cm);
+
+    // One Sequential Impulse velocity iteration.
+    // Accumulates impulse with non-negativity (normal) and friction-cone (tangent) clamping.
+    // damageEnabled: apply damage when impulse delta is large.
+    void SolveVelocity(ContactManifold& cm, bool damageEnabled);
+
+    // Baumgarte position correction – does NOT touch velocities.
+    // Run 2-3 times after all velocity iterations per step.
+    void SolvePosition(ContactManifold& cm);
 }
 
 #endif // SCENES_COLLISION_RESPONSE_HPP

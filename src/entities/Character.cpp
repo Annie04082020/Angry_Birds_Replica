@@ -53,11 +53,29 @@ void Character::IntegratePhysics(float deltaTimeSeconds)
         return;
     }
 
+    // Security clamp: Prevent explosive runaway velocities from intense impacts.
+    // Box2D also clamps max translation/rotation per step.
+    constexpr float kMaxVelocity = 4000.0f;
+    constexpr float kMaxAngularVelocity = 25.0f;
+
+    float speed = glm::length(m_PhysicsState.velocity);
+    if (speed > kMaxVelocity)
+    {
+        m_PhysicsState.velocity = (m_PhysicsState.velocity / speed) * kMaxVelocity;
+    }
+    
+    if (m_PhysicsState.angularVelocity > kMaxAngularVelocity)
+        m_PhysicsState.angularVelocity = kMaxAngularVelocity;
+    else if (m_PhysicsState.angularVelocity < -kMaxAngularVelocity)
+        m_PhysicsState.angularVelocity = -kMaxAngularVelocity;
+
     m_Transform.translation += m_PhysicsState.velocity * deltaTimeSeconds;
     m_Transform.rotation += m_PhysicsState.angularVelocity * deltaTimeSeconds;
 
-    // Apply angular damping to reduce runaway spinning (exponential decay)
-    constexpr float kAngularDamping = 3.0f; // per second
+    // Apply angular damping to reduce runaway spinning (exponential decay).
+    // Reduced from 8.0f to 0.5f since the SI solver handles stability now.
+    // 8.0f was actively killing all natural torque, preventing objects from tipping over!
+    constexpr float kAngularDamping = 0.5f; // per second
     m_PhysicsState.angularVelocity *= std::exp(-kAngularDamping * deltaTimeSeconds);
 }
 

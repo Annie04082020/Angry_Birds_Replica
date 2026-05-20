@@ -2,6 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
+#include <sstream>
+#include <unordered_map>
 
 #include "config.hpp"
 
@@ -9,12 +12,61 @@
 #include "Util/DebugBox.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
+#include "Util/Text.hpp"
 #include "Util/TransformUtils.hpp"
 #include <SDL_mixer.h>
 
 namespace
 {
     constexpr float kGrassTopRatio = 404.0f / 563.0f;
+    std::string GetHudLabel(const std::shared_ptr<Character> &object)
+    {
+        if (!object)
+        {
+            return "OBJECT";
+        }
+
+        std::string label = object->GetBaseImageId().empty() ? object->GetImagePath() : object->GetBaseImageId();
+        const std::size_t slashPos = label.find_last_of("/\\");
+        if (slashPos != std::string::npos)
+        {
+            label = label.substr(slashPos + 1);
+        }
+
+        const std::size_t dotPos = label.find_last_of('.');
+        if (dotPos != std::string::npos)
+        {
+            label = label.substr(0, dotPos);
+        }
+
+        return label.empty() ? "OBJECT" : label;
+    }
+
+    std::string BuildDamageHudText(const std::vector<std::shared_ptr<Character>> &objects)
+    {
+        std::ostringstream out;
+        out << "Damage test\n";
+
+        std::unordered_map<std::string, int> occurrenceCount;
+        for (const auto &object : objects)
+        {
+            if (!object)
+            {
+                continue;
+            }
+
+            const std::string baseId = GetHudLabel(object);
+            const int currentIndex = ++occurrenceCount[baseId];
+            const float maxHealth = object->GetMaxHealth();
+            const float health = object->GetHealth();
+            const float damagePercent = maxHealth > 0.0f ? std::max(0.0f, (maxHealth - health) / maxHealth * 100.0f) : 0.0f;
+
+            out << currentIndex << ". " << baseId << "  dmg: " << static_cast<int>(std::round(damagePercent)) << "%\n";
+        }
+
+        return out.str();
+    }
+
     constexpr float kGameHudButtonScale = 0.85f;
     constexpr float kGameHudLeftPadding = 50.0f;
     constexpr float kGameHudTopPadding = 50.0f;
@@ -49,6 +101,8 @@ namespace
 bool GameScene::LoadLevel(const std::string &levelPath)
 {
     m_ZoomScrollAccumulator = 0.0f;
+    m_DamageOutputTimer = 0.0f;
+    m_ShowDamageHud = false;
 
     Util::SetCameraZoom(1.0f);
     Util::SetCameraPosition({0.0f, 0.0f});
@@ -75,6 +129,16 @@ bool GameScene::LoadLevel(const std::string &levelPath)
         m_BirdLaunchController->LoadLevelObjects(objects);
     }
 
+    const bool isDamageTestLevel = levelPath.find("_test") != std::string::npos ||
+                                   m_LevelManager->GetLevelName().find("Test") != std::string::npos;
+    if (isDamageTestLevel)
+    {
+        m_ShowDamageHud = true;
+        // Output damage info to console instead of on-screen HUD
+        std::cout << "\n=== Test Level Loaded: " << m_LevelManager->GetLevelName() << " ===\n";
+        std::cout << BuildDamageHudText(objects) << std::endl;
+    }
+
     BuildLevelHud();
     UpdateHudPositions();
 
@@ -86,6 +150,18 @@ bool GameScene::LoadLevel(const std::string &levelPath)
 void GameScene::Update()
 {
     const bool isBirdHolding = m_BirdLaunchController && m_BirdLaunchController->IsHoldingBird();
+
+    // Output damage stats to console periodically during test level
+    if (m_ShowDamageHud && m_LevelManager)
+    {
+        m_DamageOutputTimer += Util::Time::GetDeltaTimeMs() / 1000.0f;
+        if (m_DamageOutputTimer >= 2.0f) // Output every 2 seconds
+        {
+            m_DamageOutputTimer = 0.0f;
+            std::cout << "\n=== Damage Status ===\n"
+                      << BuildDamageHudText(m_LevelManager->GetGameObjects()) << std::endl;
+        }
+    }
 
     if (m_BirdLaunchController)
     {

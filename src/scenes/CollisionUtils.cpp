@@ -29,7 +29,7 @@ namespace CollisionUtils
         case Character::MaterialType::Flesh:
             return 0.6f;
         case Character::MaterialType::Wood:
-            return 0.7f;
+            return 1.2f; // High friction - wood is rough, especially the stage floor
         case Character::MaterialType::Stone:
             return 0.9f;
         case Character::MaterialType::Glass:
@@ -37,6 +37,26 @@ namespace CollisionUtils
             return 0.35f;
         default:
             return 0.5f;
+        }
+    }
+
+    // Damage resistance factor: lower value = more easily damaged
+    float GetDamageResistance(Character::MaterialType mat)
+    {
+        switch (mat)
+        {
+        case Character::MaterialType::Flesh:
+            return 0.8f; // Living creatures take more damage
+        case Character::MaterialType::Wood:
+            return 1.0f; // Base damage resistance
+        case Character::MaterialType::Stone:
+            return 1.5f; // Stone is harder, needs more impact
+        case Character::MaterialType::Glass:
+            return 0.9f; // Glass is brittle
+        case Character::MaterialType::Ice:
+            return 0.7f; // Ice is fragile
+        default:
+            return 1.0f;
         }
     }
 
@@ -77,6 +97,7 @@ namespace CollisionUtils
             outAxisDir = n;
             return overlap >= 0.0f;
         };
+
 
         // Test axes and find minimum penetration
         float minOverlap = FLT_MAX;

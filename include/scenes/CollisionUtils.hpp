@@ -8,6 +8,7 @@ namespace CollisionUtils
 {
     float GetRestitution(Character::MaterialType mat);
     float GetFriction(Character::MaterialType mat);
+    float GetDamageResistance(Character::MaterialType mat);
 
     // 2D cross product (returns scalar)
     inline float Cross(const glm::vec2 &a, const glm::vec2 &b)

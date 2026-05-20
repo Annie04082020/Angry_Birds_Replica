@@ -1,5 +1,7 @@
 #include "LevelObjectFactory.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 
 #include "Character.hpp"
@@ -78,6 +80,9 @@ namespace
             {
                 character.SetMaterialType(definition->materialType);
             }
+            // Apply health from template
+            character.SetMaxHealth(definition->health);
+            character.SetHealth(definition->health);
         }
 
         if (character.GetEntityKind() == Character::EntityKind::Unknown)
@@ -139,6 +144,45 @@ namespace
         }
 
         return std::string();
+    }
+
+    std::string NormalizeDamageBaseImageId(const std::string &imageId)
+    {
+        const std::size_t lastUnderscore = imageId.rfind('_');
+        if (lastUnderscore == std::string::npos || lastUnderscore + 1 >= imageId.size())
+        {
+            return imageId;
+        }
+
+        const std::string suffix = imageId.substr(lastUnderscore + 1);
+        const bool isNumericSuffix = std::all_of(suffix.begin(), suffix.end(), [](unsigned char ch) {
+            return std::isdigit(ch) != 0;
+        });
+        return isNumericSuffix ? imageId.substr(0, lastUnderscore) : imageId;
+    }
+
+    // Count how many damage state variants are available for a given base image ID
+    // e.g., "WOOD_205" -> check WOOD_205_1, WOOD_205_2, ... and count them
+    int CountAvailableDamageStates(const std::string &baseImageId)
+    {
+        const std::string normalizedBaseImageId = NormalizeDamageBaseImageId(baseImageId);
+        // Check how many _1, _2, _3, ... variants exist in Resource
+        int count = 0;
+        for (int i = 1; i <= 10; ++i) // Check up to 10 variants
+        {
+            const std::string variantId = normalizedBaseImageId + "_" + std::to_string(i);
+            if (Resource::GetPath(variantId).empty())
+            {
+                // No more variants found
+                break;
+            }
+            count++; // Found variant _i
+        }
+        // If no explicit numbered variants found, but the base id maps to a resource,
+        // treat that as a single available state.
+        if (count == 0 && !Resource::GetPath(normalizedBaseImageId).empty())
+            return 1;
+        return count;
     }
 } // namespace
 
@@ -268,6 +312,12 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetScale(glm::vec2(scaleX, scaleY));
     character->SetRotation(objectDefinition.rotation);
     character->SetVisible(true);
+    character->SetBaseImageId(objectDefinition.imageId); // Store base ID for damage state switching
+
+    // Detect and set the number of available damage state images
+    int numDamageStates = CountAvailableDamageStates(objectDefinition.imageId);
+    character->SetNumDamageStates(numDamageStates);
+
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
     const bool isDecor = objectDefinition.typeStr == "DECOR";
@@ -286,8 +336,6 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
     {
-        character->SetImpactActivated(false);
-        character->SetStatic(true);
         character->SetSleeping(true);
         character->SetVelocity({0.0f, 0.0f});
         character->SetAngularVelocity(0.0f);
@@ -297,13 +345,15 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         character->SetImpactActivated(true);
     }
 
-    if (objectDefinition.imageId == "SLINGSHOT_1")
+    if (objectDefinition.imageId == "SLINGSHOT_1" || 
+        objectDefinition.imageId == "SLINGSHOT_2" ||
+        objectDefinition.imageId == "sprite_147" ||
+        objectDefinition.imageId == "sprite_154")
     {
-        character->SetZIndex(1.0f);
-    }
-    else if (objectDefinition.imageId == "SLINGSHOT_2")
-    {
-        character->SetZIndex(-1.0f);
+        character->SetEntityKind(Character::EntityKind::Slingshot);
+        character->SetParticipatesInPhysics(false);
+        if (objectDefinition.imageId == "SLINGSHOT_1") character->SetZIndex(1.0f);
+        else if (objectDefinition.imageId == "SLINGSHOT_2") character->SetZIndex(-1.0f);
     }
 
     if (!objectDefinition.imageId.empty())

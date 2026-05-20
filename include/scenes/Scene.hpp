@@ -3,6 +3,7 @@
 
 #include "BGM.hpp"
 #include "Util/GameObject.hpp"
+#include "scenes/ContactManifold.hpp"
 #include <functional>
 #include <memory>
 #include <vector>
@@ -65,20 +66,23 @@ public:
   void SetControlledCharacter(const std::shared_ptr<Character> &ch) { m_Controlled = ch; }
   const std::shared_ptr<Character> &GetControlledCharacter() const { return m_Controlled; }
 
+  // Score system
+  [[nodiscard]] int GetScore() const { return m_Score; }
+  void AddScore(int points) { m_Score += points; }
+  void SetScore(int score) { m_Score = score; }
+
+  // Called when a character dies (can be overridden by subclasses)
+  virtual void OnCharacterDeath(const std::shared_ptr<Character> &) {}
+
 protected:
   // Runs a generic collision detection pass for children of this Scene.
   // Scenes may override `HandleCollision` to react to collisions. The
   // collision now provides SAT/MTV contact data (normal, depth and
   // an approximate contact point) to allow accurate positional correction
   // and torque computation.
-  virtual void HandleCollision(const std::shared_ptr<Util::GameObject> &a,
-                               const std::shared_ptr<Util::GameObject> &b,
-                               const glm::vec2 &contactNormal,
-                               float penetrationDepth,
-                               const glm::vec2 &contactPoint,
-                               bool stabilizing = false);
-  // Run collision detection with optional multiple passes. When `stabilizing` is true
-  // positional correction uses more aggressive constants to converge overlaps.
+  // Rebuild contact manifold list and run the SI solver.
+  // `stabilizing` selects stabilization tuning constants while still running
+  // warm-start, velocity solve, and position correction.
   void RunCollisionDetection(int passes = 1, bool stabilizing = false);
 
   // Physics fixed-timestep accumulator (seconds)
@@ -100,12 +104,21 @@ protected:
   void SetWorldFloorY(float y) { m_WorldFloorY = y; }
   float GetWorldFloorY() const { return m_WorldFloorY; }
 
+  // Grace period: no damage is applied for this many seconds after level load.
+  // This prevents initial settling impulses (which are NOT covered by !stabilizing)
+  // from destroying objects before the first bird is even launched.
+  float m_DamageImmunityTimer = 2.0f;
+  [[nodiscard]] bool IsDamageImmune() const { return m_DamageImmunityTimer > 0.0f; }
+
+  // Persisted contact manifolds for warm-starting the SI solver.
+  std::vector<ContactManifold> m_Contacts;
+
 private:
   std::function<void()> m_OnUpdate = nullptr;
   std::shared_ptr<BackgroundMusic> m_BGM;
   std::shared_ptr<Util::GameObject> m_Background;
   std::vector<std::shared_ptr<Util::GameObject>> m_Elements;
   std::shared_ptr<Character> m_Controlled = nullptr;
+  int m_Score = 0;
 };
-
 #endif // SCENE_HPP

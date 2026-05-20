@@ -76,6 +76,7 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
             bird->SetVelocity({0.0f, 0.0f});
             bird->SetAngularVelocity(0.0f);
             bird->SetStatic(true);
+            bird->SetParticipatesInPhysics(false);
         }
         ActivateBirdByIndex(0);
     }
@@ -141,6 +142,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             const float massScale = std::sqrt(1.0f / birdMass); // keep kinetic energy roughly similar
             m_BirdVelocity = -pullVector * launchPower * massScale;
             m_ActiveBird->SetStatic(false);
+            m_ActiveBird->SetParticipatesInPhysics(true);
             m_ActiveBird->SetVelocity(m_BirdVelocity);
             m_IsHoldingBird = false;
             m_HasLaunchedBird = true;
@@ -218,6 +220,7 @@ void BirdLaunchController::ActivateBirdByIndex(size_t index)
     m_ActiveBird->SetVelocity({0.0f, 0.0f});
     m_ActiveBird->SetAngularVelocity(0.0f);
     m_ActiveBird->SetStatic(true);
+    m_ActiveBird->SetParticipatesInPhysics(false);
     m_BirdVelocity = {0.0f, 0.0f};
     m_IsHoldingBird = false;
     m_HasLaunchedBird = false;
