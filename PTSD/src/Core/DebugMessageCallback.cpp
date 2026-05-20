@@ -8,16 +8,6 @@ void GLAPIENTRY OpenGLDebugMessageCallback(GLenum source, GLenum type,
                                            GLenum severity, GLsizei length,
                                            const GLchar *message,
                                            const void *data) {
-    if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
-        (void)source;
-        (void)type;
-        (void)id;
-        (void)length;
-        (void)message;
-        (void)data;
-        return;
-    }
-
     std::string sourceString;
     std::string typeString;
     std::string severityString;
@@ -76,6 +66,15 @@ void GLAPIENTRY OpenGLDebugMessageCallback(GLenum source, GLenum type,
         LOG_INFO(" Type: {}", typeString);
         LOG_INFO(" Message: {}", message);
         break;
+
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        LOG_DEBUG("OpenGL Severity {}", severityString);
+        LOG_DEBUG(" ID: {}", id);
+        LOG_DEBUG(" Source: {}", sourceString);
+        LOG_DEBUG(" Type: {}", typeString);
+        LOG_DEBUG(" Message: {}", message);
+        break;
+
     default:
         LOG_DEBUG("OpenGL Severity Unknown");
         LOG_DEBUG(" ID: {}", id);

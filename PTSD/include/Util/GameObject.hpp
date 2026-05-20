@@ -152,9 +152,6 @@ public:
             m_Children.end());
     }
 
-    virtual void Init() {}
-    virtual void Update() {}
-
     void Draw();
 
     // Compatibility helpers: many consumer classes expect Init/Update hooks.
