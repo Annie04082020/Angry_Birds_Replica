@@ -149,6 +149,10 @@ namespace Resource
     const std::string Game_Menu_Item_063 = RESOURCE_DIR "/Image/ui/button/sprite_063.png";
     const std::string Game_Menu_Item_040 = RESOURCE_DIR "/Image/ui/button/sprite_040.png";
 
+    // Stars (for level clear screen)
+    const std::string Star_Empty = RESOURCE_DIR "/Image/ui/mark/star_003.png";
+    const std::string Star_Filled = RESOURCE_DIR "/Image/ui/mark/star_001.png";
+
     // Level Titles
     const std::string Level_Title_1_1 = RESOURCE_DIR "/Image/word/1-1.png";
     const std::string Level_Title_1_2 = RESOURCE_DIR "/Image/word/1-2.png";

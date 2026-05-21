@@ -75,16 +75,23 @@ namespace
     constexpr float kGameHudLeftPadding = 50.0f;
     constexpr float kGameHudTopPadding = 50.0f;
     constexpr float kGameHudButtonSpacing = 92.0f;
-    constexpr float kGameHudScoreOffsetX = -180.0f;  // Right side positioning
-    constexpr float kGameHudScoreLabelOffsetY = -4.0f;
-    constexpr float kGameHudScoreValueOffsetY = -40.0f;
-    constexpr int kGameHudScoreLabelSize = 22;
-    constexpr int kGameHudScoreValueSize = 30;
-    constexpr float kGameHudHighScoreOffsetX = -180.0f;  // Same X as SCORE, but different Y
-    constexpr float kGameHudHighScoreLabelOffsetY = -100.0f;  // Below SCORE label
-    constexpr float kGameHudHighScoreValueOffsetY = -130.0f;  // Below SCORE value
-    constexpr int kGameHudHighScoreLabelSize = 22;
-    constexpr int kGameHudHighScoreValueSize = 30;
+    constexpr float kGameHudScoreOffsetX = -50.0f;
+    constexpr float kGameHudScoreLabelOffsetY = 1.0f;
+    constexpr float kGameHudScoreValueOffsetY = -52.0f;
+    constexpr int kGameHudScoreLabelSize = 57;
+    constexpr int kGameHudScoreValueSize = 57;
+    constexpr float kGameHudHighScoreOffsetX = -50.0f;
+    constexpr float kGameHudHighScoreLabelOffsetY = -116.0f;
+    constexpr float kGameHudHighScoreValueOffsetY = -164.0f;
+    constexpr int kGameHudHighScoreLabelSize = 37;
+    constexpr int kGameHudHighScoreValueSize = 57;
+    const Util::Color kGameHudTextFillColor = Util::Color::FromRGB(245, 245, 245);
+    const Util::Color kGameHudTextOutlineColor = Util::Color::FromRGB(24, 24, 24);
+    constexpr std::array<glm::vec2, 4> kGameHudOutlineOffsets = {
+        glm::vec2{-2.5f, 0.0f},
+        glm::vec2{2.5f, 0.0f},
+        glm::vec2{0.0f, -2.5f},
+        glm::vec2{0.0f, 2.5f}};
     constexpr float kGamePauseMenuBackdropWidth = 500.0f;
     constexpr float kGamePauseMenuBackdropHeightRatio = 0.99f;
     constexpr float kGamePauseMenuBackdropCenterOffsetX = 100.0f;
@@ -110,6 +117,22 @@ namespace
     constexpr float kGamePauseMenuLevelTitleOffsetX = 280.0f;
     constexpr float kGamePauseMenuLevelTitleOffsetY = 450.0f;
     constexpr float kGamePauseMenuLevelTitleScale = 0.5f;
+
+    // Level Clear Screen Constants
+    constexpr int kLevelClearTitleSize = 80;
+    constexpr int kLevelClearScoreLabelSize = 36;
+    constexpr int kLevelClearScoreValueSize = 56;
+    constexpr int kLevelClearHighScoreLabelSize = 28;
+    constexpr int kLevelClearHighScoreValueSize = 40;
+    constexpr float kLevelClearStarScale = 1.2f;
+    constexpr float kLevelClearStarSpacing = 120.0f;
+    constexpr float kLevelClearTitleOffsetY = 200.0f;
+    constexpr float kLevelClearStarsOffsetY = 80.0f;
+    constexpr float kLevelClearScoreOffsetY = -50.0f;
+    constexpr float kLevelClearHighScoreOffsetY = -160.0f;
+    constexpr float kLevelClearButtonScale = 0.9f;
+    constexpr float kLevelClearButtonSpacing = 200.0f;
+    constexpr float kLevelClearButtonBaseOffsetY = -280.0f;
 
     std::string FormatScore(const int score)
     {
@@ -178,6 +201,74 @@ namespace
         auto object = std::make_shared<Util::GameObject>(drawable, zIndex);
         object->m_Transform.translation = position;
         return object;
+    }
+
+    void CreateOutlinedTextObjects(
+        const std::string &text,
+        const int fontSize,
+        const glm::vec2 &position,
+        const float zIndex,
+        const Util::Color &fillColor,
+        const Util::Color &outlineColor,
+        std::array<std::shared_ptr<Util::GameObject>, 4> &outlineObjects,
+        std::shared_ptr<Util::GameObject> &frontObject,
+        std::shared_ptr<Util::Text> *frontDrawable = nullptr,
+        std::array<std::shared_ptr<Util::Text>, 4> *outlineDrawables = nullptr)
+    {
+        for (size_t i = 0; i < outlineObjects.size(); ++i)
+        {
+            std::shared_ptr<Util::Text> drawable = nullptr;
+            outlineObjects[i] = CreateTextObject(
+                text,
+                fontSize,
+                position + kGameHudOutlineOffsets[i],
+                zIndex - 0.1f,
+                outlineColor,
+                &drawable);
+
+            if (outlineDrawables)
+            {
+                (*outlineDrawables)[i] = drawable;
+            }
+        }
+
+        frontObject = CreateTextObject(text, fontSize, position, zIndex, fillColor, frontDrawable);
+    }
+
+    void PositionOutlinedTextObjects(const glm::vec2 &position,
+                                     std::array<std::shared_ptr<Util::GameObject>, 4> &outlineObjects,
+                                     const std::shared_ptr<Util::GameObject> &frontObject,
+                                     const float zoom)
+    {
+        for (size_t i = 0; i < outlineObjects.size(); ++i)
+        {
+            if (outlineObjects[i])
+            {
+                outlineObjects[i]->m_Transform.translation = position + kGameHudOutlineOffsets[i] / zoom;
+            }
+        }
+
+        if (frontObject)
+        {
+            frontObject->m_Transform.translation = position;
+        }
+    }
+
+    void UpdateOutlineDrawables(std::shared_ptr<Util::Text> *frontDrawable,
+                                std::array<std::shared_ptr<Util::Text>, 4> *outlineDrawables,
+                                const std::string &text)
+    {
+        if (frontDrawable && *frontDrawable && outlineDrawables)
+        {
+            (*frontDrawable)->SetText(text);
+            for (size_t i = 0; i < outlineDrawables->size(); ++i)
+            {
+                if ((*outlineDrawables)[i])
+                {
+                    (*outlineDrawables)[i]->SetText(text);
+                }
+            }
+        }
     }
 
     float ComputeImpactSpeed(const std::shared_ptr<Character> &a,
@@ -397,25 +488,73 @@ void GameScene::BuildLevelHud()
 {
     if (!m_ScoreLabel)
     {
-        m_ScoreLabel = CreateTextObject("SCORE", kGameHudScoreLabelSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 239, 214));
+        CreateOutlinedTextObjects("SCORE",
+                                  kGameHudScoreLabelSize,
+                                  {0.0f, 0.0f},
+                                  95.0f,
+                                  kGameHudTextFillColor,
+                                  kGameHudTextOutlineColor,
+                                  m_ScoreLabelOutline,
+                                  m_ScoreLabel);
+        for (const auto &outline : m_ScoreLabelOutline)
+        {
+            AddElements(outline);
+        }
         AddElements(m_ScoreLabel);
     }
 
     if (!m_ScoreValue)
     {
-        m_ScoreValue = CreateTextObject("0", kGameHudScoreValueSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 255, 255), &m_ScoreValueDrawable);
+        CreateOutlinedTextObjects("0",
+                                  kGameHudScoreValueSize,
+                                  {0.0f, 0.0f},
+                                  95.0f,
+                                  kGameHudTextFillColor,
+                                  kGameHudTextOutlineColor,
+                                  m_ScoreValueOutline,
+                                  m_ScoreValue,
+                                  &m_ScoreValueDrawable,
+                                  &m_ScoreValueOutlineDrawables);
+        for (const auto &outline : m_ScoreValueOutline)
+        {
+            AddElements(outline);
+        }
         AddElements(m_ScoreValue);
     }
 
     if (!m_HighScoreLabel)
     {
-        m_HighScoreLabel = CreateTextObject("HIGHSCORE", kGameHudHighScoreLabelSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 239, 214));
+        CreateOutlinedTextObjects("HIGHSCORE",
+                                  kGameHudHighScoreLabelSize,
+                                  {0.0f, 0.0f},
+                                  95.0f,
+                                  kGameHudTextFillColor,
+                                  kGameHudTextOutlineColor,
+                                  m_HighScoreLabelOutline,
+                                  m_HighScoreLabel);
+        for (const auto &outline : m_HighScoreLabelOutline)
+        {
+            AddElements(outline);
+        }
         AddElements(m_HighScoreLabel);
     }
 
     if (!m_HighScoreValue)
     {
-        m_HighScoreValue = CreateTextObject("0", kGameHudHighScoreValueSize, {0.0f, 0.0f}, 95.0f, Util::Color::FromRGB(255, 255, 255), &m_HighScoreValueDrawable);
+        CreateOutlinedTextObjects("0",
+                                  kGameHudHighScoreValueSize,
+                                  {0.0f, 0.0f},
+                                  95.0f,
+                                  kGameHudTextFillColor,
+                                  kGameHudTextOutlineColor,
+                                  m_HighScoreValueOutline,
+                                  m_HighScoreValue,
+                                  &m_HighScoreValueDrawable,
+                                  &m_HighScoreValueOutlineDrawables);
+        for (const auto &outline : m_HighScoreValueOutline)
+        {
+            AddElements(outline);
+        }
         AddElements(m_HighScoreValue);
     }
 
@@ -510,6 +649,108 @@ void GameScene::BuildLevelHud()
     m_PauseMenuLevelTitle->SetVisible(false);
     AddElements(m_PauseMenuLevelTitle);
 
+    // Build Level Clear Screen UI
+    m_LevelClearBackdrop = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.75f}, 1.0f), 90.0f);
+    m_LevelClearBackdrop->SetVisible(false);
+    AddElements(m_LevelClearBackdrop);
+
+    m_LevelClearTitle = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::Text>(kUIFont, kLevelClearTitleSize, "LEVEL CLEARED!", kGameHudTextFillColor), 98.0f);
+    m_LevelClearTitle->SetVisible(false);
+    AddElements(m_LevelClearTitle);
+
+    // Create star rating display
+    for (int i = 0; i < 3; ++i)
+    {
+        m_LevelClearStars[i] = std::make_shared<Util::GameObject>(
+            std::make_shared<Util::Image>(Resource::Star_Empty), 97.0f);
+        m_LevelClearStars[i]->m_Transform.scale = {kLevelClearStarScale, kLevelClearStarScale};
+        m_LevelClearStars[i]->SetVisible(false);
+        AddElements(m_LevelClearStars[i]);
+    }
+
+    // Level Clear Score
+    CreateOutlinedTextObjects(FormatScore(0),
+                              kLevelClearScoreValueSize,
+                              {0.0f, 0.0f},
+                              97.0f,
+                              kGameHudTextFillColor,
+                              kGameHudTextOutlineColor,
+                              m_LevelClearScoreOutline,
+                              m_LevelClearScore,
+                              &m_LevelClearScoreDrawable,
+                              &m_LevelClearScoreOutlineDrawables);
+    for (const auto &outline : m_LevelClearScoreOutline)
+    {
+        outline->SetVisible(false);
+        AddElements(outline);
+    }
+    m_LevelClearScore->SetVisible(false);
+    AddElements(m_LevelClearScore);
+
+    // Level Clear High Score
+    CreateOutlinedTextObjects("Best " + FormatScore(0) + "★★★",
+                              kLevelClearHighScoreValueSize,
+                              {0.0f, 0.0f},
+                              97.0f,
+                              kGameHudTextFillColor,
+                              kGameHudTextOutlineColor,
+                              m_LevelClearHighScoreOutline,
+                              m_LevelClearHighScore,
+                              &m_LevelClearHighScoreDrawable,
+                              &m_LevelClearHighScoreOutlineDrawables);
+    for (const auto &outline : m_LevelClearHighScoreOutline)
+    {
+        outline->SetVisible(false);
+        AddElements(outline);
+    }
+    m_LevelClearHighScore->SetVisible(false);
+    AddElements(m_LevelClearHighScore);
+
+    // Level Clear Buttons
+    m_LevelClearMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_005);
+    m_LevelClearMenuButton->SetZIndex(98.0f);
+    m_LevelClearMenuButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
+    m_LevelClearMenuButton->SetVisible(false);
+    m_LevelClearMenuButton->SetSFX(Resource::SETTING_SFX);
+    m_LevelClearMenuButton->SetOnClickFunction([this]()
+                                               {
+                                                   if (m_OnOpenLevelSelect)
+                                                   {
+                                                       m_OnOpenLevelSelect();
+                                                   }
+                                               });
+    AddElements(m_LevelClearMenuButton);
+
+    m_LevelClearRestartButton = std::make_shared<Button>(Resource::Game_Menu_Item_082);
+    m_LevelClearRestartButton->SetZIndex(98.0f);
+    m_LevelClearRestartButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
+    m_LevelClearRestartButton->SetVisible(false);
+    m_LevelClearRestartButton->SetSFX(Resource::SETTING_SFX);
+    m_LevelClearRestartButton->SetOnClickFunction([this]()
+                                                  {
+                                                      if (m_OnRestartLevel)
+                                                      {
+                                                          m_OnRestartLevel();
+                                                      }
+                                                  });
+    AddElements(m_LevelClearRestartButton);
+
+    m_LevelClearNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
+    m_LevelClearNextButton->SetZIndex(98.0f);
+    m_LevelClearNextButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
+    m_LevelClearNextButton->SetVisible(false);
+    m_LevelClearNextButton->SetSFX(Resource::SETTING_SFX);
+    m_LevelClearNextButton->SetOnClickFunction([this]()
+                                               {
+                                                   if (m_OnOpenLevelSelect)
+                                                   {
+                                                       m_OnOpenLevelSelect();
+                                                   }
+                                               });
+    AddElements(m_LevelClearNextButton);
+
     SetPauseMenuVisible(false);
 }
 
@@ -545,26 +786,24 @@ void GameScene::UpdateHudPositions()
                                          viewportSize.y * 0.5f / zoom - kGameHudTopPadding / zoom};
 
     const glm::vec2 scoreAnchor = topRightAnchor + glm::vec2{kGameHudScoreOffsetX / zoom, 0.0f};
-    if (m_ScoreLabel)
-    {
-        m_ScoreLabel->m_Transform.translation = scoreAnchor + glm::vec2{0.0f, kGameHudScoreLabelOffsetY / zoom};
-    }
-
-    if (m_ScoreValue)
-    {
-        m_ScoreValue->m_Transform.translation = scoreAnchor + glm::vec2{0.0f, kGameHudScoreValueOffsetY / zoom};
-    }
+    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, kGameHudScoreLabelOffsetY / zoom},
+                                m_ScoreLabelOutline,
+                                m_ScoreLabel,
+                                zoom);
+    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, kGameHudScoreValueOffsetY / zoom},
+                                m_ScoreValueOutline,
+                                m_ScoreValue,
+                                zoom);
 
     const glm::vec2 highScoreAnchor = topRightAnchor + glm::vec2{kGameHudHighScoreOffsetX / zoom, 0.0f};
-    if (m_HighScoreLabel)
-    {
-        m_HighScoreLabel->m_Transform.translation = highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreLabelOffsetY / zoom};
-    }
-
-    if (m_HighScoreValue)
-    {
-        m_HighScoreValue->m_Transform.translation = highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreValueOffsetY / zoom};
-    }
+    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreLabelOffsetY / zoom},
+                                m_HighScoreLabelOutline,
+                                m_HighScoreLabel,
+                                zoom);
+    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreValueOffsetY / zoom},
+                                m_HighScoreValueOutline,
+                                m_HighScoreValue,
+                                zoom);
 
     if (m_PauseMenu069)
     {
@@ -730,14 +969,30 @@ void GameScene::SetPauseMenuVisible(const bool visible)
 
 void GameScene::UpdateScoreHud()
 {
+    const std::string scoreText = FormatScore(m_ScoringSystem.GetScore());
     if (m_ScoreValueDrawable)
     {
-        m_ScoreValueDrawable->SetText(FormatScore(m_ScoringSystem.GetScore()));
+        m_ScoreValueDrawable->SetText(scoreText);
+    }
+    for (const auto &drawable : m_ScoreValueOutlineDrawables)
+    {
+        if (drawable)
+        {
+            drawable->SetText(scoreText);
+        }
     }
 
+    const std::string highScoreText = FormatScore(m_ScoringSystem.GetHighScore());
     if (m_HighScoreValueDrawable)
     {
-        m_HighScoreValueDrawable->SetText(FormatScore(m_ScoringSystem.GetHighScore()));
+        m_HighScoreValueDrawable->SetText(highScoreText);
+    }
+    for (const auto &drawable : m_HighScoreValueOutlineDrawables)
+    {
+        if (drawable)
+        {
+            drawable->SetText(highScoreText);
+        }
     }
 }
 
@@ -770,17 +1025,158 @@ void GameScene::ResetScoreState()
 
 void GameScene::UpdateWinState()
 {
-    if (!m_LevelCleared || m_LeftoverBirdsAwarded)
+    if (!m_LevelCleared || m_IsLevelClearScreenVisible)
     {
         return;
     }
 
-    if (m_BirdLaunchController)
+    if (!m_LeftoverBirdsAwarded)
     {
-        m_ScoringSystem.AwardLeftoverBirds(m_BirdLaunchController->GetRemainingBirdCountForBonus());
+        if (m_BirdLaunchController)
+        {
+            m_ScoringSystem.AwardLeftoverBirds(m_BirdLaunchController->GetRemainingBirdCountForBonus());
+        }
+        m_LeftoverBirdsAwarded = true;
+        UpdateScoreHud();
     }
-    m_LeftoverBirdsAwarded = true;
-    UpdateScoreHud();
+
+    // Show level clear screen
+    m_IsLevelClearScreenVisible = true;
+
+    // Hide game HUD buttons
+    if (m_LeftTopButton093)
+    {
+        m_LeftTopButton093->SetVisible(false);
+    }
+    if (m_LeftTopButton031)
+    {
+        m_LeftTopButton031->SetVisible(false);
+    }
+
+    const glm::vec2 cameraPos = Util::GetCameraPosition();
+    const glm::vec2 viewportSize = Util::GetViewportSize();
+    const float zoom = Util::GetCameraZoom();
+
+    // Show backdrop
+    if (m_LevelClearBackdrop)
+    {
+        m_LevelClearBackdrop->SetVisible(true);
+    }
+
+    // Show and position title
+    if (m_LevelClearTitle)
+    {
+        m_LevelClearTitle->SetVisible(true);
+        m_LevelClearTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelClearTitleOffsetY / zoom};
+    }
+
+    // Calculate star count based on score
+    int score = m_ScoringSystem.GetScore();
+    int stars = 1;
+    if (score >= 30000)
+    {
+        stars = 3;
+    }
+    else if (score >= 15000)
+    {
+        stars = 2;
+    }
+
+    // Show and position stars
+    const float starStartX = -(kLevelClearStarSpacing / zoom);
+    for (int i = 0; i < 3; ++i)
+    {
+        if (m_LevelClearStars[i])
+        {
+            m_LevelClearStars[i]->SetVisible(true);
+            const glm::vec2 starPos = cameraPos + glm::vec2{
+                starStartX + static_cast<float>(i) * (kLevelClearStarSpacing / zoom),
+                kLevelClearStarsOffsetY / zoom};
+            m_LevelClearStars[i]->m_Transform.translation = starPos;
+
+            // Update star image based on count
+            if (i < stars)
+            {
+                m_LevelClearStars[i]->SetDrawable(std::make_shared<Util::Image>(Resource::Star_Filled));
+            }
+            else
+            {
+                m_LevelClearStars[i]->SetDrawable(std::make_shared<Util::Image>(Resource::Star_Empty));
+            }
+        }
+    }
+
+    // Show and position current score
+    if (m_LevelClearScore && m_LevelClearScoreDrawable)
+    {
+        m_LevelClearScore->SetVisible(true);
+        const std::string scoreStr = FormatScore(score);
+        m_LevelClearScoreDrawable->SetText(scoreStr);
+        UpdateOutlineDrawables(&m_LevelClearScoreDrawable, &m_LevelClearScoreOutlineDrawables, scoreStr);
+        for (const auto &outline : m_LevelClearScoreOutline)
+        {
+            outline->SetVisible(true);
+        }
+
+        m_LevelClearScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelClearScoreOffsetY / zoom};
+        for (size_t i = 0; i < m_LevelClearScoreOutline.size(); ++i)
+        {
+            if (m_LevelClearScoreOutline[i])
+            {
+                m_LevelClearScoreOutline[i]->m_Transform.translation =
+                    m_LevelClearScore->m_Transform.translation + kGameHudOutlineOffsets[i] / zoom;
+            }
+        }
+    }
+
+    // Show and position high score
+    int highScore = m_ScoringSystem.GetHighScore();
+    if (m_LevelClearHighScore && m_LevelClearHighScoreDrawable)
+    {
+        m_LevelClearHighScore->SetVisible(true);
+        const std::string highScoreText = "Best " + FormatScore(highScore) + "★★★";
+        m_LevelClearHighScoreDrawable->SetText(highScoreText);
+        UpdateOutlineDrawables(&m_LevelClearHighScoreDrawable, &m_LevelClearHighScoreOutlineDrawables, highScoreText);
+        for (const auto &outline : m_LevelClearHighScoreOutline)
+        {
+            outline->SetVisible(true);
+        }
+
+        m_LevelClearHighScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelClearHighScoreOffsetY / zoom};
+        for (size_t i = 0; i < m_LevelClearHighScoreOutline.size(); ++i)
+        {
+            if (m_LevelClearHighScoreOutline[i])
+            {
+                m_LevelClearHighScoreOutline[i]->m_Transform.translation =
+                    m_LevelClearHighScore->m_Transform.translation + kGameHudOutlineOffsets[i] / zoom;
+            }
+        }
+    }
+
+    // Show and position buttons
+    if (m_LevelClearMenuButton)
+    {
+        m_LevelClearMenuButton->SetVisible(true);
+        m_LevelClearMenuButton->SetPosition(cameraPos + glm::vec2{
+            -kLevelClearButtonSpacing / zoom,
+            kLevelClearButtonBaseOffsetY / zoom});
+    }
+
+    if (m_LevelClearRestartButton)
+    {
+        m_LevelClearRestartButton->SetVisible(true);
+        m_LevelClearRestartButton->SetPosition(cameraPos + glm::vec2{
+            0.0f,
+            kLevelClearButtonBaseOffsetY / zoom});
+    }
+
+    if (m_LevelClearNextButton)
+    {
+        m_LevelClearNextButton->SetVisible(true);
+        m_LevelClearNextButton->SetPosition(cameraPos + glm::vec2{
+            kLevelClearButtonSpacing / zoom,
+            kLevelClearButtonBaseOffsetY / zoom});
+    }
 }
 
 void GameScene::SpawnOutlinedFloatingScore(const glm::vec2 &position,
