@@ -397,6 +397,8 @@ bool GameScene::LoadLevel(const std::string &levelPath)
         std::cout << BuildDamageHudText(objects) << std::endl;
     }
 
+    m_ScoringSystem.LoadConfig(RESOURCE_DIR "/scoring_config.json");
+
     ResetScoreState();
     BuildLevelHud();
     UpdateHudPositions();
