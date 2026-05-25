@@ -43,7 +43,8 @@ void Program::Bind() const {
     GLint status = GL_FALSE;
     glGetProgramiv(m_ProgramId, GL_LINK_STATUS, &status);
     if (status != GL_TRUE) {
-        LOG_ERROR("Attempted to use program {} which is not linked", m_ProgramId);
+        LOG_ERROR("Attempted to use program {} which is not linked",
+                  m_ProgramId);
         return;
     }
 

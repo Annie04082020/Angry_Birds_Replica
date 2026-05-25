@@ -67,7 +67,8 @@ void Text::InitProgram() {
         if (location >= 0) {
             glUniform1i(location, UNIFORM_SURFACE_LOCATION);
         } else {
-            LOG_ERROR("Uniform 'surface' not found in program {}", s_Program->GetId());
+            LOG_ERROR("Uniform 'surface' not found in program {}",
+                      s_Program->GetId());
         }
     } else {
         LOG_ERROR("Program failed to link; skipping uniform setup for Text");
@@ -84,28 +85,40 @@ void Text::InitVertexArray() {
     // Vertex
     s_VertexArray->AddVertexBuffer(std::make_unique<Core::VertexBuffer>(
         std::vector<float>{
-            -0.5F, 0.5F,  //
-            -0.5F, -0.5F, //
-            0.5F, -0.5F,  //
-            0.5F, 0.5F,   //
+            -0.5F,
+            0.5F, //
+            -0.5F,
+            -0.5F, //
+            0.5F,
+            -0.5F, //
+            0.5F,
+            0.5F, //
         },
         2));
 
     // UV
     s_VertexArray->AddVertexBuffer(std::make_unique<Core::VertexBuffer>(
         std::vector<float>{
-            0.0F, 0.0F, //
-            0.0F, 1.0F, //
-            1.0F, 1.0F, //
-            1.0F, 0.0F, //
+            0.0F,
+            0.0F, //
+            0.0F,
+            1.0F, //
+            1.0F,
+            1.0F, //
+            1.0F,
+            0.0F, //
         },
         2));
 
     // Index
     s_VertexArray->SetIndexBuffer(
         std::make_unique<Core::IndexBuffer>(std::vector<unsigned int>{
-            0, 1, 2, //
-            0, 2, 3, //
+            0,
+            1,
+            2, //
+            0,
+            2,
+            3, //
         }));
     // NOLINTEND
 }
