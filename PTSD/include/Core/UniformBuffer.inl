@@ -10,7 +10,8 @@ UniformBuffer<T>::UniformBuffer(const Program &program, const std::string &name,
     GLint uniformBlockIndex =
         glGetUniformBlockIndex(program.GetId(), name.c_str());
     if (uniformBlockIndex == GL_INVALID_INDEX) {
-        LOG_ERROR("Uniform block '{}' not found in program {}", name, program.GetId());
+        LOG_ERROR("Uniform block '{}' not found in program {}", name,
+                  program.GetId());
     } else {
         glUniformBlockBinding(program.GetId(), uniformBlockIndex, binding);
     }
