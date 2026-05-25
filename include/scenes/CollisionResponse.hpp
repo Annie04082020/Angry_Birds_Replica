@@ -25,6 +25,9 @@ namespace CollisionResponse
     // damageEnabled: apply damage when impulse delta is large.
     void SolveVelocity(ContactManifold& cm, bool damageEnabled);
 
+    // Apply damage accumulated over the solver iterations for this contact.
+    void ApplyAccumulatedDamage(ContactManifold& cm);
+
     // Baumgarte position correction – does NOT touch velocities.
     // Run 2-3 times after all velocity iterations per step.
     void SolvePosition(ContactManifold& cm);

@@ -423,6 +423,8 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       auto activateEnvironment = [](const std::shared_ptr<Character>& target, const std::shared_ptr<Character>& other) {
           if (!target || target->GetEntityKind() != Character::EntityKind::Environment)
               return;
+          if (target->GetMaterialType() == Character::MaterialType::Earth)
+              return;
           if (target->IsImpactActivated())
               return;
 
@@ -513,6 +515,15 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   for (int iter = 0; iter < kVelIterations; ++iter)
     for (auto& cm : m_Contacts)
       CollisionResponse::SolveVelocity(cm, damageEnabled);
+
+  // Apply accumulated damage once per contact for this physics step.
+  if (damageEnabled)
+  {
+    for (auto& cm : m_Contacts)
+    {
+      CollisionResponse::ApplyAccumulatedDamage(cm);
+    }
+  }
 
   constexpr int kPosIterations = 3;
   for (int iter = 0; iter < kPosIterations; ++iter)

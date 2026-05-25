@@ -181,30 +181,12 @@ void CollisionResponse::SolveVelocity(ContactManifold& cm, bool damageEnabled)
         ApplyImpulse(bd.a, bd.rA, Pn, bd.invMa, bd.invIa, -1.f);
         ApplyImpulse(bd.b, bd.rB, Pn, bd.invMb, bd.invIb, +1.f);
 
-        // ── Damage ───────────────────────────────────────────────────────
+        // Accumulate normal impulse magnitude for this contact over solver
+        // iterations so damage can be applied once per physics step instead
+        // of once per iteration (which would artificially multiply damage).
         if (damageEnabled)
         {
-            // Higher threshold = requires a harder hit to deal any damage at all.
-            // Lower factor = each hit above threshold deals less damage.
-            // Together these give structures enough HP to show intermediate
-            // damage sprites before they break.
-            constexpr float kDamageThreshold  = 150.f;
-            constexpr float kDamageFactor     = 0.05f;
-            float absJn = std::fabs(actualJn);
-            if (absJn > kDamageThreshold)
-            {
-                float base = (absJn - kDamageThreshold) * kDamageFactor;
-                auto applyDmg = [&](Character* c, bool isStatic)
-                {
-                    if (!isStatic && c->GetEntityKind() != Character::EntityKind::Bird)
-                    {
-                        float r = CollisionUtils::GetDamageResistance(c->GetMaterialType());
-                        c->ApplyDamage(base / r);
-                    }
-                };
-                applyDmg(bd.a, bd.aStatic);
-                applyDmg(bd.b, bd.bStatic);
-            }
+            cm.frameAccumulatedNormalImpulse += std::fabs(actualJn);
         }
     }
 
@@ -278,4 +260,40 @@ void CollisionResponse::SolvePosition(ContactManifold& cm)
         bd.a->SetPosition(bd.a->GetPosition() - corrA * cm.normal);
     if (!bd.bStatic)
         bd.b->SetPosition(bd.b->GetPosition() + corrB * cm.normal);
+}
+
+// Apply damage accumulated over the solver iterations for this contact once
+// per physics step. This avoids multiplying damage by the number of iterations.
+void CollisionResponse::ApplyAccumulatedDamage(ContactManifold& cm)
+{
+    if (cm.frameAccumulatedNormalImpulse <= 0.f) return;
+
+    // Same constants as before; apply once based on accumulated impulse.
+    constexpr float kDamageThreshold  = 150.f;
+    constexpr float kDamageFactor     = 0.05f;
+
+    float absJn = cm.frameAccumulatedNormalImpulse;
+    if (absJn <= kDamageThreshold)
+    {
+        cm.frameAccumulatedNormalImpulse = 0.f;
+        return;
+    }
+
+    float base = (absJn - kDamageThreshold) * kDamageFactor;
+
+    auto bd = Setup(cm);
+    auto applyDmg = [&](Character* c, bool isStatic)
+    {
+        if (!isStatic && c->GetEntityKind() != Character::EntityKind::Bird)
+        {
+            float r = CollisionUtils::GetDamageResistance(c->GetMaterialType());
+            c->ApplyDamage(base / r);
+        }
+    };
+
+    applyDmg(bd.a, bd.aStatic);
+    applyDmg(bd.b, bd.bStatic);
+
+    // Reset accumulator for next physics step
+    cm.frameAccumulatedNormalImpulse = 0.f;
 }

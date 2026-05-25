@@ -20,6 +20,10 @@ struct ContactManifold
     // Accumulated impulses – carried across frames for warm-starting.
     float normalImpulse  = 0.f; // >= 0  (can only push, never pull)
     float tangentImpulse = 0.f; // clamped to [-mu*jn, mu*jn]
+    // Accumulate normal impulse over the solver iterations for the current
+    // physics step so damage can be applied once per step instead of once
+    // per solver iteration (which would multiply damage unexpectedly).
+    float frameAccumulatedNormalImpulse = 0.f;
 
     bool active = false;
 
