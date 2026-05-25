@@ -187,7 +187,8 @@ void CollisionResponse::SolveVelocity(ContactManifold &cm, bool damageEnabled)
 
         // Accumulate and clamp (normal impulse >= 0)
         float jnOld = cm.normalImpulse;
-        cm.normalImpulse = std::max(0.f, jnOld + deltaJn);
+        constexpr float kMaxNormalImpulse = 1200.0f;
+        cm.normalImpulse = std::clamp(jnOld + deltaJn, 0.0f, kMaxNormalImpulse);
         float actualJn = cm.normalImpulse - jnOld;
 
         // Wake before applying
@@ -251,7 +252,7 @@ void CollisionResponse::SolvePosition(ContactManifold &cm)
 {
     // Box2D default is 0.2. A lower value (0.15) makes objects push apart softer,
     // reducing the "bouncy" jitter feeling when heavy stacks push against each other.
-    constexpr float kBeta = 0.15f;
+    constexpr float kBeta = 0.08f;
     // Sleeping objects also get gentle position correction (much smaller beta).
     // This silently removes residual penetration left over from StabilizeEnvironment
     // so that when a sleeping body eventually wakes up there is no stored overlap

@@ -154,6 +154,8 @@ void Scene::StabilizeEnvironment(int steps)
       ch->SetAngularVelocity(0.0f);
     }
   }
+
+  m_Contacts.clear();
 }
 
 void Scene::Update()
@@ -384,6 +386,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   std::vector<std::shared_ptr<Character>> characters;
   characters.reserve(m_Elements.size());
   std::vector<std::shared_ptr<Character>> sleepingDynamics;
+  std::vector<Character *> newlyActivated;
   auto supportConfirmed = SleepSupport::CreateSupportConfirmedSet();
 
   for (const auto &element : m_Elements)
@@ -423,7 +426,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
         continue;
 
       // Impact activation check: wake environmental objects if hit by birds or already activated objects
-      auto activateEnvironment = [](const std::shared_ptr<Character> &target, const std::shared_ptr<Character> &other)
+      auto activateEnvironment = [&newlyActivated](const std::shared_ptr<Character> &target, const std::shared_ptr<Character> &other)
       {
         if (!target || target->GetEntityKind() != Character::EntityKind::Environment)
           return;
@@ -448,6 +451,9 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
           target->SetImpactActivated(true);
           target->SetStatic(false);
           target->SetSleeping(false);
+          target->SetVelocity({0.0f, 0.0f});
+          target->SetAngularVelocity(0.0f);
+          newlyActivated.push_back(target.get());
         }
       };
       activateEnvironment(ca, cb);
@@ -507,6 +513,20 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
                      [](const ContactManifold &cm)
                      { return !cm.active; }),
       m_Contacts.end());
+
+  if (!newlyActivated.empty())
+  {
+    for (auto &cm : m_Contacts)
+    {
+      if (std::find(newlyActivated.begin(), newlyActivated.end(), cm.a) != newlyActivated.end() ||
+          std::find(newlyActivated.begin(), newlyActivated.end(), cm.b) != newlyActivated.end())
+      {
+        cm.normalImpulse = 0.0f;
+        cm.tangentImpulse = 0.0f;
+        cm.frameAccumulatedNormalImpulse = 0.0f;
+      }
+    }
+  }
 
   // ── Solve ──────────────────────────────────────────────────────────────
   // We ALWAYS need to run velocity solver, even during stabilizing,
