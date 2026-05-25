@@ -98,40 +98,6 @@ namespace
     constexpr float kGamePauseMenuLevelTitleScale = 0.5f;
 }
 
-namespace
-{
-    constexpr float kGrassTopRatio = 404.0f / 563.0f;
-    constexpr float kGameHudButtonScale = 0.85f;
-    constexpr float kGameHudLeftPadding = 50.0f;
-    constexpr float kGameHudTopPadding = 50.0f;
-    constexpr float kGameHudButtonSpacing = 92.0f;
-    constexpr float kGamePauseMenuBackdropWidth = 500.0f;
-    constexpr float kGamePauseMenuBackdropHeightRatio = 0.99f;
-    constexpr float kGamePauseMenuBackdropCenterOffsetX = 100.0f;
-    constexpr float kGamePauseMenuBackdropCenterOffsetY = 10.0f;
-    constexpr float kGamePauseMenu069OffsetX = 5.0f;
-    constexpr float kGamePauseMenu069OffsetY = 5.0f;
-    constexpr float kGamePauseMenu069Scale = 1.2f;
-    constexpr float kGamePauseMenu082OffsetX = 125.0f;
-    constexpr float kGamePauseMenu082OffsetY = 250.0f;
-    constexpr float kGamePauseMenu082Scale = 1.25f;
-    constexpr float kGamePauseMenu073OffsetX = 125.0f;
-    constexpr float kGamePauseMenu073OffsetY = 400.0f;
-    constexpr float kGamePauseMenu073Scale = 1.25f;
-    constexpr float kGamePauseMenu005OffsetX = 90.0f;
-    constexpr float kGamePauseMenu005OffsetY = 900.0f;
-    constexpr float kGamePauseMenu005Scale = 1.2f;
-    constexpr float kGamePauseMenu040OffsetX = 90.0f;
-    constexpr float kGamePauseMenu040OffsetY = 895.0f;
-    constexpr float kGamePauseMenu040Scale = 1.2f;
-    constexpr float kGamePauseMenu063OffsetX = 180.0f;
-    constexpr float kGamePauseMenu063OffsetY = 900.0f;
-    constexpr float kGamePauseMenu063Scale = 1.2f;
-    constexpr float kGamePauseMenuLevelTitleOffsetX = 280.0f;
-    constexpr float kGamePauseMenuLevelTitleOffsetY = 450.0f;
-    constexpr float kGamePauseMenuLevelTitleScale = 0.5f;
-}
-
 bool GameScene::LoadLevel(const std::string &levelPath)
 {
     m_ZoomScrollAccumulator = 0.0f;

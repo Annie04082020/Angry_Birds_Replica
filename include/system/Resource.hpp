@@ -32,9 +32,6 @@ namespace Resource
     const std::string PIG_MEDIUM_3 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_074.png";
     const std::string PIG_MEDIUM_076 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_076.png";
     const std::string PIG_MEDIUM_076_1 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
-    const std::string PIG_MEDIUM = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_005.png";
-    const std::string PIG_MEDIUM_076 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_076.png";
-    const std::string PIG_MEDIUM_076_1 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
     // Wood 1 to 4: complete to broken
     const std::string WOOD_stage = RESOURCE_DIR "/Image/wood/sprite_013.png";
     const std::string WOOD_ball_1 = RESOURCE_DIR "/Image/wood/sprite_161.png";
@@ -182,6 +179,7 @@ namespace Resource
     const std::string LEVEL_9_DATA = RESOURCE_DIR "/levels/level_9.json";
     const std::string LEVEL_10_DATA = RESOURCE_DIR "/levels/level_10.json";
     const std::string DEFAULT_LEVEL_DATA = LEVEL_2_DATA;
+    const std::string LEVEL_EARTH_TEST_DATA = RESOURCE_DIR "/levels/level_earth_test.json";
     const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
     const std::string ENTITY_TEMPLATE_DATA = RESOURCE_DIR "/entities/entity_templates.json";
 } // namespace Resource

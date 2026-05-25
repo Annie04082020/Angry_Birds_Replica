@@ -159,23 +159,6 @@ public:
     m_ParticipatesInPhysics = participatesInPhysics;
   }
 
-  [[nodiscard]] bool IsImpactActivated() const { return m_ImpactActivated; }
-
-  void SetImpactActivated(bool impactActivated)
-  {
-    m_ImpactActivated = impactActivated;
-  }
-
-  [[nodiscard]] bool ParticipatesInPhysics() const
-  {
-    return m_ParticipatesInPhysics;
-  }
-
-  void SetParticipatesInPhysics(bool participatesInPhysics)
-  {
-    m_ParticipatesInPhysics = participatesInPhysics;
-  }
-
   [[nodiscard]] EntityKind GetEntityKind() const { return m_EntityKind; }
 
   void SetEntityKind(EntityKind entityKind) { m_EntityKind = entityKind; }
@@ -320,6 +303,19 @@ public:
 
 private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }
+
+  // Missing private members referenced by public accessors
+  std::string m_BaseImageId;
+  bool m_ImpactActivated = false;
+  bool m_ParticipatesInPhysics = true;
+  ColliderShape m_ColliderShape = ColliderShape::Box;
+
+  // Health / damage tracking
+  float m_Health = 1.0f;
+  float m_MaxHealth = 1.0f;
+  int m_NumDamageStates = 1;
+  DamageState m_PreviousDamageState = DamageState::Undamaged;
+  bool m_IsDestroyed = false;
 
   std::string m_ImagePath;
   PhysicsState m_PhysicsState;

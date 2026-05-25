@@ -40,6 +40,13 @@ Program &Program::operator=(Program &&other) {
 }
 
 void Program::Bind() const {
+    GLint status = GL_FALSE;
+    glGetProgramiv(m_ProgramId, GL_LINK_STATUS, &status);
+    if (status != GL_TRUE) {
+        LOG_ERROR("Attempted to use program {} which is not linked", m_ProgramId);
+        return;
+    }
+
     glUseProgram(m_ProgramId);
 }
 
@@ -48,8 +55,12 @@ void Program::Unbind() const {
 }
 
 void Program::Validate() const {
-    GLint status = GL_FALSE;
+    if (!m_IsLinked) {
+        LOG_ERROR("Validate skipped: program {} is not linked", m_ProgramId);
+        return;
+    }
 
+    GLint status = GL_FALSE;
     glValidateProgram(m_ProgramId);
     glGetProgramiv(m_ProgramId, GL_VALIDATE_STATUS, &status);
     if (status != GL_TRUE) {
@@ -67,9 +78,10 @@ void Program::Validate() const {
 
 void Program::CheckStatus() const {
     GLint status = GL_FALSE;
-
     glGetProgramiv(m_ProgramId, GL_LINK_STATUS, &status);
     if (status != GL_TRUE) {
+        m_IsLinked = false;
+
         int infoLogLength;
         glGetProgramiv(m_ProgramId, GL_INFO_LOG_LENGTH, &infoLogLength);
 
@@ -77,8 +89,10 @@ void Program::CheckStatus() const {
         glGetProgramInfoLog(m_ProgramId, infoLogLength, nullptr,
                             message.data());
 
-        LOG_ERROR("Failed to Link Program:");
+        LOG_ERROR("Failed to Link Program {}:", m_ProgramId);
         LOG_ERROR("{}", message.data());
+    } else {
+        m_IsLinked = true;
     }
 }
 } // namespace Core

@@ -29,10 +29,13 @@ public:
 
     void Validate() const;
 
+    bool IsLinked() const { return m_IsLinked; }
+
 private:
     void CheckStatus() const;
 
     GLuint m_ProgramId;
+    mutable bool m_IsLinked = false;
 };
 } // namespace Core
 #endif

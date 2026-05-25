@@ -237,9 +237,8 @@ namespace
         }
 
         const std::string suffix = imageId.substr(lastUnderscore + 1);
-        const bool isNumericSuffix = std::all_of(suffix.begin(), suffix.end(), [](unsigned char ch) {
-            return std::isdigit(ch) != 0;
-        });
+        const bool isNumericSuffix = std::all_of(suffix.begin(), suffix.end(), [](unsigned char ch)
+                                                 { return std::isdigit(ch) != 0; });
         return isNumericSuffix ? imageId.substr(0, lastUnderscore) : imageId;
     }
 
@@ -402,43 +401,7 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
-    if (IsEarthKey(objectDefinition.typeStr) || StartsWith(objectDefinition.imageId, "EARTH"))
-    {
-        character->SetEntityKind(Character::EntityKind::Environment);
-        character->SetMaterialType(Character::MaterialType::Earth);
-    }
-
-    character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
-
-    if (StartsWith(objectDefinition.imageId, "WOOD_tri") || StartsWith(objectDefinition.imageId, "WOOD_tri_empty"))
-    {
-        character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
-    }
-
-    const bool isDecor = objectDefinition.typeStr == "DECOR";
-
-    if (isDecor)
-    {
-        character->SetEntityKind(Character::EntityKind::Unknown);
-        character->SetMaterialType(Character::MaterialType::None);
-        character->SetStatic(true);
-        character->SetSleeping(true);
-        character->SetImpactActivated(false);
-        character->SetParticipatesInPhysics(false);
-        character->SetVelocity({0.0f, 0.0f});
-        character->SetAngularVelocity(0.0f);
-    }
-
-    if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
-    {
-        character->SetSleeping(true);
-        character->SetVelocity({0.0f, 0.0f});
-        character->SetAngularVelocity(0.0f);
-    }
-    else
-    {
-        character->SetImpactActivated(true);
-    }
+    // (Duplicate block removed)
 
     if (IsEarthKey(objectDefinition.typeStr) || StartsWith(objectDefinition.imageId, "EARTH"))
     {
@@ -478,15 +441,17 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         character->SetImpactActivated(true);
     }
 
-    if (objectDefinition.imageId == "SLINGSHOT_1" || 
+    if (objectDefinition.imageId == "SLINGSHOT_1" ||
         objectDefinition.imageId == "SLINGSHOT_2" ||
         objectDefinition.imageId == "sprite_147" ||
         objectDefinition.imageId == "sprite_154")
     {
         character->SetEntityKind(Character::EntityKind::Slingshot);
         character->SetParticipatesInPhysics(false);
-        if (objectDefinition.imageId == "SLINGSHOT_1") character->SetZIndex(1.0f);
-        else if (objectDefinition.imageId == "SLINGSHOT_2") character->SetZIndex(-1.0f);
+        if (objectDefinition.imageId == "SLINGSHOT_1")
+            character->SetZIndex(1.0f);
+        else if (objectDefinition.imageId == "SLINGSHOT_2")
+            character->SetZIndex(-1.0f);
     }
 
     if (!objectDefinition.imageId.empty())
@@ -495,7 +460,6 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
             objectDefinition.imageId.rfind("EARTH", 0) == 0)
         {
             character->SetZIndex(0.0f);
-    
         }
         else if (objectDefinition.imageId.rfind("BIRD", 0) == 0)
         {

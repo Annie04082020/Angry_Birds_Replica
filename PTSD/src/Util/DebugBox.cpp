@@ -2,6 +2,7 @@
 
 #include "pch.hpp"
 
+#include "Util/Logger.hpp"
 #include "Core/Texture.hpp"
 #include "Util/TransformUtils.hpp"
 
@@ -27,6 +28,11 @@ DebugBox::DebugBox(const glm::vec4 &color, float thickness)
 void DebugBox::Draw(const Core::Matrices &data) {
     s_Program->Bind();
     s_Program->Validate();
+    if (!s_Program->IsLinked()) {
+        LOG_ERROR("Skipping DebugBox draw: program {} is not linked", s_Program->GetId());
+        return;
+    }
+
     m_UniformBuffer->SetData(0, data);
     GLint loc = glGetUniformLocation(s_Program->GetId(), "uColor");
     if (loc >= 0) {
@@ -46,6 +52,9 @@ void DebugBox::InitProgram() {
         PTSD_ASSETS_DIR "/shaders/DebugBox.vert",
         PTSD_ASSETS_DIR "/shaders/DebugBox.frag");
     s_Program->Bind();
+    if (!s_Program->IsLinked()) {
+        LOG_ERROR("DebugBox shader program failed to link ({}).", s_Program->GetId());
+    }
 }
 
 void DebugBox::InitVertexArray() {

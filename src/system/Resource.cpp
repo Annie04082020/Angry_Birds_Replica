@@ -23,7 +23,7 @@ namespace Resource
             {"EARTH", EARTH_BLOCK},
             {"EARTH_BLOCK", EARTH_BLOCK},
             // Ice entries
-            {"ICE_83x20",   ICE_83x20_1},
+            {"ICE_83x20", ICE_83x20_1},
             {"ICE_005", ICE_83x20_1},
             {"ICE_014", ICE_83x41_1},
             {"ICE_056", ICE_056},
@@ -37,18 +37,11 @@ namespace Resource
             {"ICE_83x20_4", ICE_83x20_4},
             {"ICE_205x20_1", ICE_205x20_1},
             {"ICE_41x20_1", ICE_41x20_1},
->>>>>>> 14326b1 (add level_3 and level_6)
             {"PIG_SMALL", PIG_SMALL},
             {"PIG_SMALL_1", PIG_SMALL_1},
             {"PIG_SMALL_2", PIG_SMALL_2},
             {"PIG_SMALL_3", PIG_SMALL_3},
             {"PIG_SMALL_4", PIG_SMALL_4},
-            {"PIG_MEDIUM", PIG_MEDIUM},
-            {"PIG_MEDIUM_1", PIG_MEDIUM_1},
-            {"PIG_MEDIUM_2", PIG_MEDIUM_2},
-            {"PIG_MEDIUM_3", PIG_MEDIUM_3},
-            {"PIG_MEDIUM_076", PIG_MEDIUM_076},
-            {"PIG_MEDIUM_076_1", PIG_MEDIUM_076_1},
             {"PIG_MEDIUM", PIG_MEDIUM},
             {"PIG_MEDIUM_1", PIG_MEDIUM_1},
             {"PIG_MEDIUM_2", PIG_MEDIUM_2},
@@ -166,8 +159,6 @@ namespace Resource
             {"LEVEL_1_DATA", LEVEL_1_DATA},
             {"LEVEL_1_TEST_DATA", LEVEL_1_TEST_DATA},
             {"LEVEL_2_DATA", LEVEL_2_DATA},
-<<<<<<< HEAD
-=======
             {"LEVEL_3_DATA", LEVEL_3_DATA},
             {"LEVEL_4_DATA", LEVEL_4_DATA},
             {"LEVEL_5_DATA", LEVEL_5_DATA},
