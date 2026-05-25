@@ -42,6 +42,8 @@ public:
     }
 
 private:
+    void LoadLevelHighScore();
+    void PersistLevelHighScore() const;
     void BuildLevelHud();
     void UpdateHudPositions();
     void UpdateScoreHud();
@@ -109,6 +111,7 @@ private:
     float m_DamageOutputTimer = 0.0f;
     bool m_ShowDamageHud = false;
     ScoringSystem m_ScoringSystem;
+    int m_HudHighScore = 0;
     int m_RemainingPigCount = 0;
     bool m_LevelCleared = false;
     bool m_LeftoverBirdsAwarded = false;

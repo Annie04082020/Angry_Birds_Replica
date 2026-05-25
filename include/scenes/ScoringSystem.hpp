@@ -10,11 +10,14 @@ public:
     // Constructor and configuration loading
     ScoringSystem();
     bool LoadConfig(const std::string& configPath);
+    bool LoadHighScoreFromFile(const std::string& filePath, int levelNumber);
+    bool SaveHighScoreToFile(const std::string& filePath, int levelNumber) const;
 
     void Reset();
     [[nodiscard]] int GetScore() const { return m_Score; }
     [[nodiscard]] int GetHighScore() const { return m_HighScore; }
     void SetHighScore(int highScore) { m_HighScore = highScore; }
+    void CommitCurrentScoreToHighScore();
     
     // Difficulty multiplier
     void SetDifficultyMultiplier(float multiplier) { m_DifficultyMultiplier = multiplier; }

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include "JsonParseUtils.hpp"
 #include <spdlog/spdlog.h>
@@ -131,10 +132,116 @@ bool ScoringSystem::LoadConfig(const std::string& configPath)
     return true;
 }
 
+bool ScoringSystem::LoadHighScoreFromFile(const std::string& filePath, const int levelNumber)
+{
+    m_HighScore = 0;
+
+    if (levelNumber <= 0)
+    {
+        spdlog::warn("Invalid level number when loading high score: {}", levelNumber);
+        return false;
+    }
+
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        spdlog::info("High score file not found yet, starting fresh: {}", filePath);
+        return false;
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    const std::string jsonContent = buffer.str();
+
+    std::string highScoresContent;
+    if (!JsonParseUtils::ExtractObjectContent(jsonContent, "high_scores", highScoresContent))
+    {
+        spdlog::warn("Missing high_scores object in high score file: {}", filePath);
+        return false;
+    }
+
+    m_HighScore = std::max(0, JsonParseUtils::ExtractInt(highScoresContent, std::to_string(levelNumber), 0));
+    return true;
+}
+
+bool ScoringSystem::SaveHighScoreToFile(const std::string& filePath, const int levelNumber) const
+{
+    if (levelNumber <= 0)
+    {
+        spdlog::warn("Invalid level number when saving high score: {}", levelNumber);
+        return false;
+    }
+
+    std::map<int, int> highScores;
+    std::ifstream inputFile(filePath);
+    if (inputFile.is_open())
+    {
+        std::stringstream buffer;
+        buffer << inputFile.rdbuf();
+        const std::string jsonContent = buffer.str();
+
+        std::string highScoresContent;
+        if (JsonParseUtils::ExtractObjectContent(jsonContent, "high_scores", highScoresContent))
+        {
+            for (int currentLevel = 1; currentLevel <= 10; ++currentLevel)
+            {
+                highScores[currentLevel] = std::max(
+                    0,
+                    JsonParseUtils::ExtractInt(highScoresContent, std::to_string(currentLevel), 0));
+            }
+        }
+    }
+
+    const auto existingEntry = highScores.find(levelNumber);
+    if (existingEntry != highScores.end() && existingEntry->second > m_HighScore)
+    {
+        highScores[levelNumber] = existingEntry->second;
+    }
+    else
+    {
+        highScores[levelNumber] = std::max(0, m_HighScore);
+    }
+
+    std::ofstream outputFile(filePath, std::ios::trunc);
+    if (!outputFile.is_open())
+    {
+        spdlog::warn("Failed to save high score file: {}", filePath);
+        return false;
+    }
+
+    outputFile << "{\n";
+    outputFile << "  \"high_scores\": {\n";
+
+    bool firstEntry = true;
+    for (const auto& [storedLevel, storedScore] : highScores)
+    {
+        if (!firstEntry)
+        {
+            outputFile << ",\n";
+        }
+
+        outputFile << "    \"" << storedLevel << "\": " << storedScore;
+        firstEntry = false;
+    }
+
+    outputFile << "\n  }\n";
+    outputFile << "}\n";
+
+    return true;
+}
+
 void ScoringSystem::Reset()
 {
     m_Score = 0;
     // Do not reset m_HighScore - it persists across levels
+}
+
+void ScoringSystem::CommitCurrentScoreToHighScore()
+{
+    if (m_Score > m_HighScore)
+    {
+        m_HighScore = m_Score;
+    }
 }
 
 int ScoringSystem::AwardPigDestroyed()
@@ -209,13 +316,6 @@ int ScoringSystem::AddScore(const int points)
     }
 
     m_Score += points;
-    
-    // Update high score if current score exceeds it
-    if (m_Score > m_HighScore)
-    {
-        m_HighScore = m_Score;
-    }
-    
     return points;
 }
 

@@ -22,6 +22,7 @@
 namespace
 {
     constexpr const char *kUIFont = RESOURCE_DIR "/font/angrybirds-regular.ttf";
+    constexpr const char *kHighScoreFilePath = RESOURCE_DIR "/high_scores.json";
     constexpr float kGrassTopRatio = 404.0f / 563.0f;
     std::string GetHudLabel(const std::shared_ptr<Character> &object)
     {
@@ -318,13 +319,14 @@ namespace
         {
             scale *= 1.2f;
 
-            const std::string &resourceId = other->GetResourceId();
-            if (resourceId.find("BIRD_BLUE") != std::string::npos &&
+            const std::string &baseId = other->GetBaseImageId();
+            const std::string &path = other->GetImagePath();
+            if ((baseId.find("BIRD_BLUE") != std::string::npos || path.find("blue") != std::string::npos) &&
                 target->GetMaterialType() == Character::MaterialType::Stone)
             {
                 scale *= 0.45f;
             }
-            else if (resourceId.find("BIRD_YELLOW") != std::string::npos &&
+            else if ((baseId.find("BIRD_YELLOW") != std::string::npos || path.find("yellow") != std::string::npos) &&
                      target->GetMaterialType() == Character::MaterialType::Wood)
             {
                 scale *= 1.35f;
@@ -398,6 +400,7 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     }
 
     m_ScoringSystem.LoadConfig(RESOURCE_DIR "/scoring_config.json");
+    LoadLevelHighScore();
 
     ResetScoreState();
     BuildLevelHud();
@@ -407,6 +410,29 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     m_SceneInputController = std::make_shared<SceneInputController>(m_DynamicBackground, m_LevelManager);
 
     return true;
+}
+
+void GameScene::LoadLevelHighScore()
+{
+    if (!m_LevelManager)
+    {
+        m_ScoringSystem.SetHighScore(0);
+        m_HudHighScore = 0;
+        return;
+    }
+
+    m_ScoringSystem.LoadHighScoreFromFile(kHighScoreFilePath, m_LevelManager->GetLevel());
+    m_HudHighScore = m_ScoringSystem.GetHighScore();
+}
+
+void GameScene::PersistLevelHighScore() const
+{
+    if (!m_LevelManager)
+    {
+        return;
+    }
+
+    m_ScoringSystem.SaveHighScoreToFile(kHighScoreFilePath, m_LevelManager->GetLevel());
 }
 
 void GameScene::Update()
@@ -984,7 +1010,7 @@ void GameScene::UpdateScoreHud()
         }
     }
 
-    const std::string highScoreText = FormatScore(m_ScoringSystem.GetHighScore());
+    const std::string highScoreText = FormatScore(m_HudHighScore);
     if (m_HighScoreValueDrawable)
     {
         m_HighScoreValueDrawable->SetText(highScoreText);
@@ -1042,6 +1068,10 @@ void GameScene::UpdateWinState()
         UpdateScoreHud();
     }
 
+    m_ScoringSystem.CommitCurrentScoreToHighScore();
+    m_HudHighScore = m_ScoringSystem.GetHighScore();
+    PersistLevelHighScore();
+
     // Show level clear screen
     m_IsLevelClearScreenVisible = true;
 
@@ -1056,7 +1086,6 @@ void GameScene::UpdateWinState()
     }
 
     const glm::vec2 cameraPos = Util::GetCameraPosition();
-    const glm::vec2 viewportSize = Util::GetViewportSize();
     const float zoom = Util::GetCameraZoom();
 
     // Show backdrop

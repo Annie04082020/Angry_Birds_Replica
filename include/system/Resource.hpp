@@ -122,7 +122,6 @@ namespace Resource
     const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
     const std::string ICE_205x20_1 = RESOURCE_DIR "/Image/ice/sprite_063.png";
     const std::string ICE_41x20_1 = RESOURCE_DIR "/Image/ice/sprite_001.png";
-
     // UI
     const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
     const std::string Exit_Button = RESOURCE_DIR "/Image/ui/button/sprite_070.png";
