@@ -79,14 +79,33 @@
             "xPercent": -22.5,
             "yPercent": -18.518519
         },
+
         {
+            "type": "EARTH",
+            "imageId": "EARTH_TRI_TLBR",
+            "groupId": "EarthBlock",
+            "collisionShape": "diagonal_tlbr",
+            "rotation": 0.0,
+            "xPercent": 10,
+            "yPercent": 0.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_TRI_TRBL",
+            "groupId": "EarthBlock",
+            "collisionShape": "diagonal_trbl",
+            "rotation": 0.0,
+            "xPercent": 20,
+            "yPercent": 0.0
+        }        
+        ,{
             "type": "EARTH",
             "imageId": "EARTH_BLOCK",
             "groupId": "EarthBlock",
             "collisionShape": "box",
             "rotation": 0.0,
-            "xPercent": 28,
-            "yPercent": 18
+            "xPercent": 30,
+            "yPercent": 0
         },
         {
             "type": "EARTH",
@@ -94,8 +113,8 @@
             "groupId": "EarthBlock",
             "collisionShape": "box",
             "rotation": 0.0,
-            "xPercent": 18,
-            "yPercent": 0.0
+            "xPercent": 30,
+            "yPercent": 10
         },
         {
             "type": "EARTH",
@@ -103,8 +122,8 @@
             "groupId": "EarthBlock",
             "collisionShape": "box",
             "rotation": 0.0,
-            "xPercent": 28,
-            "yPercent": 0.0
+            "xPercent": 30,
+            "yPercent": 20
         }
    ]
 }
