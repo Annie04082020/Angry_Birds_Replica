@@ -99,7 +99,23 @@ namespace
             shapeKey = usedId;
         }
 
-        const std::string lowered = ToLowerCopy(shapeKey);
+        const std::string lowered = ToLowerCopy(shapeKey + " " + objectDefinition.imageId + " " + usedId);
+        if (lowered.find("tlbr") != std::string::npos ||
+            lowered.find("top_left_bottom_right") != std::string::npos ||
+            lowered.find("top-left-bottom-right") != std::string::npos ||
+            lowered.find("diagonal_down") != std::string::npos ||
+            lowered.find("slope_down") != std::string::npos)
+        {
+            return Character::ColliderShape::DiagonalTLBR;
+        }
+        if (lowered.find("trbl") != std::string::npos ||
+            lowered.find("top_right_bottom_left") != std::string::npos ||
+            lowered.find("top-right-bottom-left") != std::string::npos ||
+            lowered.find("diagonal_up") != std::string::npos ||
+            lowered.find("slope_up") != std::string::npos)
+        {
+            return Character::ColliderShape::DiagonalTRBL;
+        }
         if (lowered.find("triangle_down") != std::string::npos ||
             lowered.find("tri_down") != std::string::npos ||
             lowered.find("triangle-down") != std::string::npos)

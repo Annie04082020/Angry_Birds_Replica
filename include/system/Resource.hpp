@@ -19,6 +19,8 @@ namespace Resource
     const std::string SLINGSHOT_1 = RESOURCE_DIR "/Image/assets/sprite_147.png";
     const std::string SLINGSHOT_2 = RESOURCE_DIR "/Image/assets/sprite_154.png";
     const std::string EARTH_BLOCK = RESOURCE_DIR "/Image/themes/sprite_023.png";
+    const std::string EARTH_TRI_TLBR = RESOURCE_DIR "/Image/themes/earth_tri_tlbr.png";
+    const std::string EARTH_TRI_TRBL = RESOURCE_DIR "/Image/themes/earth_tri_trbl.png";
 
     // Pigs
     const std::string PIG_SMALL = RESOURCE_DIR "/Image/pigs/pig_small/sprite_009.png";

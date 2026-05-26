@@ -37,7 +37,9 @@ public:
     TriangleUp,
     TriangleDown,
     TriangleLeft,
-    TriangleRight
+    TriangleRight,
+    DiagonalTLBR,
+    DiagonalTRBL
   };
 
   struct PhysicsState
