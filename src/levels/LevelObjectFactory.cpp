@@ -10,10 +10,6 @@
 #include "Util/TransformUtils.hpp"
 #include "Util/ViewportUtils.hpp"
 
-#include <cctype>
-
-#include <cctype>
-
 namespace
 {
     bool StartsWith(const std::string &value, const std::string &prefix)
@@ -166,9 +162,6 @@ namespace
             {
                 character.SetMaterialType(definition->materialType);
             }
-            // Apply health from template
-            character.SetMaxHealth(definition->health);
-            character.SetHealth(definition->health);
             // Apply health from template
             character.SetMaxHealth(definition->health);
             character.SetHealth(definition->health);
@@ -417,8 +410,6 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
-    // (Duplicate block removed)
-
     if (IsEarthKey(objectDefinition.typeStr) || StartsWith(objectDefinition.imageId, "EARTH"))
     {
         character->SetEntityKind(Character::EntityKind::Environment);
@@ -426,11 +417,6 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     }
 
     character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
-
-    if (StartsWith(objectDefinition.imageId, "WOOD_tri") || StartsWith(objectDefinition.imageId, "WOOD_tri_empty"))
-    {
-        character->SetColliderShape(ClassifyColliderShape(objectDefinition, usedId));
-    }
 
     const bool isDecor = objectDefinition.typeStr == "DECOR";
 

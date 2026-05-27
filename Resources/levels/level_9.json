@@ -150,11 +150,6 @@
       "rotation": 1.57,
       "xPercent": 13.5,
       "yPercent": 4
-      "widthPercent": 4.0,
-      "heightPercent": 1.6,
-      "rotation": 1.57,
-      "xPercent": 8.8,
-      "yPercent": 1.2
     },
     {
       "type": "WOOD",
@@ -213,11 +208,6 @@
       "heightPercent": 4,
       "xPercent": 21,
       "yPercent": -1
-      "widthPercent": 4.0,
-      "heightPercent": 3.5,
-      "rotation": 1.57,
-      "xPercent": 8.0,
-      "yPercent": 9.9
     },
     {
       "type": "WOOD",

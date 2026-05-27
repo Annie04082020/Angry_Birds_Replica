@@ -8,5 +8,10 @@ uniform vec4 uColor;
 uniform float uThickness;
 
 void main() {
-    fragColor = uColor;
+    if (uv.x < uThickness || uv.x > 1.0 - uThickness ||
+        uv.y < uThickness || uv.y > 1.0 - uThickness) {
+        fragColor = uColor;
+    } else {
+        discard;
+    }
 }

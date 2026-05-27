@@ -160,7 +160,6 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
 
     glm::vec2 nextPos = m_ActiveBird->GetPosition() + velocity * dt;
     const float halfH = m_ActiveBird->GetSize().y * 0.5f;
-    constexpr float floorY = -320.0f;
 
     // Check bottom edge contact (center.y - halfHeight)
     if (nextPos.y - halfH < m_WorldFloorY)

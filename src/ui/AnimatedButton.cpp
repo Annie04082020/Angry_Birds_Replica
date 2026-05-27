@@ -14,9 +14,7 @@ void AnimatedButton::Init()
         m_Base->Init();
     if (m_Overlay)
     {
-        // Overlay may be a Button (has Init). Only call Init if it implements it.
-        if (auto btn = std::dynamic_pointer_cast<Button>(m_Overlay))
-            btn->Init();
+        m_Overlay->Init();
     }
 }
 
