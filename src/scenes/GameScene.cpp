@@ -1226,6 +1226,28 @@ void GameScene::ResetScoreState()
             ++m_RemainingPigCount;
         }
 
+        if (object->GetEntityKind() == Character::EntityKind::Environment && !object->IsSpecialItem())
+        {
+            object->SetScoreBudgetRemaining(m_ScoringSystem.GetDamageBudget(object->GetMaterialType()));
+            object->SetOnDamageCallback([this](Character *c, float appliedDamage) {
+                const float damageRatio = appliedDamage / std::max(0.0001f, c->GetMaxHealth());
+                const int estimated = std::max(
+                    10,
+                    static_cast<int>(std::lround(static_cast<float>(m_ScoringSystem.GetDamageBudget(c->GetMaterialType())) * std::clamp(damageRatio, 0.0f, 1.0f))));
+                const int awarded = c->DrainScoreBudget(estimated);
+                if (awarded > 0)
+                {
+                    m_ScoringSystem.AwardBlockDamage(c->GetMaterialType(), damageRatio, awarded);
+                    SpawnFloatingScore(c->GetPosition(), awarded, Util::Color::FromRGB(255, 255, 255));
+                    UpdateScoreHud();
+                }
+            });
+        }
+        else
+        {
+            object->SetScoreBudgetRemaining(0);
+            object->SetOnDamageCallback(nullptr);
+        }
     }
 }
 

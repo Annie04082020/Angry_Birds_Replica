@@ -2,6 +2,7 @@
 #define CHARACTER_HPP
 
 #include <string>
+#include <functional>
 #include <algorithm>
 
 #include "Util/GameObject.hpp"
@@ -254,13 +255,32 @@ public:
 
   [[nodiscard]] int GetNumDamageStates() const { return m_NumDamageStates; }
 
-  // Returns true if entity dies (health <= 0), false otherwise
-  bool ApplyDamage(float damageAmount)
+  // Returns actual damage applied
+  float ApplyDamage(float damageAmount)
   {
     if (damageAmount < 0.0f)
       damageAmount = 0.0f;
+    float oldHealth = m_Health;
     m_Health = std::max(0.0f, m_Health - damageAmount);
-    return m_Health <= 0.0f;
+    float actualDamage = oldHealth - m_Health;
+    if (actualDamage > 0.0f && m_OnDamageCallback)
+    {
+      m_OnDamageCallback(this, actualDamage);
+    }
+    return actualDamage;
+  }
+
+  [[nodiscard]] int GetScoreBudgetRemaining() const { return m_ScoreBudgetRemaining; }
+  void SetScoreBudgetRemaining(int budget) { m_ScoreBudgetRemaining = budget; }
+  int DrainScoreBudget(int requested)
+  {
+    int drained = std::min(requested, m_ScoreBudgetRemaining);
+    m_ScoreBudgetRemaining -= drained;
+    return drained;
+  }
+  void SetOnDamageCallback(std::function<void(Character *, float)> callback)
+  {
+    m_OnDamageCallback = callback;
   }
 
   // Get current damage state for sprite selection
@@ -335,6 +355,8 @@ private:
   EntityKind m_EntityKind = EntityKind::Unknown;
   MaterialType m_MaterialType = MaterialType::None;
   bool m_IsSpecialItem = false;
+  int m_ScoreBudgetRemaining = 0;
+  std::function<void(Character *, float)> m_OnDamageCallback = nullptr;
 };
 
 #endif // CHARACTER_HPP
