@@ -13,7 +13,9 @@ void AnimatedButton::Init()
     if (m_Base)
         m_Base->Init();
     if (m_Overlay)
+    {
         m_Overlay->Init();
+    }
 }
 
 void AnimatedButton::Update()

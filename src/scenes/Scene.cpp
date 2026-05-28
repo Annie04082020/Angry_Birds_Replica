@@ -139,21 +139,23 @@ void Scene::StabilizeEnvironment(int steps)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
     if (!ch)
-        continue;
+      continue;
     if (!ch->ParticipatesInPhysics())
-        continue;
+      continue;
     if (ch->GetEntityKind() != Character::EntityKind::Environment)
-        continue;
+      continue;
     if (ch->IsStatic())
-        continue;
+      continue;
     if (glm::length(ch->GetVelocity()) < settleSpeedThreshold && std::fabs(ch->GetAngularVelocity()) < settleAngularThreshold)
     {
-        DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "stabilize_settled");
-        ch->SetSleeping(true);
-        ch->SetVelocity({0.0f, 0.0f});
-        ch->SetAngularVelocity(0.0f);
+      DebugUtils::LogSleepDecision(ch->GetImagePath(), ch->GetPosition(), ch->GetVelocity(), ch->GetAngularVelocity(), "stabilize_settled");
+      ch->SetSleeping(true);
+      ch->SetVelocity({0.0f, 0.0f});
+      ch->SetAngularVelocity(0.0f);
     }
   }
+
+  m_Contacts.clear();
 }
 
 void Scene::Update()
@@ -221,16 +223,17 @@ void Scene::Update()
         glm::vec2 pos = ch->GetPosition();
         pos.y = this->m_WorldFloorY + worldHalfY;
         ch->SetPosition(pos);
-        
+
         glm::vec2 vel = ch->GetVelocity();
-        if (vel.y < 0.0f) vel.y = 0.0f;
-        
-        // Apply ground friction when sliding on the global floor 
+        if (vel.y < 0.0f)
+          vel.y = 0.0f;
+
+        // Apply ground friction when sliding on the global floor
         // (since it's a hardcoded boundary, not an OBB with friction)
-        vel.x *= 0.95f; 
-        
+        vel.x *= 0.95f;
+
         ch->SetVelocity(vel);
-        
+
         // Add a slight angular damping when rolling on the global floor
         ch->SetAngularVelocity(ch->GetAngularVelocity() * 0.95f);
       }
@@ -376,15 +379,17 @@ void Scene::Update()
 
 void Scene::RunCollisionDetection(int passes, bool stabilizing)
 {
-  if (passes <= 0) passes = 1;
+  if (passes <= 0)
+    passes = 1;
 
   // ── Build character list ──────────────────────────────────────────────
   std::vector<std::shared_ptr<Character>> characters;
   characters.reserve(m_Elements.size());
   std::vector<std::shared_ptr<Character>> sleepingDynamics;
+  std::vector<Character *> newlyActivated;
   auto supportConfirmed = SleepSupport::CreateSupportConfirmedSet();
 
-  for (const auto& element : m_Elements)
+  for (const auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
     if (ch && ch->ParticipatesInPhysics() && ch->GetEntityKind() != Character::EntityKind::Slingshot)
@@ -397,7 +402,8 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
 
   // ── BroadPhase + NarrowPhase: update ContactManifold list ─────────────
   // Mark all existing contacts as inactive; they'll be reactivated if still colliding.
-  for (auto& cm : m_Contacts) cm.active = false;
+  for (auto &cm : m_Contacts)
+    cm.active = false;
 
   for (size_t i = 0; i < characters.size(); ++i)
   {
@@ -409,7 +415,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       // Ignore collisions involving the Slingshot
       if (ca->GetEntityKind() == Character::EntityKind::Slingshot || cb->GetEntityKind() == Character::EntityKind::Slingshot)
         continue;
-        
+
       // Ignore collisions between birds (e.g. active bird vs waiting birds)
       if (ca->GetEntityKind() == Character::EntityKind::Bird && cb->GetEntityKind() == Character::EntityKind::Bird)
         continue;
@@ -420,29 +426,35 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
         continue;
 
       // Impact activation check: wake environmental objects if hit by birds or already activated objects
-      auto activateEnvironment = [](const std::shared_ptr<Character>& target, const std::shared_ptr<Character>& other) {
-          if (!target || target->GetEntityKind() != Character::EntityKind::Environment)
-              return;
-          if (target->IsImpactActivated())
-              return;
+      auto activateEnvironment = [&newlyActivated](const std::shared_ptr<Character> &target, const std::shared_ptr<Character> &other)
+      {
+        if (!target || target->GetEntityKind() != Character::EntityKind::Environment)
+          return;
+        if (target->GetMaterialType() == Character::MaterialType::Earth)
+          return;
+        if (target->IsImpactActivated())
+          return;
 
-          bool triggered = false;
-          if (other->GetEntityKind() == Character::EntityKind::Bird)
-          {
-              triggered = true;
-          }
-          else if (other->GetEntityKind() == Character::EntityKind::Environment)
-          {
-              // Can transfer impact if other is already activated and not sleeping
-              triggered = other->IsImpactActivated() && !other->IsSleeping();
-          }
+        bool triggered = false;
+        if (other->GetEntityKind() == Character::EntityKind::Bird)
+        {
+          triggered = true;
+        }
+        else if (other->GetEntityKind() == Character::EntityKind::Environment)
+        {
+          // Can transfer impact if other is already activated and not sleeping
+          triggered = other->IsImpactActivated() && !other->IsSleeping();
+        }
 
-          if (triggered)
-          {
-              target->SetImpactActivated(true);
-              target->SetStatic(false);
-              target->SetSleeping(false);
-          }
+        if (triggered)
+        {
+          target->SetImpactActivated(true);
+          target->SetStatic(false);
+          target->SetSleeping(false);
+          target->SetVelocity({0.0f, 0.0f});
+          target->SetAngularVelocity(0.0f);
+          newlyActivated.push_back(target.get());
+        }
       };
       activateEnvironment(ca, cb);
       activateEnvironment(cb, ca);
@@ -456,8 +468,8 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
         supportConfirmed.insert(cb.get());
 
       // Find or create manifold for this pair
-      ContactManifold* found = nullptr;
-      for (auto& cm : m_Contacts)
+      ContactManifold *found = nullptr;
+      for (auto &cm : m_Contacts)
       {
         if (cm.Matches(ca.get(), cb.get()))
         {
@@ -479,17 +491,17 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
       // If contact was stored in reversed order, flip accumulated impulses
       bool flip = !found->SameOrder(ca.get(), cb.get());
 
-      found->a            = ca.get();
-      found->b            = cb.get();
-      found->normal       = normal;  // always a→b
-      found->tangent      = glm::vec2(-normal.y, normal.x);
+      found->a = ca.get();
+      found->b = cb.get();
+      found->normal = normal; // always a→b
+      found->tangent = glm::vec2(-normal.y, normal.x);
       found->contactPoint = contactPoint;
-      found->penetration  = penetration;
-      found->active       = true;
+      found->penetration = penetration;
+      found->active = true;
       if (flip)
       {
         // Normal flipped – negate accumulated tangent (friction reversed too)
-        found->normalImpulse  = found->normalImpulse; // stays positive
+        found->normalImpulse = found->normalImpulse; // stays positive
         found->tangentImpulse = -found->tangentImpulse;
       }
     }
@@ -497,26 +509,50 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
 
   // Remove stale (no-longer-colliding) contacts and zero their impulses
   m_Contacts.erase(
-    std::remove_if(m_Contacts.begin(), m_Contacts.end(),
-                   [](const ContactManifold& cm) { return !cm.active; }),
-    m_Contacts.end());
+      std::remove_if(m_Contacts.begin(), m_Contacts.end(),
+                     [](const ContactManifold &cm)
+                     { return !cm.active; }),
+      m_Contacts.end());
+
+  if (!newlyActivated.empty())
+  {
+    for (auto &cm : m_Contacts)
+    {
+      if (std::find(newlyActivated.begin(), newlyActivated.end(), cm.a) != newlyActivated.end() ||
+          std::find(newlyActivated.begin(), newlyActivated.end(), cm.b) != newlyActivated.end())
+      {
+        cm.normalImpulse = 0.0f;
+        cm.tangentImpulse = 0.0f;
+        cm.frameAccumulatedNormalImpulse = 0.0f;
+      }
+    }
+  }
 
   // ── Solve ──────────────────────────────────────────────────────────────
   // We ALWAYS need to run velocity solver, even during stabilizing,
   // otherwise gravity keeps accelerating objects and they explode.
-  
-  for (auto& cm : m_Contacts)
+
+  for (auto &cm : m_Contacts)
     CollisionResponse::WarmStart(cm);
 
   const bool damageEnabled = !stabilizing && !IsDamageImmune();
   constexpr int kVelIterations = 10;
   for (int iter = 0; iter < kVelIterations; ++iter)
-    for (auto& cm : m_Contacts)
+    for (auto &cm : m_Contacts)
       CollisionResponse::SolveVelocity(cm, damageEnabled);
+
+  // Apply accumulated damage once per contact for this physics step.
+  if (damageEnabled)
+  {
+    for (auto &cm : m_Contacts)
+    {
+      CollisionResponse::ApplyAccumulatedDamage(cm);
+    }
+  }
 
   constexpr int kPosIterations = 3;
   for (int iter = 0; iter < kPosIterations; ++iter)
-    for (auto& cm : m_Contacts)
+    for (auto &cm : m_Contacts)
       CollisionResponse::SolvePosition(cm);
 
   if (stabilizing)
@@ -526,7 +562,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   else
   {
     // Wake sleeping objects that have lost geometric support
-    for (const auto& ch : sleepingDynamics)
+    for (const auto &ch : sleepingDynamics)
     {
       if (ch->GetEntityKind() == Character::EntityKind::Environment && !ch->IsImpactActivated())
         continue;

@@ -1,0 +1,129 @@
+{
+    "level": 101,
+    "name": "Earth Collision Test",
+    "background": "Image/background.png",
+    "birds": 3,
+    "groups": [
+        {
+            "id": "slingshot",
+            "scaleMultiplier": 3,
+            "scalePosition": false,
+            "offsetXPercent": -5.0,
+            "offsetYPercent": -1.0,
+            "scalePivotXPercent": -19.854167,
+            "scalePivotYPercent": -7.148148
+        },
+        {
+            "id": "Environment",
+            "scaleMultiplier": 1.5,
+            "scalePosition": true,
+            "offsetXPercent": 0.0,
+            "offsetYPercent": -2.0,
+            "scalePivotXPercent": 0.0,
+            "scalePivotYPercent": 0.0
+        },
+        {   "id": "EarthBlock",
+            "scaleMultiplier": 1,
+            "scalePosition": true,
+            "offsetXPercent": 0.0,
+            "offsetYPercent": -13.0,
+            "scalePivotXPercent": 0.0,
+            "scalePivotYPercent": 0.0
+        }
+    ],
+    "objects": [
+        {
+            "type": "SLINGSHOT",
+            "imageId": "SLINGSHOT_1",
+            "groupId": "slingshot",
+            "sizePercent": 4.592593,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -19.166667,
+            "yPercent": -4.444444
+        },
+        {
+            "type": "SLINGSHOT",
+            "imageId": "SLINGSHOT_2",
+            "groupId": "slingshot",
+            "sizePercent": 7.37037,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -17.59375,
+            "yPercent": -9.074074
+        },
+        {
+            "type": "BIRD",
+            "imageId": "BIRD_RED",
+            "heightPercent": 4,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -23.333333,
+            "yPercent": -14.074074
+        },
+        {
+            "type": "BIRD",
+            "imageId": "BIRD_YELLOW",
+            "heightPercent": 4,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -21.666667,
+            "yPercent": -16.296296
+        },
+        {
+            "type": "BIRD",
+            "imageId": "BIRD_BLUE",
+            "heightPercent": 3,
+            "sizeBase": "height",
+            "rotation": 0.0,
+            "xPercent": -22.5,
+            "yPercent": -18.518519
+        },
+
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_TRI_TLBR",
+            "groupId": "EarthBlock",
+            "collisionShape": "diagonal_tlbr",
+            "rotation": 0.0,
+            "xPercent": 10,
+            "yPercent": 0.0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_TRI_TRBL",
+            "groupId": "EarthBlock",
+            "collisionShape": "diagonal_trbl",
+            "rotation": 0.0,
+            "xPercent": 20,
+            "yPercent": 0.0
+        }        
+        ,{
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "EarthBlock",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 30,
+            "yPercent": 0
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "EarthBlock",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 30,
+            "yPercent": 10
+        },
+        {
+            "type": "EARTH",
+            "imageId": "EARTH_BLOCK",
+            "groupId": "EarthBlock",
+            "collisionShape": "box",
+            "rotation": 0.0,
+            "xPercent": 30,
+            "yPercent": 20
+        }
+   ]
+}

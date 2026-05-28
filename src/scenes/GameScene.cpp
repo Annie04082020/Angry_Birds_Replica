@@ -244,8 +244,7 @@ void GameScene::BuildLevelHud()
                                                if (m_OnRestartLevel)
                                                {
                                                    m_OnRestartLevel();
-                                               }
-                                           });
+                                               } });
     AddElements(m_LeftTopButton031);
 
     m_PauseMenuBackdrop = std::make_shared<Util::GameObject>(
@@ -273,8 +272,7 @@ void GameScene::BuildLevelHud()
                                            if (m_OnRestartLevel)
                                            {
                                                m_OnRestartLevel();
-                                           }
-                                       });
+                                           } });
     AddElements(m_PauseMenu082);
 
     m_PauseMenu073 = std::make_shared<Button>(Resource::Game_Menu_Item_073);
@@ -288,8 +286,7 @@ void GameScene::BuildLevelHud()
                                            if (m_OnOpenLevelSelect)
                                            {
                                                m_OnOpenLevelSelect();
-                                           }
-                                       });
+                                           } });
     AddElements(m_PauseMenu073);
 
     m_PauseMenu005 = std::make_shared<Button>(Resource::Game_Menu_Item_005);
@@ -468,7 +465,7 @@ void GameScene::SetPauseMenuVisible(const bool visible)
         {
             int levelNum = m_LevelManager->GetLevel();
             std::string levelTitleResource;
-            
+
             if (levelNum == 1)
                 levelTitleResource = Resource::Level_Title_1_1;
             else if (levelNum == 2)
@@ -489,7 +486,7 @@ void GameScene::SetPauseMenuVisible(const bool visible)
                 levelTitleResource = Resource::Level_Title_1_9;
             else if (levelNum == 10)
                 levelTitleResource = Resource::Level_Title_1_10;
-            
+
             if (!levelTitleResource.empty())
             {
                 m_PauseMenuLevelTitle->SetDrawable(std::make_shared<Util::Image>(levelTitleResource));

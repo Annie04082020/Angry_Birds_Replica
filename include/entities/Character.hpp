@@ -26,8 +26,20 @@ public:
     Flesh,
     Wood,
     Stone,
+    Earth,
     Glass,
     Ice
+  };
+
+  enum class ColliderShape
+  {
+    Box,
+    TriangleUp,
+    TriangleDown,
+    TriangleLeft,
+    TriangleRight,
+    DiagonalTLBR,
+    DiagonalTRBL
   };
 
   struct PhysicsState
@@ -160,6 +172,10 @@ public:
     m_MaterialType = materialType;
   }
 
+  [[nodiscard]] ColliderShape GetColliderShape() const { return m_ColliderShape; }
+
+  void SetColliderShape(ColliderShape colliderShape) { m_ColliderShape = colliderShape; }
+
   void SetImage(const std::string &ImagePath);
 
   void SetPosition(const glm::vec2 &Position)
@@ -290,18 +306,23 @@ public:
 private:
   void ResetPosition() { m_Transform.translation = {0, 0}; }
 
-    std::string m_ImagePath;
-    std::string m_BaseImageId; // Original image ID for damage state switching
-    PhysicsState m_PhysicsState;
-    EntityKind m_EntityKind = EntityKind::Unknown;
-    MaterialType m_MaterialType = MaterialType::None;
-    float m_Health = 1.0f;
-    float m_MaxHealth = 1.0f;
-    DamageState m_PreviousDamageState = DamageState::Undamaged;
-    bool m_IsDestroyed = false;
-    int m_NumDamageStates = 5; // Default to 5 states (undamaged + 4 variants)
-    bool m_ImpactActivated = true;
-    bool m_ParticipatesInPhysics = true;
+  // Missing private members referenced by public accessors
+  std::string m_BaseImageId;
+  bool m_ImpactActivated = false;
+  bool m_ParticipatesInPhysics = true;
+  ColliderShape m_ColliderShape = ColliderShape::Box;
+
+  // Health / damage tracking
+  float m_Health = 1.0f;
+  float m_MaxHealth = 1.0f;
+  int m_NumDamageStates = 1;
+  DamageState m_PreviousDamageState = DamageState::Undamaged;
+  bool m_IsDestroyed = false;
+
+  std::string m_ImagePath;
+  PhysicsState m_PhysicsState;
+  EntityKind m_EntityKind = EntityKind::Unknown;
+  MaterialType m_MaterialType = MaterialType::None;
 };
 
 #endif // CHARACTER_HPP

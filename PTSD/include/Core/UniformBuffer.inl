@@ -1,5 +1,7 @@
 #include "UniformBuffer.hpp"
 
+#include "Util/Logger.hpp"
+
 namespace Core {
 template <typename T>
 UniformBuffer<T>::UniformBuffer(const Program &program, const std::string &name,
@@ -7,7 +9,12 @@ UniformBuffer<T>::UniformBuffer(const Program &program, const std::string &name,
     : m_Binding(binding) {
     GLint uniformBlockIndex =
         glGetUniformBlockIndex(program.GetId(), name.c_str());
-    glUniformBlockBinding(program.GetId(), uniformBlockIndex, binding);
+    if (uniformBlockIndex == GL_INVALID_INDEX) {
+        LOG_ERROR("Uniform block '{}' not found in program {}", name,
+                  program.GetId());
+    } else {
+        glUniformBlockBinding(program.GetId(), uniformBlockIndex, binding);
+    }
 
     glGenBuffers(1, &m_BufferId);
     glBindBuffer(GL_UNIFORM_BUFFER, m_BufferId);

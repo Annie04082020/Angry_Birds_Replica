@@ -10,6 +10,7 @@
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
 #include "Util/TransformUtils.hpp"
+#include "Util/ViewportUtils.hpp"
 
 namespace
 {

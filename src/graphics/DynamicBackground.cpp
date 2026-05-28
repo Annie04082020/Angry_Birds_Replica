@@ -1,4 +1,5 @@
 #include "DynamicBackground.hpp"
+#include "Util/ViewportUtils.hpp"
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 #include "config.hpp"
