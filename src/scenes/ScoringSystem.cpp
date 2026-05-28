@@ -281,7 +281,7 @@ int ScoringSystem::AwardBlockDamage(const Character::MaterialType materialType,
 int ScoringSystem::AwardBlockDestroyed(const Character::MaterialType materialType)
 {
     const int index = static_cast<int>(materialType);
-    if (index >= 0 && index < 5)
+    if (index >= 0 && index < 8)
     {
         return AddScore(ApplyMultiplier(m_MaterialConfigs[index].destroyedPoints));
     }
@@ -291,7 +291,7 @@ int ScoringSystem::AwardBlockDestroyed(const Character::MaterialType materialTyp
 int ScoringSystem::GetDamageBudget(const Character::MaterialType materialType) const
 {
     const int index = static_cast<int>(materialType);
-    if (index >= 0 && index < 5)
+    if (index >= 0 && index < 8)
     {
         return m_MaterialConfigs[index].damageBudget;
     }
@@ -301,7 +301,7 @@ int ScoringSystem::GetDamageBudget(const Character::MaterialType materialType) c
 int ScoringSystem::GetDestroyedPoints(const Character::MaterialType materialType) const
 {
     const int index = static_cast<int>(materialType);
-    if (index >= 0 && index < 5)
+    if (index >= 0 && index < 8)
     {
         return m_MaterialConfigs[index].destroyedPoints;
     }

@@ -53,7 +53,7 @@ private:
         float damageMultiplier = 1.0f;
     };
 
-    MaterialConfig m_MaterialConfigs[5]; // For different material types
+    MaterialConfig m_MaterialConfigs[8]; // For different material types
 };
 
 #endif // SCORING_SYSTEM_HPP
