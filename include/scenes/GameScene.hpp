@@ -49,6 +49,7 @@ private:
     void UpdateScoreHud();
     void ResetScoreState();
     void UpdateWinState();
+    void UpdateFailState();
     void SpawnFloatingScore(const glm::vec2 &position, int points, const Util::Color &frontColor);
     void SpawnOutlinedFloatingScore(const glm::vec2 &position, const std::string &text, const Util::Color &frontColor);
     void FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition);
@@ -97,10 +98,19 @@ private:
     std::shared_ptr<Util::GameObject> m_LevelClearHighScore = nullptr;
     std::shared_ptr<Util::Text> m_LevelClearHighScoreDrawable = nullptr;
     std::array<std::shared_ptr<Util::Text>, 4> m_LevelClearHighScoreOutlineDrawables{};
+    std::array<std::shared_ptr<Util::GameObject>, 3> m_LevelClearBestStars{};
     std::shared_ptr<Button> m_LevelClearMenuButton = nullptr;
     std::shared_ptr<Button> m_LevelClearRestartButton = nullptr;
     std::shared_ptr<Button> m_LevelClearNextButton = nullptr;
     bool m_IsLevelClearScreenVisible = false;
+    
+    std::shared_ptr<Util::GameObject> m_LevelFailedBackdrop = nullptr;
+    std::shared_ptr<Util::GameObject> m_LevelFailedTitle = nullptr;
+    std::shared_ptr<Util::GameObject> m_LevelFailedPig = nullptr;
+    std::shared_ptr<Button> m_LevelFailedMenuButton = nullptr;
+    std::shared_ptr<Button> m_LevelFailedRestartButton = nullptr;
+    std::shared_ptr<Button> m_LevelFailedNextButton = nullptr;
+    bool m_IsLevelFailedScreenVisible = false;
 
     std::function<void()> m_OnRestartLevel = nullptr;
     std::function<void()> m_OnOpenLevelSelect = nullptr;
@@ -114,6 +124,7 @@ private:
     int m_HudHighScore = 0;
     int m_RemainingPigCount = 0;
     bool m_LevelCleared = false;
+    bool m_LevelFailed = false;
     bool m_LeftoverBirdsAwarded = false;
 };
 

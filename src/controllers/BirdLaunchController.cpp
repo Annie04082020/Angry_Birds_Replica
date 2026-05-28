@@ -13,6 +13,8 @@
 
 namespace
 {
+    constexpr float kBirdReadyDistanceThreshold = 6.0f;
+
     std::string ToLowerCopy(std::string value)
     {
         std::transform(value.begin(), value.end(), value.begin(),
@@ -99,7 +101,13 @@ int BirdLaunchController::GetRemainingBirdCountForBonus() const
     }
 
     int remaining = 0;
-    if (m_ActiveBird && !m_HasLaunchedBird && m_CurrentBirdIndex < m_BirdQueue.size())
+    const bool activeBirdReadyToLaunch =
+        m_ActiveBird &&
+        !m_HasLaunchedBird &&
+        m_CurrentBirdIndex < m_BirdQueue.size() &&
+        glm::distance(m_ActiveBird->GetPosition(), m_BirdAnchorPosition) <= kBirdReadyDistanceThreshold;
+
+    if (activeBirdReadyToLaunch)
     {
         ++remaining;
     }
@@ -110,6 +118,14 @@ int BirdLaunchController::GetRemainingBirdCountForBonus() const
     }
 
     return remaining;
+}
+
+bool BirdLaunchController::IsOutOfBirds() const
+{
+    return m_HasAnyBirdBeenLaunched &&
+           !m_HasLaunchedBird &&
+           !m_IsHoldingBird &&
+           GetRemainingBirdCountForBonus() == 0;
 }
 
 glm::vec2 BirdLaunchController::GetMouseWorldPosition() const

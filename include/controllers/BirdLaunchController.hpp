@@ -16,6 +16,8 @@ public:
     [[nodiscard]] bool IsHoldingBird() const { return m_IsHoldingBird; }
     [[nodiscard]] int GetRemainingBirdCountForBonus() const;
     [[nodiscard]] bool HasAnyBirdBeenLaunched() const { return m_HasAnyBirdBeenLaunched; }
+    [[nodiscard]] bool HasBirdInFlight() const { return m_HasLaunchedBird; }
+    [[nodiscard]] bool IsOutOfBirds() const;
 
 private:
     bool HandleBirdLaunchPhysics();

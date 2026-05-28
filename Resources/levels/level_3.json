@@ -3,6 +3,10 @@
   "name": "Level 3",
   "background": "Image/background.png",
   "birds": 3,
+  "resources": {
+    "EARTH_TRI_TLBR": "Image/earth/earth_tri_tlbr.png",
+    "EARTH_TRI_TRBL": "Image/earth/earth_tri_trbl.png"
+  },
   "groups": [
     {
       "id": "slingshot",
@@ -80,6 +84,49 @@
       "rotation": 0.0,
       "xPercent": 8,
       "yPercent": 0
+    },
+    {
+      "type": "DECOR",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "Environment",
+      "widthPercent": 4,
+      "heightPercent": 12,
+      "rotation": 0.0,
+      "xPercent": 5.2,
+      "yPercent": -8
+    },
+    {
+      "type": "DECOR",
+      "imageId": "EARTH_TRI_TLBR",
+      "groupId": "Environment",
+      "widthPercent": 6.5,
+      "heightPercent": 7.5,
+      "rotation": 0.0,
+      "xPercent": 10.8,
+      "yPercent": 1.5,
+      "zIndex": 12
+    },
+    {
+      "type": "DECOR",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 4.6,
+      "rotation": 0.0,
+      "xPercent": 6.5,
+      "yPercent": -0.8,
+      "zIndex": 13
+    },
+    {
+      "type": "DECOR",
+      "imageId": "EARTH_TRI_TLBR",
+      "groupId": "Environment",
+      "widthPercent": 4.0,
+      "heightPercent": 4.6,
+      "rotation": 0.0,
+      "xPercent": 9.5,
+      "yPercent": -0.8,
+      "zIndex": 13
     },
     {
       "type": "STONE",
