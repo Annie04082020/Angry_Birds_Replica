@@ -1,8 +1,6 @@
 #include "Util/TransformUtils.hpp"
 
-#include "Core/Context.hpp"
 #include "config.hpp"
-#include <algorithm>
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 namespace Util {
@@ -31,39 +29,6 @@ Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
     };
 
     return data;
-}
-
-namespace {
-glm::vec2 g_CameraPosition{0.0f, 0.0f};
-float g_CameraZoom = 1.0f;
-} // namespace
-
-void SetCameraZoom(float zoom) {
-    g_CameraZoom = std::clamp(zoom, 0.1f, 4.0f);
-}
-
-float GetCameraZoom() {
-    return g_CameraZoom;
-}
-
-void SetCameraPosition(const glm::vec2 &position) {
-    g_CameraPosition = position;
-}
-
-glm::vec2 GetCameraPosition() {
-    return g_CameraPosition;
-}
-
-glm::vec2 GetViewportSize() {
-    const auto context = Core::Context::GetInstance();
-    if (!context) {
-        return {0.0f, 0.0f};
-    }
-
-    return {
-        static_cast<float>(context->GetWindowWidth()),
-        static_cast<float>(context->GetWindowHeight()),
-    };
 }
 
 } // namespace Util
