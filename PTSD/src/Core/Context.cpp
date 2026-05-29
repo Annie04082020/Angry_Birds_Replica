@@ -50,14 +50,20 @@ Context::Context() {
         LOG_ERROR(SDL_GetError());
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                        SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    const auto TryCreateContext = [this](int major, int minor, int profile) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profile);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minor);
+        m_GlContext = SDL_GL_CreateContext(m_Window);
+        return m_GlContext != nullptr;
+    };
 
-    m_GlContext = SDL_GL_CreateContext(m_Window);
+    const bool hasContext = TryCreateContext(4, 1, SDL_GL_CONTEXT_PROFILE_CORE) ||
+                            TryCreateContext(3, 3, SDL_GL_CONTEXT_PROFILE_CORE) ||
+                            TryCreateContext(3, 0, SDL_GL_CONTEXT_PROFILE_CORE) ||
+                            TryCreateContext(2, 1, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
-    if (m_GlContext == nullptr) {
+    if (!hasContext) {
         LOG_ERROR("Failed to initialize GL context");
         LOG_ERROR(SDL_GetError());
     }
