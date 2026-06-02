@@ -1219,7 +1219,13 @@ void GameScene::ResetScoreState()
         object->SetDestroyed(false);
         object->ResetHealth();
         object->SetVisible(true);
-        object->SetParticipatesInPhysics(true);
+        // Only set physics participation for objects that should participate
+        // DECOR (Unknown kind) and Slingshot should not participate in physics
+        if (object->GetEntityKind() == Character::EntityKind::Environment ||
+            object->GetEntityKind() == Character::EntityKind::Pig)
+        {
+            object->SetParticipatesInPhysics(true);
+        }
 
         if (object->GetEntityKind() == Character::EntityKind::Pig)
         {
