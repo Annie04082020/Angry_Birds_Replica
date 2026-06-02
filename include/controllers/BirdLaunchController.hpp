@@ -14,6 +14,10 @@ public:
     void SetWorldFloorY(float y) { m_WorldFloorY = y; }
 
     [[nodiscard]] bool IsHoldingBird() const { return m_IsHoldingBird; }
+    [[nodiscard]] int GetRemainingBirdCountForBonus() const;
+    [[nodiscard]] bool HasAnyBirdBeenLaunched() const { return m_HasAnyBirdBeenLaunched; }
+    [[nodiscard]] bool HasBirdInFlight() const { return m_HasLaunchedBird; }
+    [[nodiscard]] bool IsOutOfBirds() const;
 
 private:
     bool HandleBirdLaunchPhysics();
@@ -27,6 +31,7 @@ private:
     size_t m_CurrentBirdIndex = 0;
     bool m_IsHoldingBird = false;
     bool m_HasLaunchedBird = false;
+    bool m_HasAnyBirdBeenLaunched = false;
     float m_WorldFloorY = -294.0f;
     // stop detection now uses velocity/angle thresholds
 };

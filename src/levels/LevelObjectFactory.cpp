@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <unordered_set>
 
 #include "Character.hpp"
 #include "EntityTemplateDatabase.hpp"
@@ -30,6 +31,18 @@ namespace
     bool IsEarthKey(const std::string &value)
     {
         return StartsWith(value, "EARTH");
+    }
+
+    bool IsSpecialItemId(const std::string &imageId)
+    {
+        static const std::unordered_set<std::string> kSpecialItemIds = {
+            "SMILE",
+            "CAKE",
+            "TROPHY",
+            "PUMPKIN",
+            "GIFT",
+            "GIFT_BOX"};
+        return kSpecialItemIds.find(imageId) != kSpecialItemIds.end();
     }
 
     Character::EntityKind ClassifyEntityKind(const std::string &imageId)
@@ -154,6 +167,7 @@ namespace
         if (definition)
         {
             character.SetPhysicsState(definition->physicsState);
+            character.SetMaxHealth(definition->health);
             if (definition->entityKind != Character::EntityKind::Unknown)
             {
                 character.SetEntityKind(definition->entityKind);
@@ -175,6 +189,8 @@ namespace
         {
             character.SetMaterialType(ClassifyMaterialType(imageId));
         }
+
+        character.SetSpecialItem(IsSpecialItemId(imageId));
     }
 
     std::string PrepareResourcePath(const std::string &resourcePath)

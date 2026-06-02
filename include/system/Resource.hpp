@@ -122,7 +122,6 @@ namespace Resource
     const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
     const std::string ICE_205x20_1 = RESOURCE_DIR "/Image/ice/sprite_063.png";
     const std::string ICE_41x20_1 = RESOURCE_DIR "/Image/ice/sprite_001.png";
-
     // UI
     const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
     const std::string Exit_Button = RESOURCE_DIR "/Image/ui/button/sprite_070.png";
@@ -148,6 +147,10 @@ namespace Resource
     const std::string Game_Menu_Item_005 = RESOURCE_DIR "/Image/ui/button/sprite_005.png";
     const std::string Game_Menu_Item_063 = RESOURCE_DIR "/Image/ui/button/sprite_063.png";
     const std::string Game_Menu_Item_040 = RESOURCE_DIR "/Image/ui/button/sprite_040.png";
+
+    // Stars (for level clear screen)
+    const std::string Star_Empty = RESOURCE_DIR "/Image/ui/mark/star_003.png";
+    const std::string Star_Filled = RESOURCE_DIR "/Image/ui/mark/star_001.png";
 
     // Level Titles
     const std::string Level_Title_1_1 = RESOURCE_DIR "/Image/word/1-1.png";

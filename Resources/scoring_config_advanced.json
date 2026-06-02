@@ -1,0 +1,60 @@
+{
+  "scoring": {
+    "description": "Advanced Scoring Configuration for Angry Birds",
+    "version": "1.0",
+    
+    "basic_points": {
+      "pig_destroyed": 5000,
+      "leftover_bird": 10000,
+      "special_item": 3000
+    },
+    
+    "material_points": {
+      "glass": {
+        "damage_budget": 500,
+        "destroyed_points": 500,
+        "damage_multiplier": 1.0,
+        "description": "易碎材料 - 最容易摧毁"
+      },
+      "ice": {
+        "damage_budget": 500,
+        "destroyed_points": 500,
+        "damage_multiplier": 1.0,
+        "description": "冰冻材料 - 与玻璃相同的难度"
+      },
+      "wood": {
+        "damage_budget": 800,
+        "destroyed_points": 900,
+        "damage_multiplier": 1.0,
+        "description": "木质材料 - 中等难度"
+      },
+      "stone": {
+        "damage_budget": 1200,
+        "destroyed_points": 1300,
+        "damage_multiplier": 1.0,
+        "description": "石材 - 最坚硬"
+      }
+    },
+    
+    "difficulty_multipliers": {
+      "easy": 1.0,
+      "normal": 1.0,
+      "hard": 1.5,
+      "extreme": 2.0
+    },
+    
+    "bonus_rules": {
+      "no_damage_lost": {
+        "enabled": false,
+        "bonus_points": 2000,
+        "description": "完美通关 - 没有消耗任何鸟"
+      },
+      "speed_bonus": {
+        "enabled": false,
+        "threshold_seconds": 30,
+        "bonus_points": 1000,
+        "description": "速度奖励 - 30秒内通关"
+      }
+    }
+  }
+}
