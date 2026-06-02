@@ -426,13 +426,16 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
         continue;
 
       // Impact activation check: wake environmental objects if hit by birds or already activated objects
-      auto activateEnvironment = [&newlyActivated](const std::shared_ptr<Character> &target, const std::shared_ptr<Character> &other)
+      auto activateEnvironment = [&newlyActivated, penetration](const std::shared_ptr<Character> &target, const std::shared_ptr<Character> &other)
       {
         if (!target || target->GetEntityKind() != Character::EntityKind::Environment)
           return;
         if (target->GetMaterialType() == Character::MaterialType::Earth)
           return;
         if (target->IsImpactActivated())
+          return;
+        // Require actual penetration depth, not just touching contact
+        if (penetration <= 0.f)
           return;
 
         bool triggered = false;
