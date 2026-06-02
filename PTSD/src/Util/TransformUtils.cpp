@@ -16,9 +16,11 @@ Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
 
     auto projection =
         glm::ortho<float>(0.0F, 1.0F, 0.0F, 1.0F, nearClip, farClip);
+    // Use game viewport dimensions for the view matrix transformation
+    // This decouples the logical coordinate space from the physical window
     auto view =
-        glm::scale(eye, {1.F / WINDOW_WIDTH, 1.F / WINDOW_HEIGHT, 1.F}) *
-        glm::translate(eye, {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0});
+        glm::scale(eye, {1.F / GAME_VIEWPORT_WIDTH, 1.F / GAME_VIEWPORT_HEIGHT, 1.F}) *
+        glm::translate(eye, {GAME_VIEWPORT_WIDTH / 2, GAME_VIEWPORT_HEIGHT / 2, 0});
 
     // TODO: TRS comment
     auto model = glm::translate(eye, {transform.translation, zIndex}) *
@@ -55,15 +57,9 @@ glm::vec2 GetCameraPosition() {
 }
 
 glm::vec2 GetViewportSize() {
-    const auto context = Core::Context::GetInstance();
-    if (!context) {
-        return {0.0f, 0.0f};
-    }
-
-    return {
-        static_cast<float>(context->GetWindowWidth()),
-        static_cast<float>(context->GetWindowHeight()),
-    };
+    // Return game viewport size, not physical window size
+    // This ensures all game logic and UI layouts use the correct coordinate space
+    return {GAME_VIEWPORT_WIDTH, GAME_VIEWPORT_HEIGHT};
 }
 
 } // namespace Util

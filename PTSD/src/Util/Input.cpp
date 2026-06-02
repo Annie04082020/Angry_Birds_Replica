@@ -78,12 +78,15 @@ void Input::UpdateKeyState(const SDL_Event *event) {
 void Input::Update() {
     int x, y;
     SDL_GetMouseState(&x, &y);
-    s_CursorPosition.x = static_cast<float>(x);
-    s_CursorPosition.y = static_cast<float>(y);
-
-    s_CursorPosition.x -= static_cast<float>(WINDOW_WIDTH) / 2;
-    s_CursorPosition.y =
-        -(s_CursorPosition.y - static_cast<float>(WINDOW_HEIGHT) / 2);
+    
+    // Map mouse coordinates from physical window to game viewport
+    // Scale from physical window (WINDOW_WIDTH x WINDOW_HEIGHT) 
+    // to game viewport (GAME_VIEWPORT_WIDTH x GAME_VIEWPORT_HEIGHT)
+    const float scaleX = GAME_VIEWPORT_WIDTH / WINDOW_WIDTH;
+    const float scaleY = GAME_VIEWPORT_HEIGHT / WINDOW_HEIGHT;
+    
+    s_CursorPosition.x = (static_cast<float>(x) - static_cast<float>(WINDOW_WIDTH) / 2) * scaleX;
+    s_CursorPosition.y = -((static_cast<float>(y) - static_cast<float>(WINDOW_HEIGHT) / 2) * scaleY);
 
     s_Scroll = s_MouseMoving = false;
 

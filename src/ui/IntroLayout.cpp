@@ -227,10 +227,10 @@ namespace IntroLayoutLoader
         }
 
         // Apply resolution scaling to adapt layout for different viewport sizes
-        // Design viewport: 2400x1350. Calculate scale factor based on actual viewport.
+        // Design viewport: 1920x1080. Calculate scale factor based on actual viewport.
         const glm::vec2 actualViewportSize = Util::GetViewportSize();
-        const float scaleFactorX = actualViewportSize.x / 2400.0f;
-        const float scaleFactorY = actualViewportSize.y / 1350.0f;
+        const float scaleFactorX = actualViewportSize.x / 1920.0f;
+        const float scaleFactorY = actualViewportSize.y / 1080.0f;
         const float scaleFactor = (scaleFactorX + scaleFactorY) / 2.0f;
 
         // Apply resolution scaling to all sections

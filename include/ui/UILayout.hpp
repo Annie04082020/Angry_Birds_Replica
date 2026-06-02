@@ -41,8 +41,8 @@ namespace UILayout
     void ApplyResolutionScaling(
         SectionLayout &layout,
         const glm::vec2 &actualViewportSize,
-        float designViewportWidth = 2400.0f,
-        float designViewportHeight = 1350.0f);
+        float designViewportWidth = 1920.0f,
+        float designViewportHeight = 1080.0f);
 
     glm::vec2 PercentToWorldPosition(float xPercent,
                                      float yPercent,

@@ -89,7 +89,7 @@ public:
      *                            A value of -1 means it will play the entire
      * sound effect.
      */
-    void FadeIn(unsigned int tick, int loop = -1, unsigned int duration = -1);
+    void FadeIn(unsigned int tick, int oop = -1, unsigned int duration = -1);
 
 private:
     static Util::AssetStore<std::shared_ptr<Mix_Chunk>> s_Store;
