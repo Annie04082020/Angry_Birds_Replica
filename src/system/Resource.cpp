@@ -96,9 +96,6 @@ namespace Resource
             {"WOOD_21x20_2", WOOD_21x20_2},
             {"WOOD_21x20_3", WOOD_21x20_3},
             {"WOOD_21x20_4", WOOD_21x20_4},
-            {"WOOD_42x41_1", WOOD_42x41_1},
-            {"WOOD_42x41_2", WOOD_42x41_2},
-            {"WOOD_42x41_3", WOOD_42x41_3},
             {"SMILE", SMILE},
 
             // Stone entries (matching updated Resource.hpp)
