@@ -456,7 +456,8 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         character->SetAngularVelocity(0.0f);
     }
 
-    if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
+    if (!isDecor && (character->GetEntityKind() == Character::EntityKind::Environment ||
+                     character->GetEntityKind() == Character::EntityKind::Pig))
     {
         // Keep level structures rigid at spawn time. They become dynamic only
         // after impact activation, which prevents stacked layouts from

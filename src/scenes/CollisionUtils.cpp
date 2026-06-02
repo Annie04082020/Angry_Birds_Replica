@@ -39,22 +39,6 @@ namespace CollisionUtils
             }
         }
 
-        std::vector<glm::vec2> BuildWorldCollider(const Character &character)
-        {
-            const glm::vec2 center = character.GetPosition();
-            const float rotation = character.m_Transform.rotation;
-            const auto localPoints = BuildLocalCollider(character);
-
-            std::vector<glm::vec2> worldPoints;
-            worldPoints.reserve(localPoints.size());
-            for (const auto &localPoint : localPoints)
-            {
-                worldPoints.push_back(center + RotatePoint(localPoint, rotation));
-            }
-
-            return worldPoints;
-        }
-
         glm::vec2 PolygonCentroid(const std::vector<glm::vec2> &points)
         {
             if (points.empty())
@@ -232,6 +216,22 @@ namespace CollisionUtils
         default:
             return 1.0f;
         }
+    }
+
+    std::vector<glm::vec2> BuildWorldCollider(const Character &character)
+    {
+        const glm::vec2 center = character.GetPosition();
+        const float rotation = character.m_Transform.rotation;
+        const auto localPoints = BuildLocalCollider(character);
+
+        std::vector<glm::vec2> worldPoints;
+        worldPoints.reserve(localPoints.size());
+        for (const auto &localPoint : localPoints)
+        {
+            worldPoints.push_back(center + RotatePoint(localPoint, rotation));
+        }
+
+        return worldPoints;
     }
 
     bool ComputeOBBMTV(const Character &A, const Character &B,
