@@ -28,6 +28,11 @@ public:
   void Init();
   void Update();
   void AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl);
+  void SetDebugRenderEnabled(bool enabled) { m_DebugRenderEnabled = enabled; }
+  [[nodiscard]] bool IsDebugRenderEnabled() const { return m_DebugRenderEnabled; }
+  void SetPhysicsPaused(bool paused);
+  [[nodiscard]] bool IsPhysicsPaused() const { return m_PhysicsPaused; }
+  void RequestPhysicsSingleStep() { m_PhysicsSingleStepRequested = true; }
   // Stabilize environment objects on load by running short physics steps
   void StabilizeEnvironment(int steps = 30);
   void SetVisible(bool visible)
@@ -98,7 +103,18 @@ protected:
   };
   std::vector<DebugEntity> m_DebugEntities;
   float m_DebugDrawCooldown = 0.0f;
-  float m_DebugDrawInterval = 0.05f;
+  float m_DebugDrawInterval = 0.08f;
+  bool m_DebugRenderEnabled = false;
+  bool m_PhysicsPaused = false;
+  bool m_PhysicsSingleStepRequested = false;
+
+  void StepPhysics(float dt);
+  void DrawPhysicsDebug();
+  void AddDebugLine(const glm::vec2 &start,
+                    const glm::vec2 &end,
+                    const glm::vec4 &color,
+                    float thickness,
+                    float ttl);
 
   // World floor Y coordinate. Can be set by caller (e.g. GameScene after loading level)
   float m_WorldFloorY = -294.0f;

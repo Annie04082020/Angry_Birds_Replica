@@ -14,6 +14,7 @@
 #include "Util/DebugBox.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
+#include "Util/Keycode.hpp"
 #include "Util/Text.hpp"
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
@@ -465,6 +466,26 @@ void GameScene::Update()
 {
     const bool isBirdHolding = m_BirdLaunchController && m_BirdLaunchController->IsHoldingBird();
 
+    if (Util::Input::IsKeyPressed(Util::Keycode::F1))
+    {
+        SetDebugRenderEnabled(!IsDebugRenderEnabled());
+        std::cout << "[Debug] Physics render "
+                  << (IsDebugRenderEnabled() ? "enabled" : "disabled") << std::endl;
+    }
+
+    if (Util::Input::IsKeyPressed(Util::Keycode::P))
+    {
+        SetPhysicsPaused(!IsPhysicsPaused());
+        std::cout << "[Debug] Physics "
+                  << (IsPhysicsPaused() ? "paused" : "resumed") << std::endl;
+    }
+
+    if (IsPhysicsPaused() && Util::Input::IsKeyPressed(Util::Keycode::L))
+    {
+        RequestPhysicsSingleStep();
+        std::cout << "[Debug] Physics single step dt=0.016" << std::endl;
+    }
+
     // Output damage stats to console periodically during test level
     if (m_ShowDamageHud && m_LevelManager)
     {
@@ -477,7 +498,7 @@ void GameScene::Update()
         }
     }
 
-    if (m_BirdLaunchController)
+    if (m_BirdLaunchController && !IsPhysicsPaused())
     {
         m_BirdLaunchController->Update();
     }
@@ -1624,4 +1645,3 @@ void GameScene::SetPauseMenuButtonsInputEnabled(const bool enabled)
         m_PauseMenu063->SetInputEnabled(enabled);
     }
 }
-
