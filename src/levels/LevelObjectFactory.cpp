@@ -448,8 +448,10 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         character->SetAngularVelocity(0.0f);
     }
 
-    if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
+    if (!isDecor && (character->GetEntityKind() == Character::EntityKind::Environment ||
+                     character->GetEntityKind() == Character::EntityKind::Pig))
     {
+        character->SetImpactActivated(false);
         character->SetSleeping(true);
         character->SetVelocity({0.0f, 0.0f});
         character->SetAngularVelocity(0.0f);

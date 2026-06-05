@@ -19,8 +19,8 @@ namespace
     switch (levelNumber)
     {
     case 1:
-      // return Resource::LEVEL_1_TEST_DATA;
-      return Resource::LEVEL_EARTH_TEST_DATA;
+      return Resource::LEVEL_1_TEST_DATA;
+      // return Resource::LEVEL_EARTH_TEST_DATA;
     case 2:
       return Resource::LEVEL_2_DATA;
     case 3:
