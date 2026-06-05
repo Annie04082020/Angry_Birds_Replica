@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <unordered_set>
 #include "Util/Time.hpp"
 
 namespace
@@ -523,24 +524,36 @@ void Scene::Update()
   // Update debug entities TTL and remove expired ones
   if (!m_DebugEntities.empty())
   {
+    std::unordered_set<std::shared_ptr<Util::GameObject>> expiredObjs;
     for (auto it = m_DebugEntities.begin(); it != m_DebugEntities.end();)
     {
       it->ttl -= deltaSec;
       if (it->ttl <= 0.0f)
       {
-        // remove from m_Elements and from child list
-        auto found = std::find(m_Elements.begin(), m_Elements.end(), it->obj);
-        if (found != m_Elements.end())
-        {
-          m_Elements.erase(found);
-        }
-        RemoveChild(it->obj);
+        expiredObjs.insert(it->obj);
         it = m_DebugEntities.erase(it);
       }
       else
       {
         ++it;
       }
+    }
+
+    if (!expiredObjs.empty())
+    {
+      m_Elements.erase(
+          std::remove_if(m_Elements.begin(), m_Elements.end(),
+                         [&expiredObjs](const std::shared_ptr<Util::GameObject> &obj) {
+                           return expiredObjs.count(obj) > 0;
+                         }),
+          m_Elements.end());
+
+      m_Children.erase(
+          std::remove_if(m_Children.begin(), m_Children.end(),
+                         [&expiredObjs](const std::shared_ptr<Util::GameObject> &obj) {
+                           return expiredObjs.count(obj) > 0;
+                         }),
+          m_Children.end());
     }
   }
   // Keyboard control for testing: move controlled character with arrow keys/WASD

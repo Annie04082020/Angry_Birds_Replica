@@ -444,6 +444,9 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     if (m_BirdLaunchController)
     {
         m_BirdLaunchController->SetWorldFloorY(floorCandidate);
+        m_BirdLaunchController->SetOnSpawnCharacter([this](const std::shared_ptr<Character>& charPtr) {
+            this->AddElements(charPtr);
+        });
         m_BirdLaunchController->LoadLevelObjects(objects);
     }
 

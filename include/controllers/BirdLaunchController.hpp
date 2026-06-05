@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
 
 #include "Character.hpp"
 
@@ -12,6 +13,9 @@ public:
     bool LoadLevelObjects(const std::vector<std::shared_ptr<Character>> &objects);
     bool Update();
     void SetWorldFloorY(float y) { m_WorldFloorY = y; }
+    void SetOnSpawnCharacter(std::function<void(std::shared_ptr<Character>)> callback) {
+        m_OnSpawnCharacter = callback;
+    }
 
     [[nodiscard]] bool IsHoldingBird() const { return m_IsHoldingBird; }
     [[nodiscard]] int GetRemainingBirdCountForBonus() const;
@@ -33,6 +37,9 @@ private:
     bool m_HasLaunchedBird = false;
     bool m_HasAnyBirdBeenLaunched = false;
     float m_WorldFloorY = -294.0f;
+    std::vector<std::shared_ptr<Character>> m_ActiveBirdsInFlight;
+    std::function<void(std::shared_ptr<Character>)> m_OnSpawnCharacter = nullptr;
+    bool m_HasSplit = false;
     // stop detection now uses velocity/angle thresholds
 };
 
