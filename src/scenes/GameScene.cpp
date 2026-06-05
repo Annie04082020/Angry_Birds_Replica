@@ -483,6 +483,12 @@ void GameScene::PersistLevelHighScore() const
 
 void GameScene::Update()
 {
+    if (Util::Input::IsKeyUp(Util::Keycode::C))
+    {
+        m_LevelCleared = true;
+        m_LevelFailed = false;
+    }
+
     const bool isBirdHolding = m_BirdLaunchController && m_BirdLaunchController->IsHoldingBird();
 
     // Output damage stats to console periodically during test level
