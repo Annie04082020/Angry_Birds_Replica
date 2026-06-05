@@ -73,6 +73,33 @@ namespace
 
   constexpr float settleSpeedThreshold = 6.0f;   // px/sec (stricter)
   constexpr float settleAngularThreshold = 2.0f; // rad/sec
+
+  struct TraversalGuard
+  {
+    Scene &scene;
+    TraversalGuard(Scene &s) : scene(s) { scene.m_ElementsTraversalLock++; }
+    ~TraversalGuard() { scene.ReleaseTraversalLock(); }
+  };
+}
+
+void Scene::ReleaseTraversalLock()
+{
+  if (--m_ElementsTraversalLock == 0)
+  {
+    FlushPendingElements();
+  }
+}
+
+void Scene::FlushPendingElements()
+{
+  if (m_ElementsTraversalLock > 0)
+    return;
+  for (auto &element : m_PendingAddElements)
+  {
+    m_Elements.push_back(element);
+    AddChild(element);
+  }
+  m_PendingAddElements.clear();
 }
 
 void Scene::AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl)
@@ -113,6 +140,7 @@ void Scene::AddDebugLine(const glm::vec2 &start,
 
 void Scene::DrawPhysicsDebug()
 {
+  TraversalGuard guard(*this);
   const float ttl = std::max(0.02f, m_DebugDrawInterval * 1.5f);
   std::vector<DebugLineRequest> lines;
   std::vector<glm::vec2> contactPoints;
@@ -187,6 +215,8 @@ void Scene::StabilizeEnvironment(int steps)
 {
   if (steps <= 0)
     return;
+
+  TraversalGuard guard(*this);
 
   constexpr float localDt = 1.0f / 120.0f; // finer substeps for stabilization
   constexpr float gravity = 700.0f;
@@ -267,6 +297,8 @@ void Scene::StepPhysics(float dt)
 {
   if (!std::isfinite(dt) || dt <= 0.0f)
     return;
+
+  TraversalGuard guard(*this);
 
   // Apply global gravity to all dynamic characters
   constexpr float kGlobalGravity = 700.0f;
@@ -404,81 +436,87 @@ void Scene::Update()
   {
     m_Background->Update();
   }
-  for (auto &element : m_Elements)
   {
-    element->Update();
-  }
-
-  // Update sprite images based on damage state
-  for (auto &element : m_Elements)
-  {
-    auto character = std::dynamic_pointer_cast<Character>(element);
-    if (!character || character->GetBaseImageId().empty())
-      continue;
-
-    const Character::DamageState currentState = character->GetDamageState();
-    const Character::DamageState previousState = character->GetPreviousDamageState();
-
-    // If damage state changed, update the image
-    if (currentState != previousState)
+    TraversalGuard guard(*this);
+    auto elementsToUpdate = m_Elements;
+    for (auto &element : elementsToUpdate)
     {
-      character->SetPreviousDamageState(currentState);
-      const std::string baseId = character->GetBaseImageId();
-      const std::string newImageId = GetImageIdForDamageState(baseId, currentState);
-      const std::string imagePath = Resource::GetPath(newImageId);
+      element->Update();
+    }
 
-      if (!imagePath.empty())
+    // Update sprite images based on damage state
+    auto elementsToDamageCheck = m_Elements;
+    for (auto &element : elementsToDamageCheck)
+    {
+      auto character = std::dynamic_pointer_cast<Character>(element);
+      if (!character || character->GetBaseImageId().empty())
+        continue;
+
+      const Character::DamageState currentState = character->GetDamageState();
+      const Character::DamageState previousState = character->GetPreviousDamageState();
+
+      // If damage state changed, update the image
+      if (currentState != previousState)
       {
-        character->SetImage(imagePath);
+        character->SetPreviousDamageState(currentState);
+        const std::string baseId = character->GetBaseImageId();
+        const std::string newImageId = GetImageIdForDamageState(baseId, currentState);
+        const std::string imagePath = Resource::GetPath(newImageId);
+
+        if (!imagePath.empty())
+        {
+          character->SetImage(imagePath);
+        }
       }
     }
-  }
 
-  // Handle character deaths and award points
-  for (auto it = m_Elements.begin(); it != m_Elements.end();)
-  {
-    auto character = std::dynamic_pointer_cast<Character>(*it);
-    if (character && character->GetHealth() <= 0.0f && !character->IsDestroyed())
+    // Handle character deaths and award points
+    auto elementsToCheckDeath = m_Elements;
+    for (auto &element : elementsToCheckDeath)
     {
-      // Mark as destroyed once so we do not re-score every frame.
-      character->SetDestroyed(true);
-
-      // Award points based on character type
-      const Character::EntityKind kind = character->GetEntityKind();
-      if (kind == Character::EntityKind::Pig)
+      auto character = std::dynamic_pointer_cast<Character>(element);
+      if (character && character->GetHealth() <= 0.0f && !character->IsDestroyed())
       {
-        m_Score += 100; // Pig elimination bonus
-        character->SetVisible(false);
-        // TODO: Play pig death sound effect
-      }
-      else if (kind == Character::EntityKind::Environment)
-      {
-        m_Score += 10; // Structure destruction bonus
-        // TODO: Play destruction sound effect
-      }
-      else
-      {
-        character->SetVisible(false);
-      }
+        // Mark as destroyed once so we do not re-score every frame.
+        character->SetDestroyed(true);
 
-      // Notify subclasses about character death
-      OnCharacterDeath(character);
+        // Award points based on character type
+        const Character::EntityKind kind = character->GetEntityKind();
+        if (kind == Character::EntityKind::Pig)
+        {
+          m_Score += 100; // Pig elimination bonus
+          character->SetVisible(false);
+          // TODO: Play pig death sound effect
+        }
+        else if (kind == Character::EntityKind::Environment)
+        {
+          m_Score += 10; // Structure destruction bonus
+          // TODO: Play destruction sound effect
+        }
+        else
+        {
+          character->SetVisible(false);
+        }
 
-      // Clean up contacts involving the deceased character to avoid dangling pointers
-      m_Contacts.erase(
-          std::remove_if(m_Contacts.begin(), m_Contacts.end(),
-                         [rawChar = character.get()](const ContactManifold &cm)
-                         { return cm.a == rawChar || cm.b == rawChar; }),
-          m_Contacts.end());
+        // Notify subclasses about character death
+        OnCharacterDeath(character);
 
-      // Remove dead objects from the scene (Pigs and Environment blocks like wood/ice)
-      // When their health reaches 0, they should shatter/disappear.
-      RemoveChild(*it);
-      it = m_Elements.erase(it);
-    }
-    else
-    {
-      ++it;
+        // Clean up contacts involving the deceased character to avoid dangling pointers
+        m_Contacts.erase(
+            std::remove_if(m_Contacts.begin(), m_Contacts.end(),
+                           [rawChar = character.get()](const ContactManifold &cm)
+                           { return cm.a == rawChar || cm.b == rawChar; }),
+            m_Contacts.end());
+
+        // Remove dead objects from the scene (Pigs and Environment blocks like wood/ice)
+        // When their health reaches 0, they should shatter/disappear.
+        RemoveChild(element);
+        auto found = std::find(m_Elements.begin(), m_Elements.end(), element);
+        if (found != m_Elements.end())
+        {
+          m_Elements.erase(found);
+        }
+      }
     }
   }
 
@@ -538,6 +576,8 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
 {
   if (passes <= 0)
     passes = 1;
+
+  TraversalGuard guard(*this);
 
   // ── Build character list ──────────────────────────────────────────────
   std::vector<std::shared_ptr<Character>> characters;
