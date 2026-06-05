@@ -464,6 +464,13 @@ void Scene::Update()
       // Notify subclasses about character death
       OnCharacterDeath(character);
 
+      // Clean up contacts involving the deceased character to avoid dangling pointers
+      m_Contacts.erase(
+          std::remove_if(m_Contacts.begin(), m_Contacts.end(),
+                         [rawChar = character.get()](const ContactManifold &cm)
+                         { return cm.a == rawChar || cm.b == rawChar; }),
+          m_Contacts.end());
+
       // Remove dead objects from the scene (Pigs and Environment blocks like wood/ice)
       // When their health reaches 0, they should shatter/disappear.
       RemoveChild(*it);
