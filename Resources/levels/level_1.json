@@ -55,6 +55,24 @@
     },
     {
       "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -22.333333,
+      "yPercent": -16.074074
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -21.333333,
+      "yPercent": -16.074074
+    },
+    {
+      "type": "BIRD",
       "imageId": "BIRD_YELLOW",
       "heightPercent": 4,
       "sizeBase": "height",
