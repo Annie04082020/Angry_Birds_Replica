@@ -64,9 +64,21 @@ public:
     {
       return;
     }
-    m_Elements.push_back(element);
-    AddChild(element);
+    if (m_ElementsTraversalLock > 0)
+    {
+      m_PendingAddElements.push_back(element);
+    }
+    else
+    {
+      m_Elements.push_back(element);
+      AddChild(element);
+    }
   }
+
+  // Element traversal lock management
+  void ReleaseTraversalLock();
+  void FlushPendingElements();
+  int m_ElementsTraversalLock = 0;
 
   // Set a Character to be controlled by keyboard for testing.
   void SetControlledCharacter(const std::shared_ptr<Character> &ch) { m_Controlled = ch; }
@@ -135,6 +147,7 @@ private:
   std::shared_ptr<BackgroundMusic> m_BGM;
   std::shared_ptr<Util::GameObject> m_Background;
   std::vector<std::shared_ptr<Util::GameObject>> m_Elements;
+  std::vector<std::shared_ptr<Util::GameObject>> m_PendingAddElements;
   std::shared_ptr<Character> m_Controlled = nullptr;
   int m_Score = 0;
 };
