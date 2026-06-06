@@ -162,6 +162,8 @@ bool App::LoadLevel(const std::string &levelPath)
                                          { m_pendingGameAction = PendingGameAction::RestartCurrentLevel; });
   m_gameScene->SetOnOpenLevelSelectCallback([this]()
                                             { m_pendingGameAction = PendingGameAction::OpenLevelSelect; });
+  m_gameScene->SetOnNextLevelCallback([this]()
+                                      { m_pendingGameAction = PendingGameAction::OpenNextLevel; });
 
   if (m_gameScene && m_gameScene->LoadLevel(levelPath))
   {
@@ -208,6 +210,28 @@ bool App::RestartCurrentLevel()
   }
 
   return LoadLevel(m_currentLevelPath);
+}
+
+bool App::OpenNextLevel()
+{
+  if (m_currentLevelNumber <= 0)
+  {
+    return false;
+  }
+
+  const int nextLevelNumber = m_currentLevelNumber + 1;
+  const std::string nextLevelPath = ResolveLevelPath(nextLevelNumber);
+  if (nextLevelPath.empty())
+  {
+    UnloadCurrentGameScene();
+    ShowLevelSelectScene();
+    m_CurrentState = State::UPDATE;
+    return false;
+  }
+
+  m_currentLevelNumber = nextLevelNumber;
+  m_currentLevelPath = nextLevelPath;
+  return LoadLevel(nextLevelPath);
 }
 
 void App::UnloadCurrentGameScene()

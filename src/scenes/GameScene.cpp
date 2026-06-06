@@ -123,10 +123,11 @@ namespace
     constexpr int kLevelClearTitleSize = 80;
     constexpr int kLevelClearScoreValueSize = 64;
     constexpr int kLevelClearHighScoreValueSize = 34;
-    constexpr float kLevelClearPanelWidth = 430.0f;
-    constexpr float kLevelClearPanelHeightRatio = 0.92f;
-    constexpr float kLevelClearStarScale = 1.25f;
-    constexpr float kLevelClearBestStarScale = 0.4f;
+    constexpr float kLevelClearPanelWidth = 540.0f;
+    constexpr float kLevelClearPanelHeightRatio = 0.98f;
+    constexpr float kLevelClearStarScale = 0.7f;
+    constexpr float kLevelClearEmptyStarOpacity = 0.1f;
+    constexpr float kLevelClearBestStarScale = 0.1f;
     constexpr float kLevelClearStarSpacing = 145.0f;
     constexpr float kLevelClearBestStarSpacing = 24.0f;
     constexpr float kLevelClearTitleOffsetY = 205.0f;
@@ -135,16 +136,19 @@ namespace
     constexpr float kLevelClearHighScoreOffsetY = -130.0f;
     constexpr float kLevelClearBestStarsOffsetX = 92.0f;
     constexpr float kLevelClearButtonScale = 0.9f;
-    constexpr float kLevelClearButtonSpacing = 200.0f;
-    constexpr float kLevelClearButtonBaseOffsetY = -275.0f;
+    constexpr float kLevelClearButtonSpacing = 185.0f;
+    constexpr float kLevelClearButtonBaseOffsetY = -315.0f;
+    constexpr float kLevelClearStarPopDelay = 0.34f;
+    constexpr float kLevelClearStarPopDuration = 0.5f;
+    constexpr float kLevelClearStarPopYOffset = 30.0f;
     
     constexpr int kLevelFailedTitleSize = 82;
     constexpr float kLevelFailedTitleOffsetY = 200.0f;
     constexpr float kLevelFailedPigScale = 2.6f;
     constexpr float kLevelFailedPigOffsetY = 0.0f;
     constexpr float kLevelFailedButtonScale = 0.9f;
-    constexpr float kLevelFailedButtonSpacing = 200.0f;
-    constexpr float kLevelFailedButtonBaseOffsetY = -280.0f;
+    constexpr float kLevelFailedButtonSpacing = 185.0f;
+    constexpr float kLevelFailedButtonBaseOffsetY = -315.0f;
     const Util::Color kLevelClearScoreFillColor = Util::Color::FromRGB(255, 216, 82);
     const Util::Color kLevelClearScoreOutlineColor = Util::Color::FromRGB(184, 102, 21);
 
@@ -157,15 +161,31 @@ namespace
 
     int ComputeStarCount(const int score)
     {
-        if (score >= 30000)
+        if (score >= 45000)
         {
             return 3;
         }
-        if (score >= 15000)
+        if (score >= 30000)
         {
             return 2;
         }
-        return 1;
+        if (score >= 15000)
+        {
+            return 1;
+        }
+        return 0;
+    }
+
+    float ComputeStarPopScale(const float elapsedTime)
+    {
+        if (elapsedTime <= 0.0f)
+        {
+            return 0.0f;
+        }
+
+        const float progress = std::clamp(elapsedTime / kLevelClearStarPopDuration, 0.0f, 1.0f);
+        const float overshoot = 1.0f + std::sin(progress * 3.1415926f) * 0.42f;
+        return overshoot * progress;
     }
 
     class FloatingTextObject : public Util::GameObject
@@ -534,9 +554,10 @@ void GameScene::Update()
     }
 
     UpdateHudPositions();
+    Scene::Update();
+    RefreshRemainingPigCount();
     UpdateWinState();
     UpdateFailState();
-    Scene::Update();
 }
 
 void GameScene::BuildLevelHud()
@@ -718,11 +739,19 @@ void GameScene::BuildLevelHud()
     // Create star rating display
     for (int i = 0; i < 3; ++i)
     {
+        auto emptyStarDrawable = std::make_shared<Util::Image>(Resource::Star_Empty);
+        emptyStarDrawable->SetOpacity(kLevelClearEmptyStarOpacity);
         m_LevelClearStars[i] = std::make_shared<Util::GameObject>(
-            std::make_shared<Util::Image>(Resource::Star_Empty), 97.0f);
+            emptyStarDrawable, 97.0f);
         m_LevelClearStars[i]->m_Transform.scale = {kLevelClearStarScale, kLevelClearStarScale};
         m_LevelClearStars[i]->SetVisible(false);
         AddElements(m_LevelClearStars[i]);
+
+        m_LevelClearEarnedStars[i] = std::make_shared<Util::GameObject>(
+            std::make_shared<Util::Image>(Resource::Star_Filled), 97.2f);
+        m_LevelClearEarnedStars[i]->m_Transform.scale = {kLevelClearStarScale, kLevelClearStarScale};
+        m_LevelClearEarnedStars[i]->SetVisible(false);
+        AddElements(m_LevelClearEarnedStars[i]);
     }
 
     // Level Clear Score
@@ -772,7 +801,7 @@ void GameScene::BuildLevelHud()
     }
 
     // Level Clear Buttons
-    m_LevelClearMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_005);
+    m_LevelClearMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
     m_LevelClearMenuButton->SetZIndex(98.0f);
     m_LevelClearMenuButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
     m_LevelClearMenuButton->SetVisible(false);
@@ -800,16 +829,16 @@ void GameScene::BuildLevelHud()
                                                   });
     AddElements(m_LevelClearRestartButton);
 
-    m_LevelClearNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
+    m_LevelClearNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_078);
     m_LevelClearNextButton->SetZIndex(98.0f);
     m_LevelClearNextButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
     m_LevelClearNextButton->SetVisible(false);
     m_LevelClearNextButton->SetSFX(Resource::SETTING_SFX);
     m_LevelClearNextButton->SetOnClickFunction([this]()
                                                {
-                                                   if (m_OnOpenLevelSelect)
+                                                   if (m_OnNextLevel)
                                                    {
-                                                       m_OnOpenLevelSelect();
+                                                       m_OnNextLevel();
                                                    }
                                                });
     AddElements(m_LevelClearNextButton);
@@ -830,7 +859,7 @@ void GameScene::BuildLevelHud()
     m_LevelFailedPig->SetVisible(false);
     AddElements(m_LevelFailedPig);
 
-    m_LevelFailedMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_005);
+    m_LevelFailedMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
     m_LevelFailedMenuButton->SetZIndex(98.0f);
     m_LevelFailedMenuButton->SetScale({kLevelFailedButtonScale, kLevelFailedButtonScale});
     m_LevelFailedMenuButton->SetVisible(false);
@@ -858,16 +887,16 @@ void GameScene::BuildLevelHud()
                                                    });
     AddElements(m_LevelFailedRestartButton);
 
-    m_LevelFailedNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
+    m_LevelFailedNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_078);
     m_LevelFailedNextButton->SetZIndex(98.0f);
     m_LevelFailedNextButton->SetScale({kLevelFailedButtonScale, kLevelFailedButtonScale});
     m_LevelFailedNextButton->SetVisible(false);
     m_LevelFailedNextButton->SetSFX(Resource::SETTING_SFX);
     m_LevelFailedNextButton->SetOnClickFunction([this]()
                                                 {
-                                                    if (m_OnOpenLevelSelect)
+                                                    if (m_OnNextLevel)
                                                     {
-                                                        m_OnOpenLevelSelect();
+                                                        m_OnNextLevel();
                                                     }
                                                 });
     AddElements(m_LevelFailedNextButton);
@@ -1124,6 +1153,7 @@ void GameScene::ResetScoreState()
     m_LevelCleared = false;
     m_LevelFailed = false;
     m_LeftoverBirdsAwarded = false;
+    m_LevelClearAnimationTime = 0.0f;
     m_IsLevelClearScreenVisible = false;
     m_IsLevelFailedScreenVisible = false;
 
@@ -1136,6 +1166,13 @@ void GameScene::ResetScoreState()
         m_LevelClearTitle->SetVisible(false);
     }
     for (const auto &star : m_LevelClearStars)
+    {
+        if (star)
+        {
+            star->SetVisible(false);
+        }
+    }
+    for (const auto &star : m_LevelClearEarnedStars)
     {
         if (star)
         {
@@ -1257,24 +1294,66 @@ void GameScene::ResetScoreState()
     }
 }
 
+void GameScene::RefreshRemainingPigCount()
+{
+    if (!m_LevelManager)
+    {
+        m_RemainingPigCount = 0;
+        return;
+    }
+
+    int alivePigCount = 0;
+    for (const auto &object : m_LevelManager->GetGameObjects())
+    {
+        if (!object)
+        {
+            continue;
+        }
+
+        if (object->GetEntityKind() != Character::EntityKind::Pig)
+        {
+            continue;
+        }
+
+        if (object->GetHealth() > 0.0f && !object->IsDestroyed())
+        {
+            ++alivePigCount;
+        }
+    }
+
+    m_RemainingPigCount = alivePigCount;
+    if (m_RemainingPigCount == 0)
+    {
+        m_LevelCleared = true;
+        m_LevelFailed = false;
+    }
+}
+
 void GameScene::UpdateWinState()
 {
-    if (!m_LevelCleared || m_LevelFailed || m_IsLevelClearScreenVisible)
+    if (!m_LevelCleared || m_LevelFailed)
     {
         return;
     }
 
-    if (!m_LeftoverBirdsAwarded && m_BirdLaunchController)
+    if (!m_IsLevelClearScreenVisible)
     {
-        m_ScoringSystem.AwardLeftoverBirds(m_BirdLaunchController->GetRemainingBirdCountForBonus());
-        m_LeftoverBirdsAwarded = true;
-        UpdateScoreHud();
+        if (!m_LeftoverBirdsAwarded && m_BirdLaunchController)
+        {
+            m_ScoringSystem.AwardLeftoverBirds(m_BirdLaunchController->GetRemainingBirdCountForBonus());
+            m_LeftoverBirdsAwarded = true;
+            UpdateScoreHud();
+        }
+
+        m_ScoringSystem.CommitCurrentScoreToHighScore();
+        m_HudHighScore = m_ScoringSystem.GetHighScore();
+        PersistLevelHighScore();
+        m_IsLevelClearScreenVisible = true;
+        m_LevelClearAnimationTime = 0.0f;
+        SetPauseMenuVisible(false);
     }
 
-    m_ScoringSystem.CommitCurrentScoreToHighScore();
-    m_HudHighScore = m_ScoringSystem.GetHighScore();
-    PersistLevelHighScore();
-    m_IsLevelClearScreenVisible = true;
+    m_LevelClearAnimationTime += std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
 
     // Hide game HUD buttons
     if (m_LeftTopButton093)
@@ -1306,19 +1385,53 @@ void GameScene::UpdateWinState()
         m_LevelClearTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelClearTitleOffsetY / zoom};
     }
     const float starStartX = -(kLevelClearStarSpacing / zoom);
+    const float baseStarScale = kLevelClearStarScale / zoom;
     for (int i = 0; i < 3; ++i)
     {
         if (!m_LevelClearStars[i])
         {
             continue;
         }
-        m_LevelClearStars[i]->SetVisible(true);
-        m_LevelClearStars[i]->m_Transform.scale = {kLevelClearStarScale / zoom, kLevelClearStarScale / zoom};
-        m_LevelClearStars[i]->m_Transform.translation = cameraPos + glm::vec2{
+        const glm::vec2 baseStarPosition = cameraPos + glm::vec2{
             starStartX + static_cast<float>(i) * (kLevelClearStarSpacing / zoom),
             kLevelClearStarsOffsetY / zoom};
-        m_LevelClearStars[i]->SetDrawable(std::make_shared<Util::Image>(
-            i < stars ? Resource::Star_Filled : Resource::Star_Empty));
+        const bool earnedStar = i < stars;
+        m_LevelClearStars[i]->SetVisible(true);
+        m_LevelClearStars[i]->m_Transform.scale = {baseStarScale, baseStarScale};
+        m_LevelClearStars[i]->m_Transform.translation = baseStarPosition;
+
+        if (!m_LevelClearEarnedStars[i])
+        {
+            continue;
+        }
+
+        if (earnedStar)
+        {
+            const float starElapsedTime = m_LevelClearAnimationTime - static_cast<float>(i) * kLevelClearStarPopDelay;
+            const float popScale = ComputeStarPopScale(starElapsedTime);
+            if (popScale > 0.0f)
+            {
+                const float normalizedProgress = std::clamp(starElapsedTime / kLevelClearStarPopDuration, 0.0f, 1.0f);
+                const float yOffset = (1.0f - normalizedProgress) * (kLevelClearStarPopYOffset / zoom);
+                m_LevelClearEarnedStars[i]->SetVisible(true);
+                m_LevelClearEarnedStars[i]->m_Transform.scale = {
+                    baseStarScale * popScale,
+                    baseStarScale * popScale};
+                m_LevelClearEarnedStars[i]->m_Transform.translation = baseStarPosition + glm::vec2{0.0f, yOffset};
+            }
+            else
+            {
+                m_LevelClearEarnedStars[i]->SetVisible(false);
+                m_LevelClearEarnedStars[i]->m_Transform.scale = {0.0f, 0.0f};
+                m_LevelClearEarnedStars[i]->m_Transform.translation = baseStarPosition;
+            }
+        }
+        else
+        {
+            m_LevelClearEarnedStars[i]->SetVisible(false);
+            m_LevelClearEarnedStars[i]->m_Transform.scale = {0.0f, 0.0f};
+            m_LevelClearEarnedStars[i]->m_Transform.translation = baseStarPosition;
+        }
     }
     if (m_LevelClearScore && m_LevelClearScoreDrawable)
     {
@@ -1441,8 +1554,8 @@ void GameScene::UpdateFailState()
         m_LevelFailedBackdrop->SetVisible(true);
         m_LevelFailedBackdrop->m_Transform.translation = cameraPos;
         m_LevelFailedBackdrop->m_Transform.scale = {
-            viewportSize.x * 0.35f / zoom,
-            viewportSize.y * 0.9f / zoom};
+            kLevelClearPanelWidth / zoom,
+            viewportSize.y * kLevelClearPanelHeightRatio / zoom};
     }
 
     if (m_LevelFailedTitle)

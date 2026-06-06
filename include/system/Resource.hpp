@@ -144,6 +144,7 @@ namespace Resource
     const std::string Game_Menu_Item_069 = RESOURCE_DIR "/Image/ui/button/sprite_069.png";
     const std::string Game_Menu_Item_082 = RESOURCE_DIR "/Image/ui/button/sprite_082.png";
     const std::string Game_Menu_Item_073 = RESOURCE_DIR "/Image/ui/button/sprite_073.png";
+    const std::string Game_Menu_Item_078 = RESOURCE_DIR "/Image/ui/button/sprite_078.png";
     const std::string Game_Menu_Item_005 = RESOURCE_DIR "/Image/ui/button/sprite_005.png";
     const std::string Game_Menu_Item_063 = RESOURCE_DIR "/Image/ui/button/sprite_063.png";
     const std::string Game_Menu_Item_040 = RESOURCE_DIR "/Image/ui/button/sprite_040.png";

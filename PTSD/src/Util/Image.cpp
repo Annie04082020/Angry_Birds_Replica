@@ -59,6 +59,10 @@ void Image::Draw(const Core::Matrices &data) {
 
     m_Texture->Bind(UNIFORM_SURFACE_LOCATION);
     s_Program->Bind();
+    const GLint opacityLocation = glGetUniformLocation(s_Program->GetId(), "opacity");
+    if (opacityLocation >= 0) {
+        glUniform1f(opacityLocation, m_Opacity);
+    }
     s_Program->Validate();
 
     s_VertexArray->Bind();
@@ -78,6 +82,14 @@ void Image::InitProgram() {
             glUniform1i(location, UNIFORM_SURFACE_LOCATION);
         } else {
             LOG_ERROR("Uniform 'surface' not found in program {}",
+                      s_Program->GetId());
+        }
+
+        location = glGetUniformLocation(s_Program->GetId(), "opacity");
+        if (location >= 0) {
+            glUniform1f(location, 1.0f);
+        } else {
+            LOG_ERROR("Uniform 'opacity' not found in program {}",
                       s_Program->GetId());
         }
     } else {

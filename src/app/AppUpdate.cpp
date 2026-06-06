@@ -56,6 +56,10 @@ void App::Update()
       ShowLevelSelectScene();
       m_CurrentState = State::UPDATE;
     }
+    else if (action == PendingGameAction::OpenNextLevel)
+    {
+      OpenNextLevel();
+    }
   }
 
   m_Root.Update();

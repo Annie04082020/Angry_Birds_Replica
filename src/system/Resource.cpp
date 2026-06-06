@@ -149,6 +149,7 @@ namespace Resource
             {"Game_Menu_Item_069", Game_Menu_Item_069},
             {"Game_Menu_Item_082", Game_Menu_Item_082},
             {"Game_Menu_Item_073", Game_Menu_Item_073},
+            {"Game_Menu_Item_078", Game_Menu_Item_078},
             {"Game_Menu_Item_005", Game_Menu_Item_005},
             {"Game_Menu_Item_063", Game_Menu_Item_063},
             {"Game_Menu_Item_040", Game_Menu_Item_040},

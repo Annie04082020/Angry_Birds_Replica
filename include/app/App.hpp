@@ -30,6 +30,7 @@ public:
     None,
     RestartCurrentLevel,
     OpenLevelSelect,
+    OpenNextLevel,
   };
 
   State GetCurrentState() const { return m_CurrentState; }
@@ -45,6 +46,7 @@ public:
   void ShowLevelSelectScene();
   bool LoadLevel(const std::string &levelPath);
   bool RestartCurrentLevel();
+  bool OpenNextLevel();
   void UnloadCurrentGameScene();
 
 private:

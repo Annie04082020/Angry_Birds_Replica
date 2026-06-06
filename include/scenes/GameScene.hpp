@@ -40,6 +40,10 @@ public:
     {
         m_OnOpenLevelSelect = std::move(callback);
     }
+    void SetOnNextLevelCallback(std::function<void()> callback)
+    {
+        m_OnNextLevel = std::move(callback);
+    }
 
 private:
     void LoadLevelHighScore();
@@ -48,6 +52,7 @@ private:
     void UpdateHudPositions();
     void UpdateScoreHud();
     void ResetScoreState();
+    void RefreshRemainingPigCount();
     void UpdateWinState();
     void UpdateFailState();
     void SpawnFloatingScore(const glm::vec2 &position, int points, const Util::Color &frontColor);
@@ -90,6 +95,7 @@ private:
     std::shared_ptr<Util::GameObject> m_LevelClearBackdrop = nullptr;
     std::shared_ptr<Util::GameObject> m_LevelClearTitle = nullptr;
     std::array<std::shared_ptr<Util::GameObject>, 3> m_LevelClearStars{};
+    std::array<std::shared_ptr<Util::GameObject>, 3> m_LevelClearEarnedStars{};
     std::array<std::shared_ptr<Util::GameObject>, 4> m_LevelClearScoreOutline{};
     std::shared_ptr<Util::GameObject> m_LevelClearScore = nullptr;
     std::shared_ptr<Util::Text> m_LevelClearScoreDrawable = nullptr;
@@ -114,6 +120,7 @@ private:
 
     std::function<void()> m_OnRestartLevel = nullptr;
     std::function<void()> m_OnOpenLevelSelect = nullptr;
+    std::function<void()> m_OnNextLevel = nullptr;
     bool m_IsPauseMenuVisible = false;
     bool m_PauseMenuInputBlockedUntilRelease = false;
     bool m_IsMusicMuted = false;
@@ -126,6 +133,7 @@ private:
     bool m_LevelCleared = false;
     bool m_LevelFailed = false;
     bool m_LeftoverBirdsAwarded = false;
+    float m_LevelClearAnimationTime = 0.0f;
 };
 
 #endif // GAME_SCENE_HPP
