@@ -59,21 +59,39 @@
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_YELLOW",
+      "imageId": "BIRD_RED",
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -21,
-      "yPercent": -18
+      "yPercent": -16
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_BLUE",
+      "imageId": "BIRD_RED",
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -22,
-      "yPercent": -20
+      "xPercent": -19,
+      "yPercent": -16
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -17,
+      "yPercent": -16
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -15,
+      "yPercent": -16
     },
     {
       "type": "WOOD",
@@ -86,15 +104,16 @@
       "yPercent": 0
     },
     {
-      "type": "DECOR",
+      "type": "EARTH",
       "imageId": "EARTH_TRI_TRBL",
       "groupId": "Environment",
-      "widthPercent": 4.0,
-      "heightPercent": 12,
+      "collisionShape": "diagonal_trbl",
+      "sizePercent": 5,
+      "sizeBase": "width",
       "rotation": 0.0,
-      "xPercent": 5.2,
-      "yPercent": -8
-    },
+      "xPercent": 10,
+      "yPercent": -11
+    },   
     {
       "type": "STONE",
       "imageId": "STONE_83x20_1",

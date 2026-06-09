@@ -49,6 +49,8 @@ public:
      * @param filepath The file path to the image.
      */
     void SetImage(const std::string &filepath);
+    void SetOpacity(float opacity) { m_Opacity = std::clamp(opacity, 0.0f, 1.0f); }
+    [[nodiscard]] float GetOpacity() const { return m_Opacity; }
 
     /**
      * @brief Draws the image with a given transform and z-index.
@@ -79,6 +81,7 @@ private:
 
     std::string m_Path;
     glm::vec2 m_Size;
+    float m_Opacity = 1.0f;
 };
 } // namespace Util
 

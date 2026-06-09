@@ -112,6 +112,7 @@ namespace Resource
     // ice 1 to 4: complete to broken
     const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
     const std::string ICE_056 = RESOURCE_DIR "/Image/ice/sprite_056.png";
+    const std::string ICE_SQUARE = RESOURCE_DIR "/Image/ice/sprite_058.png";
     const std::string ICE_83x41_1 = RESOURCE_DIR "/Image/ice/sprite_014.png";
     const std::string ICE_83x41_2 = RESOURCE_DIR "/Image/ice/sprite_028.png";
     const std::string ICE_83x41_3 = RESOURCE_DIR "/Image/ice/sprite_027.png";
@@ -120,6 +121,7 @@ namespace Resource
     const std::string ICE_83x20_2 = RESOURCE_DIR "/Image/ice/sprite_065.png";
     const std::string ICE_83x20_3 = RESOURCE_DIR "/Image/ice/sprite_002.png";
     const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
+    const std::string ICE_168x20_1 = RESOURCE_DIR "/Image/ice/sprite_055.png";
     const std::string ICE_205x20_1 = RESOURCE_DIR "/Image/ice/sprite_063.png";
     const std::string ICE_41x20_1 = RESOURCE_DIR "/Image/ice/sprite_001.png";
     // UI
@@ -144,6 +146,7 @@ namespace Resource
     const std::string Game_Menu_Item_069 = RESOURCE_DIR "/Image/ui/button/sprite_069.png";
     const std::string Game_Menu_Item_082 = RESOURCE_DIR "/Image/ui/button/sprite_082.png";
     const std::string Game_Menu_Item_073 = RESOURCE_DIR "/Image/ui/button/sprite_073.png";
+    const std::string Game_Menu_Item_078 = RESOURCE_DIR "/Image/ui/button/sprite_078.png";
     const std::string Game_Menu_Item_005 = RESOURCE_DIR "/Image/ui/button/sprite_005.png";
     const std::string Game_Menu_Item_063 = RESOURCE_DIR "/Image/ui/button/sprite_063.png";
     const std::string Game_Menu_Item_040 = RESOURCE_DIR "/Image/ui/button/sprite_040.png";

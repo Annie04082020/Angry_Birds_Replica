@@ -27,6 +27,7 @@ namespace Resource
             // Ice entries
             {"ICE_83x20", ICE_83x20_1},
             {"ICE_005", ICE_83x20_1},
+            {"ICE_SQUARE", ICE_SQUARE},
             {"ICE_014", ICE_83x41_1},
             {"ICE_056", ICE_056},
             {"ICE_83x41_1", ICE_83x41_1},
@@ -37,6 +38,7 @@ namespace Resource
             {"ICE_83x20_2", ICE_83x20_2},
             {"ICE_83x20_3", ICE_83x20_3},
             {"ICE_83x20_4", ICE_83x20_4},
+            {"ICE_168x20_1", ICE_168x20_1},
             {"ICE_205x20_1", ICE_205x20_1},
             {"ICE_41x20_1", ICE_41x20_1},
             {"PIG_SMALL", PIG_SMALL},
@@ -149,6 +151,7 @@ namespace Resource
             {"Game_Menu_Item_069", Game_Menu_Item_069},
             {"Game_Menu_Item_082", Game_Menu_Item_082},
             {"Game_Menu_Item_073", Game_Menu_Item_073},
+            {"Game_Menu_Item_078", Game_Menu_Item_078},
             {"Game_Menu_Item_005", Game_Menu_Item_005},
             {"Game_Menu_Item_063", Game_Menu_Item_063},
             {"Game_Menu_Item_040", Game_Menu_Item_040},
