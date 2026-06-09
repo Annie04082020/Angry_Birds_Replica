@@ -37,6 +37,7 @@ namespace Resource
             {"ICE_83x20_2", ICE_83x20_2},
             {"ICE_83x20_3", ICE_83x20_3},
             {"ICE_83x20_4", ICE_83x20_4},
+            {"ICE_168x20_1", ICE_168x20_1},
             {"ICE_205x20_1", ICE_205x20_1},
             {"ICE_41x20_1", ICE_41x20_1},
             {"PIG_SMALL", PIG_SMALL},
