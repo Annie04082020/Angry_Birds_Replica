@@ -21,6 +21,15 @@
       "offsetYPercent": -0.5,
       "scalePivotXPercent": 0.0,
       "scalePivotYPercent": 0.0
+    },
+    {
+      "id": "EarthBlock",
+      "scaleMultiplier": 1.55,
+      "scalePosition": true,
+      "offsetXPercent": 0.0,
+      "offsetYPercent": -0.5,
+      "scalePivotXPercent": 0.0,
+      "scalePivotYPercent": 0.0
     }
   ],
   "objects": [
@@ -97,7 +106,7 @@
       "heightPercent": 1.25,
       "rotation": 1.57,
       "xPercent": 13,
-      "yPercent": -10
+      "yPercent": -5
     },
     {
       "type": "STONE",
@@ -107,7 +116,7 @@
       "heightPercent": 1.25,
       "rotation": 1.57,
       "xPercent": 20,
-      "yPercent": -10
+      "yPercent": -5
     },
     {
       "type": "STONE",
@@ -117,7 +126,7 @@
       "heightPercent": 1.4,
       "rotation": 0.0,
       "xPercent": 16.5,
-      "yPercent": -5.7
+      "yPercent": -0.7
     },
     {
       "type": "WOOD",
@@ -127,7 +136,7 @@
       "heightPercent": 1.25,
       "rotation": 1.57,
       "xPercent": 11.5,
-      "yPercent": -10
+      "yPercent": -5
     },
     {
       "type": "WOOD",
@@ -137,7 +146,7 @@
       "heightPercent": 1.25,
       "rotation": 1.57,
       "xPercent": 21.5,
-      "yPercent": -10
+      "yPercent": -5
     },
     {
       "type": "WOOD",
@@ -147,7 +156,7 @@
       "heightPercent": 1.25,
       "rotation": 0.5,
       "xPercent": 13,
-      "yPercent": -4
+      "yPercent": 1
     },
     {
       "type": "WOOD",
@@ -157,7 +166,7 @@
       "heightPercent": 1.25,
       "rotation": -0.5,
       "xPercent": 20,
-      "yPercent": -4
+      "yPercent": 1
     },
     {
       "type": "ICE",
@@ -167,7 +176,7 @@
       "heightPercent": 1.6,
       "rotation": 1.57,
       "xPercent": 10,
-      "yPercent": -6.5
+      "yPercent": -1.5
     },
     {
       "type": "ICE",
@@ -177,7 +186,7 @@
       "heightPercent": 1.6,
       "rotation": 1.57,
       "xPercent": 23,
-      "yPercent": -6.5
+      "yPercent": -1.5
     },
     {
       "type": "ICE",
@@ -187,7 +196,7 @@
       "heightPercent": 1.6,
       "rotation": 0.5,
       "xPercent": 13,
-      "yPercent": 4.5
+      "yPercent": 9.5
     },
     {
       "type": "ICE",
@@ -197,7 +206,7 @@
       "heightPercent": 1.6,
       "rotation": -0.5,
       "xPercent": 20,
-      "yPercent": 4.5
+      "yPercent": 9.5
     },
     {
       "type": "WOOD",
@@ -207,7 +216,7 @@
       "heightPercent": 3,
       "rotation": 0.0,
       "xPercent": 16.5,
-      "yPercent": -3.5
+      "yPercent": 1.5
     },
     {
       "type": "ICE",
@@ -217,7 +226,7 @@
       "heightPercent": 1.5,
       "rotation": 1.57,
       "xPercent": 16.5,
-      "yPercent": 2.45
+      "yPercent": 7.45
     },
     {
       "type": "PIG",
@@ -227,7 +236,40 @@
       "heightPercent": 2.385185,
       "rotation": 0.0,
       "xPercent": 16.5,
-      "yPercent": -10
+      "yPercent": -4
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_BLOCK",
+      "groupId": "EarthBlock",
+      "widthPercent": 14,
+      "heightPercent": 5,
+      "collisionShape": "box",
+      "rotation": 0.0,
+      "xPercent": 16.5,
+      "yPercent": -11
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "EarthBlock",
+      "widthPercent": 3,
+      "heightPercent": 5,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 8,
+      "yPercent": -11
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TLBR",
+      "groupId": "EarthBlock",
+      "widthPercent": 3,
+      "heightPercent": 5,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 25,
+      "yPercent": -11
     }
   ]
 }
