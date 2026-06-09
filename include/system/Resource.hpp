@@ -112,6 +112,7 @@ namespace Resource
     // ice 1 to 4: complete to broken
     const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
     const std::string ICE_056 = RESOURCE_DIR "/Image/ice/sprite_056.png";
+    const std::string ICE_SQUARE = RESOURCE_DIR "/Image/ice/sprite_058.png";
     const std::string ICE_83x41_1 = RESOURCE_DIR "/Image/ice/sprite_014.png";
     const std::string ICE_83x41_2 = RESOURCE_DIR "/Image/ice/sprite_028.png";
     const std::string ICE_83x41_3 = RESOURCE_DIR "/Image/ice/sprite_027.png";

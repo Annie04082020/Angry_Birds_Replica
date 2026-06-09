@@ -27,6 +27,7 @@ namespace Resource
             // Ice entries
             {"ICE_83x20", ICE_83x20_1},
             {"ICE_005", ICE_83x20_1},
+            {"ICE_SQUARE", ICE_SQUARE},
             {"ICE_014", ICE_83x41_1},
             {"ICE_056", ICE_056},
             {"ICE_83x41_1", ICE_83x41_1},
