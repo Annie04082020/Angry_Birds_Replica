@@ -495,4 +495,5 @@ lib/
 # Doxygen generated files
 docs/html/
 
-
+# Ignore high score tracking file
+Resources/high_scores.json
