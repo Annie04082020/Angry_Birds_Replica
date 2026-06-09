@@ -319,6 +319,28 @@
       "rotation": 0.0,
       "xPercent": 21,
       "yPercent": -7
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 12,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 29,
+      "yPercent": -8
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TLBR",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 12,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 34,
+      "yPercent": -8
     }
   ]
 }
