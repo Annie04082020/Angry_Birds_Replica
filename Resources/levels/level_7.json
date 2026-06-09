@@ -55,21 +55,39 @@
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_YELLOW",
+      "imageId": "BIRD_RED",
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -21,
-      "yPercent": -18
+      "yPercent": -16
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_BLUE",
-      "heightPercent": 3,
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -22,
-      "yPercent": -20
+      "xPercent": -19,
+      "yPercent": -16
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -17,
+      "yPercent": -16
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -15,
+      "yPercent": -16
     }
     
   ]
