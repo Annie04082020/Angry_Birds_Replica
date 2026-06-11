@@ -426,6 +426,14 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
+    if (character->IsSpecialItem())
+    {
+        character->SetEntityKind(Character::EntityKind::Environment);
+        character->SetMaterialType(Character::MaterialType::Flesh);
+        character->SetMaxHealth(150.0f);
+        character->SetHealth(150.0f);
+    }
+
     if (IsEarthKey(objectDefinition.typeStr) || StartsWith(objectDefinition.imageId, "EARTH"))
     {
         character->SetEntityKind(Character::EntityKind::Environment);
@@ -450,7 +458,12 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
     {
+        // Keep level structures rigid at spawn time. They become dynamic only
+        // after impact activation, which prevents stacked layouts from
+        // immediately exploding due to tiny initial overlaps.
+        character->SetStatic(true);
         character->SetSleeping(true);
+        character->SetImpactActivated(false);
         character->SetVelocity({0.0f, 0.0f});
         character->SetAngularVelocity(0.0f);
     }

@@ -303,11 +303,11 @@
       "imageId": "EARTH_BLOCK",
       "groupId": "EarthBlock",
       "widthPercent": 8,
-      "heightPercent": 6,
+      "heightPercent": 4,
       "collisionShape": "box",
       "rotation": 0.0,
       "xPercent": 12,
-      "yPercent": -11
+      "yPercent": -12.5
     },
     {
       "type": "EARTH",
@@ -318,7 +318,7 @@
       "collisionShape": "box",
       "rotation": 0.0,
       "xPercent": 21,
-      "yPercent": -7
+      "yPercent": -7.5
     },
     {
       "type": "EARTH",

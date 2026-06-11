@@ -107,7 +107,7 @@
       "collisionShape": "box",
       "rotation": 0.0,
       "xPercent": 17.75,
-      "yPercent": -10
+      "yPercent": -11
     },
     {
       "type": "STONE",
@@ -147,7 +147,7 @@
       "heightPercent": 3,
       "rotation": 0.0,
       "xPercent": 12.5,
-      "yPercent": 2
+      "yPercent": 2.35
     },
     {
       "type": "ICE",
@@ -157,7 +157,7 @@
       "heightPercent": 3,
       "rotation": 1.57,
       "xPercent": 15,
-      "yPercent": 2
+      "yPercent": 4
     },
     {
       "type": "ICE",
@@ -167,7 +167,7 @@
       "heightPercent": 3,
       "rotation": 1.57,
       "xPercent": 11.5,
-      "yPercent": 4
+      "yPercent": 7
     },
     {
       "type": "ICE",
@@ -176,8 +176,8 @@
       "widthPercent": 3.5,
       "heightPercent": 3,
       "rotation": 0.0,
-      "xPercent": 14,
-      "yPercent": 6
+      "xPercent": 14.15,
+      "yPercent": 8.6
     },
     {
       "type": "ICE",
@@ -187,7 +187,7 @@
       "heightPercent": 3.2,
       "rotation": 0.0,
       "xPercent": 13.25,
-      "yPercent": 4
+      "yPercent": 5.5
     },
     {
       "type": "WOOD",
@@ -247,7 +247,7 @@
       "heightPercent": 3,
       "rotation": 0.0,
       "xPercent": 23.0,
-      "yPercent": 2
+      "yPercent": 2.35
     },
     {
       "type": "ICE",
@@ -257,7 +257,7 @@
       "heightPercent": 3,
       "rotation": 1.57,
       "xPercent": 20.5,
-      "yPercent": 2
+      "yPercent": 4
     },
     {
       "type": "ICE",
@@ -267,7 +267,7 @@
       "heightPercent": 3,
       "rotation": 1.57,
       "xPercent": 24.0,
-      "yPercent": 4
+      "yPercent": 7
     },
     {
       "type": "ICE",
@@ -276,8 +276,8 @@
       "widthPercent": 3.5,
       "heightPercent": 3,
       "rotation": 0.0,
-      "xPercent": 21.5,
-      "yPercent": 6
+      "xPercent": 21.35,
+      "yPercent": 8.6
     },
     {
       "type": "ICE",
@@ -287,7 +287,7 @@
       "heightPercent": 3.2,
       "rotation": 0.0,
       "xPercent": 22.25,
-      "yPercent": 4
+      "yPercent": 5.5
     },
     {
       "type": "WOOD",
@@ -327,7 +327,7 @@
       "heightPercent": 3,
       "rotation": 0.0,
       "xPercent": 18.5,
-      "yPercent": 13
+      "yPercent": 13.35
     },
     {
       "type": "ICE",
@@ -337,7 +337,7 @@
       "heightPercent": 3,
       "rotation": 1.57,
       "xPercent": 16.0,
-      "yPercent": 13
+      "yPercent": 15
     },
     {
       "type": "ICE",
@@ -347,7 +347,7 @@
       "heightPercent": 3,
       "rotation": 1.57,
       "xPercent": 19.5,
-      "yPercent": 15
+      "yPercent": 17.7
     },
     {
       "type": "ICE",
@@ -356,8 +356,8 @@
       "widthPercent": 3.5,
       "heightPercent": 3,
       "rotation": 0.0,
-      "xPercent": 17.0,
-      "yPercent": 17
+      "xPercent": 16.85,
+      "yPercent": 19.45
     },
     {
       "type": "ICE",
@@ -367,7 +367,7 @@
       "heightPercent": 3.2,
       "rotation": 0.0,
       "xPercent": 17.75,
-      "yPercent": 15
+      "yPercent": 16.5
     },
     {
       "type": "ICE",
@@ -377,7 +377,7 @@
       "heightPercent": 1.6,
       "rotation": 0.0,
       "xPercent": 15.5,
-      "yPercent": 21
+      "yPercent": 21.65
     },
     {
       "type": "ICE",
@@ -386,8 +386,8 @@
       "widthPercent": 0.8,
       "heightPercent": 1.6,
       "rotation": 0.0,
-      "xPercent": 19,
-      "yPercent": 21
+      "xPercent": 20,
+      "yPercent": 21.65
     },
     {
       "type": "ICE",
@@ -397,7 +397,7 @@
       "heightPercent": 1.6,
       "rotation": 0.0,
       "xPercent": 17.75,
-      "yPercent": 21
+      "yPercent": 21.65
     },
     {
       "type": "PIG",
@@ -416,7 +416,7 @@
       "widthPercent": 1.4,
       "heightPercent": 2.385185,
       "rotation": 0.2,
-      "xPercent": 20,
+      "xPercent": 23,
       "yPercent": 13
     },
     {
@@ -427,7 +427,7 @@
       "heightPercent": 2.385185,
       "rotation": 0.2,
       "xPercent": 18,
-      "yPercent": -3
+      "yPercent": 2
     }
   ]
 }
