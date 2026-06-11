@@ -294,6 +294,10 @@ void CollisionResponse::ApplyAccumulatedDamage(ContactManifold &cm, float physic
 
     // Un-scale the impulse to make damage resolution-independent
     float absJn = cm.frameAccumulatedNormalImpulse / (physicsScale > 0.f ? physicsScale : 1.0f);
+<<<<<<< HEAD
+=======
+
+>>>>>>> c43e4e9 ( update the scoring system and level 3,6,7,9 coordinates)
     auto bd = Setup(cm);
     auto applyDmg = [&](Character *c, bool isStatic)
     {
