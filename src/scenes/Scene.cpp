@@ -366,7 +366,9 @@ void Scene::StepPhysics(float dt)
       {
         constexpr float kFloorDamageImpulseThreshold = 150.0f;
         constexpr float kFloorDamageFactor = 0.05f;
-        const float estimatedImpulse = ch->GetMass() * impactSpeed;
+        
+        // Un-scale the impulse to make damage resolution-independent
+        const float estimatedImpulse = (ch->GetMass() * impactSpeed) / (m_PhysicsScale > 0.0f ? m_PhysicsScale : 1.0f);
         if (estimatedImpulse > kFloorDamageImpulseThreshold)
         {
           const float resistance = CollisionUtils::GetDamageResistance(ch->GetMaterialType());
@@ -766,7 +768,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   {
     for (auto &cm : m_Contacts)
     {
-      CollisionResponse::ApplyAccumulatedDamage(cm);
+      CollisionResponse::ApplyAccumulatedDamage(cm, m_PhysicsScale);
     }
   }
 
