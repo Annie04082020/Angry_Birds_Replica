@@ -6,6 +6,11 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 namespace Util {
+namespace {
+glm::vec2 g_CameraPosition{0.0f, 0.0f};
+float g_CameraZoom = 1.0f;
+} // namespace
+
 Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
                                           const glm::vec2 &size,
                                           const float zIndex) {
@@ -18,7 +23,9 @@ Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
         glm::ortho<float>(0.0F, 1.0F, 0.0F, 1.0F, nearClip, farClip);
     auto view =
         glm::scale(eye, {1.F / WINDOW_WIDTH, 1.F / WINDOW_HEIGHT, 1.F}) *
-        glm::translate(eye, {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0});
+        glm::translate(eye, {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0}) *
+        glm::scale(eye, {g_CameraZoom, g_CameraZoom, 1.F}) *
+        glm::translate(eye, {-g_CameraPosition.x, -g_CameraPosition.y, 0.0f});
 
     // TODO: TRS comment
     auto model = glm::translate(eye, {transform.translation, zIndex}) *
@@ -32,11 +39,6 @@ Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
 
     return data;
 }
-
-namespace {
-glm::vec2 g_CameraPosition{0.0f, 0.0f};
-float g_CameraZoom = 1.0f;
-} // namespace
 
 void SetCameraZoom(float zoom) {
     g_CameraZoom = std::clamp(zoom, 0.1f, 4.0f);
