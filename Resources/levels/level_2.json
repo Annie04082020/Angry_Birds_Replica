@@ -187,7 +187,11 @@
       "widthPercent": 8.7,
       "heightPercent": 1.25,
       "rotation": 1.57,
+<<<<<<< HEAD
       "xPercent": 28.2,
+=======
+      "xPercent": 31.2,
+>>>>>>> 4b9b5a1 ( level 2 finish)
       "yPercent": -1.05
     },
     {
@@ -216,7 +220,11 @@
       "groupId": "EarthBlock",
       "widthPercent": 40,
       "heightPercent": 30,
+<<<<<<< HEAD
       "collisionShape": "box",
+=======
+      "collisionShape": "diagonal_trbl",
+>>>>>>> 4b9b5a1 ( level 2 finish)
       "rotation": 0.0,
       "xPercent": 28,
       "yPercent": 1.15
