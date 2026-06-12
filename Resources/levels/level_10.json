@@ -130,7 +130,8 @@
       "rotation": 0.0,
       "xPercent": 26.4,
       "yPercent": -10
-    },{
+    },
+    {
       "type": "EARTH",
       "imageId": "EARTH_TRI_TRBL",
       "groupId": "EarthBlock",
@@ -322,6 +323,190 @@
       "rotation": 0.0,
       "xPercent": 19.5,
       "yPercent": 21.75
+    },
+    {
+        "type": "PIG",
+        "imageId": "PIG_MEDIUM",
+        "groupId": "Environment",
+        "widthPercent": 1.8,
+        "heightPercent": 2.8,
+        "rotation": 0.0,
+        "xPercent": 19.5,
+        "yPercent": -5
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 29.5,
+      "yPercent": 9.1
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 31,
+      "yPercent": 9.1
+    },
+
+
+
+
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 16.9
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 18.6
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_168x20_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 35,
+      "yPercent": 9.1
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_168x20_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 36.5,
+      "yPercent": 9.1
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 30,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 32,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 34,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 36,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 31,
+      "yPercent": 23.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 23.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 35,
+      "yPercent": 23.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 32,
+      "yPercent": 26.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 34,
+      "yPercent": 26.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 29.85
+    },
+    {
+        "type": "PIG",
+        "imageId": "PIG_MEDIUM",
+        "groupId": "Environment",
+        "widthPercent": 2.8,
+        "heightPercent": 3.8,
+        "rotation": 0.0,
+        "xPercent": 33,
+        "yPercent": 3.1
     }
   ]
 }
