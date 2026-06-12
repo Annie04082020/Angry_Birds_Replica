@@ -186,9 +186,33 @@ void SceneInputController::HandleBackgroundDrag(bool isBirdHolding)
 
     const float currentZoom = Util::GetCameraZoom();
     const float viewportWidth = Util::GetViewportSize().x;
-    const float maxPanOffsetX = std::max(0.0f, (1.0f - currentZoom) * viewportWidth);
-    const float minWorldOffsetX = -maxPanOffsetX;
-    const float maxWorldOffsetX = maxPanOffsetX;
+
+    // Dynamically calculate level bounds
+    float leftMostX = 0.0f;
+    float rightMostX = viewportWidth / currentZoom;
+    if (m_LevelManager)
+    {
+        for (const auto &obj : m_LevelManager->GetGameObjects())
+        {
+            if (auto ch = std::dynamic_pointer_cast<Character>(obj))
+            {
+                // Calculate original intrinsic position of the object (without current drag offset)
+                const float intrinsicX = ch->GetPosition().x - m_WorldOffsetX;
+                leftMostX = std::min(leftMostX, intrinsicX);
+                rightMostX = std::max(rightMostX, intrinsicX);
+            }
+        }
+    }
+    
+    // Add padding to see past the last object
+    rightMostX += 200.0f;
+
+    const float visibleWidth = viewportWidth / currentZoom;
+    
+    // Min offset allows dragging left to see the right side
+    const float minWorldOffsetX = std::min(0.0f, visibleWidth - rightMostX);
+    // Max offset allows dragging right
+    const float maxWorldOffsetX = std::max(0.0f, -leftMostX);
 
     const float clampedOffsetX = std::clamp(m_WorldOffsetX, minWorldOffsetX, maxWorldOffsetX);
     const float correctionDeltaX = clampedOffsetX - m_WorldOffsetX;
@@ -219,7 +243,7 @@ void SceneInputController::HandleBackgroundDrag(bool isBirdHolding)
 
     if (mousePressed)
     {
-        if (maxPanOffsetX <= 0.0f)
+        if (minWorldOffsetX >= maxWorldOffsetX)
         {
             m_IsHoldingBackground = true;
             m_IsDraggingBackground = false;
@@ -252,7 +276,7 @@ void SceneInputController::HandleBackgroundDrag(bool isBirdHolding)
             return;
         }
 
-        const float rawDeltaX = mousePos.x - m_LastMousePos.x;
+        const float rawDeltaX = (mousePos.x - m_LastMousePos.x) / currentZoom;
         const float clampedWorldOffsetX =
             std::clamp(m_WorldOffsetX + rawDeltaX, minWorldOffsetX, maxWorldOffsetX);
         const float appliedDeltaX = clampedWorldOffsetX - m_WorldOffsetX;
