@@ -184,11 +184,11 @@
       "type": "STONE",
       "imageId": "STONE_205",
       "groupId": "Environment",
-      "widthPercent": 9.2,
+      "widthPercent": 8.7,
       "heightPercent": 1.25,
       "rotation": 1.57,
-      "xPercent": 31.200000,
-      "yPercent": -0.75
+      "xPercent": 31.2,
+      "yPercent": -1.05
     },
     {
       "type": "WOOD",
@@ -197,7 +197,7 @@
       "widthPercent": 2.9,
       "heightPercent": 1.2,
       "rotation": 0.0,
-      "xPercent": 31.200000,
+      "xPercent": 31.2,
       "yPercent": 7
     },    
     {
@@ -207,31 +207,21 @@
       "widthPercent": 1.4,
       "heightPercent": 2.4,
       "rotation": 0.0,
-      "xPercent": 31.200000,
+      "xPercent": 31.2,
       "yPercent": 8.35
     },
     {
       "type": "EARTH",
-      "imageId": "EARTH_TRI_TRBL",
+      "imageId": "EARTH_LEVEL2",
       "groupId": "EarthBlock",
-      "widthPercent": 3,
-      "heightPercent": 6,
+      "widthPercent": 40,
+      "heightPercent": 30,
       "collisionShape": "diagonal_trbl",
       "rotation": 0.0,
-      "xPercent": 10,
-      "yPercent": -10.65
+      "xPercent": 28,
+      "yPercent": 1.15
     }, 
-    {
-      "type": "EARTH",
-      "imageId": "EARTH_BLOCK",
-      "groupId": "EarthBlock",
-      "widthPercent": 20,
-      "heightPercent": 6,
-      "collisionShape": "box",
-      "rotation": 0.0,
-      "xPercent": 21.5,
-      "yPercent": -10.65
-    },
+    
     {
       "type": "EARTH",
       "imageId": "EARTH_BLOCK",

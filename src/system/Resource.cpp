@@ -24,6 +24,8 @@ namespace Resource
             {"EARTH_BLOCK", EARTH_BLOCK},
             {"EARTH_TRI_TLBR", EARTH_TRI_TLBR},
             {"EARTH_TRI_TRBL", EARTH_TRI_TRBL},
+            {"EARTH_HOUSE", EARTH_HOUSE},
+            {"EARTH_LEVEL2", EARTH_LEVEL2},
             // Ice entries
             {"ICE_83x20", ICE_83x20_1},
             {"ICE_005", ICE_83x20_1},
