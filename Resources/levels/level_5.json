@@ -21,6 +21,15 @@
       "offsetYPercent": -0.5,
       "scalePivotXPercent": 0.0,
       "scalePivotYPercent": 0.0
+    },
+    {
+      "id": "EarthBlock",
+      "scaleMultiplier": 1.55,
+      "scalePosition": true,
+      "offsetXPercent": 0.0,
+      "offsetYPercent": -0.5,
+      "scalePivotXPercent": 0.0,
+      "scalePivotYPercent": 0.0
     }
   ],
   "objects": [
@@ -458,6 +467,28 @@
       "rotation": 0.0,
       "xPercent": 19.5,
       "yPercent": 7.0
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 12,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 34,
+      "yPercent": -8
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TLBR",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 12,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 39,
+      "yPercent": -8
     }
   ]
 }
