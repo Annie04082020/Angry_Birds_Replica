@@ -9,6 +9,7 @@ namespace Resource
         static const std::unordered_map<std::string, std::string> map = {
             {"SPLASH_IMAGE", SPLASH_IMAGE},
             {"MOVING_BG_IMAGE", MOVING_BG_IMAGE},
+            {"INTRO_WORD", INTRO_WORD},
             {"BIRD_R", BIRD_R},
             {"BIRD_Y", BIRD_Y},
             {"BIRD_B", BIRD_B},

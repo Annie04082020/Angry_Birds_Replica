@@ -10,6 +10,7 @@ namespace Resource
     const std::string SPLASH_IMAGE =
         RESOURCE_DIR "/Image/title/SPLASHES_SHEET_1.png";
     const std::string MOVING_BG_IMAGE = RESOURCE_DIR "/temp/background.png";
+    const std::string INTRO_WORD = RESOURCE_DIR "/Image/title/Title.png";
 
     // Characters
     const std::string BIRD_R = RESOURCE_DIR "/Image/birds/red_birds/sprite_003.png";

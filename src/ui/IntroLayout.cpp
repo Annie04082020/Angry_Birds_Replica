@@ -16,6 +16,7 @@ namespace
     {
         return {
             &layout.play,
+            &layout.introWord,
             &layout.exit,
             &layout.settingButtonBase,
             &layout.settingButtonOverlay,
@@ -204,6 +205,7 @@ namespace IntroLayoutLoader
         layout.additionalMenuItems = ParseMenuConfig(layoutJson, "additionalMenuItems");
 
         UILayout::ParseSection(layoutJson, "play", layout.play);
+        UILayout::ParseSection(layoutJson, "introWord", layout.introWord);
         UILayout::ParseSection(layoutJson, "exit", layout.exit);
         UILayout::ParseCompositeSection(layoutJson, "settingButtonBase", layout.settingButtonBase);
         UILayout::ParseCompositeSection(layoutJson, "settingButtonOverlay", layout.settingButtonOverlay);
@@ -235,6 +237,7 @@ namespace IntroLayoutLoader
 
         // Apply resolution scaling to all sections
         UILayout::ApplyResolutionScaling(layout.play, actualViewportSize);
+        UILayout::ApplyResolutionScaling(layout.introWord, actualViewportSize);
         UILayout::ApplyResolutionScaling(layout.exit, actualViewportSize);
         UILayout::ApplyResolutionScaling(layout.exitConfirm, actualViewportSize);
         UILayout::ApplyResolutionScaling(layout.exitYes, actualViewportSize);
