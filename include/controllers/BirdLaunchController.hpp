@@ -16,6 +16,7 @@ public:
     void SetOnSpawnCharacter(std::function<void(std::shared_ptr<Character>)> callback) {
         m_OnSpawnCharacter = callback;
     }
+    void SetPhysicsScale(float scale) { m_PhysicsScale = scale; }
 
     [[nodiscard]] bool IsHoldingBird() const { return m_IsHoldingBird; }
     [[nodiscard]] int GetRemainingBirdCountForBonus() const;
@@ -40,6 +41,7 @@ private:
     std::vector<std::shared_ptr<Character>> m_ActiveBirdsInFlight;
     std::function<void(std::shared_ptr<Character>)> m_OnSpawnCharacter = nullptr;
     bool m_HasSplit = false;
+    float m_PhysicsScale = 1.0f;
     // stop detection now uses velocity/angle thresholds
 };
 

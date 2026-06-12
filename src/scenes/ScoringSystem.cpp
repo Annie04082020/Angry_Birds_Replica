@@ -126,6 +126,25 @@ bool ScoringSystem::LoadConfig(const std::string& configPath)
                 };
             }
         }
+        // Extract star thresholds
+        std::string starThresholdsContent;
+        if (JsonParseUtils::ExtractArrayContent(scoringContent, "star_thresholds", starThresholdsContent))
+        {
+            m_StarThresholds.clear();
+            std::stringstream ss(starThresholdsContent);
+            std::string item;
+            while (std::getline(ss, item, ','))
+            {
+                try
+                {
+                    m_StarThresholds.push_back(std::stoi(item));
+                }
+                catch (const std::exception&)
+                {
+                    // ignore invalid
+                }
+            }
+        }
     }
 
     spdlog::info("Scoring config loaded successfully from: {}", configPath);
@@ -319,7 +338,33 @@ int ScoringSystem::AddScore(const int points)
     return points;
 }
 
-int ScoringSystem::ApplyMultiplier(int basePoints) const
+int ScoringSystem::ApplyMultiplier(const int basePoints) const
 {
-    return static_cast<int>(basePoints * m_DifficultyMultiplier);
+    return static_cast<int>(static_cast<float>(basePoints) * m_DifficultyMultiplier);
+}
+
+int ScoringSystem::GetStarCount(int score) const
+{
+    int stars = 0;
+    if (m_StarThresholds.empty())
+    {
+        // Fallback defaults if config failed to load or array was empty
+        if (score >= 15000) stars = 1;
+        if (score >= 30000) stars = 2;
+        if (score >= 45000) stars = 3;
+        return stars;
+    }
+
+    for (int threshold : m_StarThresholds)
+    {
+        if (score >= threshold)
+        {
+            stars++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return std::min(stars, 3);
 }
