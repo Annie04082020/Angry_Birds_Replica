@@ -327,8 +327,37 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         posY += groupIt->second.offsetY * groupIt->second.scaleMultiplier;
     }
 
-    posX *= runtimeScale;
-    posY *= runtimeScale;
+    // For percent-based positions, convert using actual viewport size directly
+    // to avoid double-scaling (percent -> design pixels -> runtimeScale).
+    // For absolute positions, apply runtimeScale as before.
+    if (objectDefinition.usesPercentX)
+    {
+        const glm::vec2 vpSize = Util::GetViewportSize();
+        posX = (objectDefinition.rawPercentX / 100.0f) * vpSize.x;
+        // Re-apply group offset scaled for viewport
+        if (groupIt != levelData.groupAdjustments.end())
+        {
+            posX += groupIt->second.offsetX * groupIt->second.scaleMultiplier * runtimeScale;
+        }
+    }
+    else
+    {
+        posX *= runtimeScale;
+    }
+    if (objectDefinition.usesPercentY)
+    {
+        const glm::vec2 vpSize = Util::GetViewportSize();
+        posY = (objectDefinition.rawPercentY / 100.0f) * vpSize.y;
+        // Re-apply group offset scaled for viewport
+        if (groupIt != levelData.groupAdjustments.end())
+        {
+            posY += groupIt->second.offsetY * groupIt->second.scaleMultiplier * runtimeScale;
+        }
+    }
+    else
+    {
+        posY *= runtimeScale;
+    }
 
     auto character = std::make_shared<Character>(PrepareResourcePath(resourcePath));
     const glm::vec2 textureSize = character->GetSize();

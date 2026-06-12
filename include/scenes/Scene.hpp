@@ -139,6 +139,11 @@ protected:
   float m_DamageImmunityTimer = 2.0f;
   [[nodiscard]] bool IsDamageImmune() const { return m_DamageImmunityTimer > 0.0f; }
 
+  // Scaling factor for physics constants (like gravity) to maintain consistent feel across resolutions
+  float m_PhysicsScale = 1.0f;
+  void SetPhysicsScale(float scale) { m_PhysicsScale = scale; }
+  float GetPhysicsScale() const { return m_PhysicsScale; }
+
   // Persisted contact manifolds for warm-starting the SI solver.
   std::vector<ContactManifold> m_Contacts;
 

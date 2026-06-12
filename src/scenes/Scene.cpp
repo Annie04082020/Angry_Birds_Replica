@@ -220,7 +220,7 @@ void Scene::StabilizeEnvironment(int steps)
   TraversalGuard guard(*this);
 
   constexpr float localDt = 1.0f / 120.0f; // finer substeps for stabilization
-  constexpr float gravity = 700.0f;
+  const float gravity = 700.0f * GetPhysicsScale();
   // First, run a few positional-only relaxation passes with no gravity to remove
   // tiny initial overlaps caused by level placement rounding. This prevents gravity
   // from immediately driving pieces through small gaps and creating cascade collapse.
@@ -302,7 +302,7 @@ void Scene::StepPhysics(float dt)
   TraversalGuard guard(*this);
 
   // Apply global gravity to all dynamic characters
-  constexpr float kGlobalGravity = 700.0f;
+  const float kGlobalGravity = 700.0f * GetPhysicsScale();
   for (auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);

@@ -68,7 +68,7 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
             center += position;
         }
         center /= static_cast<float>(slingshotPositions.size());
-        m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f);
+        m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f * m_PhysicsScale);
     }
 
     if (!m_BirdQueue.empty())
@@ -149,8 +149,8 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
     const glm::vec2 mouseWorldPos = GetMouseWorldPosition();
 
-    constexpr float maxPullDistance = 140.0f;
-    constexpr float launchPower = 9.0f;
+    const float maxPullDistance = 140.0f * m_PhysicsScale;
+    const float launchPower = 9.0f; // Do not scale launchPower, as pull distance is already scaled!
     if (!m_HasLaunchedBird)
     {
         if (mousePressed)
