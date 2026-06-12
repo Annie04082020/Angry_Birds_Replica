@@ -26,7 +26,7 @@ namespace CollisionResponse
     void SolveVelocity(ContactManifold &cm, bool damageEnabled);
 
     // Apply damage accumulated over the solver iterations for this contact.
-    void ApplyAccumulatedDamage(ContactManifold &cm);
+    void ApplyAccumulatedDamage(ContactManifold &cm, float physicsScale = 1.0f);
 
     // Baumgarte position correction – does NOT touch velocities.
     // Run 2-3 times after all velocity iterations per step.

@@ -73,6 +73,19 @@ namespace
         return out.str();
     }
 
+    // Design resolution: all HUD constants below are authored for this resolution.
+    constexpr float kDesignWidth = 2400.0f;
+    constexpr float kDesignHeight = 1350.0f;
+
+    // Returns the scale factor to adapt design-resolution HUD values to the actual viewport.
+    float GetHudScale()
+    {
+        const glm::vec2 viewportSize = Util::GetViewportSize();
+        if (viewportSize.x <= 0.0f || viewportSize.y <= 0.0f)
+            return 1.0f;
+        return std::min(viewportSize.x / kDesignWidth, viewportSize.y / kDesignHeight);
+    }
+
     constexpr float kGameHudButtonScale = 0.85f;
     constexpr float kGameHudLeftPadding = 50.0f;
     constexpr float kGameHudTopPadding = 50.0f;
@@ -160,22 +173,7 @@ namespace
         return stream.str();
     }
 
-    int ComputeStarCount(const int score)
-    {
-        if (score >= 45000)
-        {
-            return 3;
-        }
-        if (score >= 30000)
-        {
-            return 2;
-        }
-        if (score >= 15000)
-        {
-            return 1;
-        }
-        return 0;
-    }
+
 
     float ComputeStarPopScale(const float elapsedTime)
     {
@@ -414,6 +412,13 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     Util::SetCameraZoom(1.0f);
     Util::SetCameraPosition({0.0f, 0.0f});
 
+    const float physicsScale = GetHudScale();
+    SetPhysicsScale(physicsScale);
+    if (m_BirdLaunchController)
+    {
+        m_BirdLaunchController->SetPhysicsScale(physicsScale);
+    }
+
     if (!m_LevelManager || !m_LevelManager->LoadLevel(levelPath))
     {
         return false;
@@ -595,7 +600,7 @@ void GameScene::BuildLevelHud()
     if (!m_ScoreLabel)
     {
         CreateOutlinedTextObjects("SCORE",
-                                  kGameHudScoreLabelSize,
+                                  static_cast<int>(kGameHudScoreLabelSize * GetHudScale()),
                                   {0.0f, 0.0f},
                                   95.0f,
                                   kGameHudTextFillColor,
@@ -612,7 +617,7 @@ void GameScene::BuildLevelHud()
     if (!m_ScoreValue)
     {
         CreateOutlinedTextObjects("0",
-                                  kGameHudScoreValueSize,
+                                  static_cast<int>(kGameHudScoreValueSize * GetHudScale()),
                                   {0.0f, 0.0f},
                                   95.0f,
                                   kGameHudTextFillColor,
@@ -631,7 +636,7 @@ void GameScene::BuildLevelHud()
     if (!m_HighScoreLabel)
     {
         CreateOutlinedTextObjects("HIGHSCORE",
-                                  kGameHudHighScoreLabelSize,
+                                  static_cast<int>(kGameHudHighScoreLabelSize * GetHudScale()),
                                   {0.0f, 0.0f},
                                   95.0f,
                                   kGameHudTextFillColor,
@@ -648,7 +653,7 @@ void GameScene::BuildLevelHud()
     if (!m_HighScoreValue)
     {
         CreateOutlinedTextObjects("0",
-                                  kGameHudHighScoreValueSize,
+                                  static_cast<int>(kGameHudHighScoreValueSize * GetHudScale()),
                                   {0.0f, 0.0f},
                                   95.0f,
                                   kGameHudTextFillColor,
@@ -666,7 +671,7 @@ void GameScene::BuildLevelHud()
 
     m_LeftTopButton093 = std::make_shared<Button>(Resource::Game_Button_093);
     m_LeftTopButton093->SetZIndex(95.0f);
-    m_LeftTopButton093->SetScale({kGameHudButtonScale, kGameHudButtonScale});
+    m_LeftTopButton093->SetScale({kGameHudButtonScale * GetHudScale(), kGameHudButtonScale * GetHudScale()});
     m_LeftTopButton093->SetVisible(true);
     m_LeftTopButton093->SetSFX(Resource::SETTING_SFX);
     m_LeftTopButton093->SetOnClickFunction([this]()
@@ -675,7 +680,7 @@ void GameScene::BuildLevelHud()
 
     m_LeftTopButton031 = std::make_shared<Button>(Resource::Game_Button_031);
     m_LeftTopButton031->SetZIndex(95.0f);
-    m_LeftTopButton031->SetScale({kGameHudButtonScale, kGameHudButtonScale});
+    m_LeftTopButton031->SetScale({kGameHudButtonScale * GetHudScale(), kGameHudButtonScale * GetHudScale()});
     m_LeftTopButton031->SetVisible(true);
     m_LeftTopButton031->SetOnClickFunction([this]()
                                            {
@@ -693,7 +698,7 @@ void GameScene::BuildLevelHud()
 
     m_PauseMenu069 = std::make_shared<Button>(Resource::Game_Menu_Item_069);
     m_PauseMenu069->SetZIndex(96.0f);
-    m_PauseMenu069->SetScale({kGamePauseMenu069Scale, kGamePauseMenu069Scale});
+    m_PauseMenu069->SetScale({kGamePauseMenu069Scale * GetHudScale(), kGamePauseMenu069Scale * GetHudScale()});
     m_PauseMenu069->SetVisible(false);
     m_PauseMenu069->SetSFX(Resource::SETTING_SFX);
     m_PauseMenu069->SetOnClickFunction([this]()
@@ -702,7 +707,7 @@ void GameScene::BuildLevelHud()
 
     m_PauseMenu082 = std::make_shared<Button>(Resource::Game_Menu_Item_082);
     m_PauseMenu082->SetZIndex(96.0f);
-    m_PauseMenu082->SetScale({kGamePauseMenu082Scale, kGamePauseMenu082Scale});
+    m_PauseMenu082->SetScale({kGamePauseMenu082Scale * GetHudScale(), kGamePauseMenu082Scale * GetHudScale()});
     m_PauseMenu082->SetVisible(false);
     m_PauseMenu082->SetSFX(Resource::SETTING_SFX);
     m_PauseMenu082->SetOnClickFunction([this]()
@@ -716,7 +721,7 @@ void GameScene::BuildLevelHud()
 
     m_PauseMenu073 = std::make_shared<Button>(Resource::Game_Menu_Item_073);
     m_PauseMenu073->SetZIndex(96.0f);
-    m_PauseMenu073->SetScale({kGamePauseMenu073Scale, kGamePauseMenu073Scale});
+    m_PauseMenu073->SetScale({kGamePauseMenu073Scale * GetHudScale(), kGamePauseMenu073Scale * GetHudScale()});
     m_PauseMenu073->SetVisible(false);
     m_PauseMenu073->SetSFX(Resource::SETTING_SFX);
     m_PauseMenu073->SetOnClickFunction([this]()
@@ -730,7 +735,7 @@ void GameScene::BuildLevelHud()
 
     m_PauseMenu005 = std::make_shared<Button>(Resource::Game_Menu_Item_005);
     m_PauseMenu005->SetZIndex(96.0f);
-    m_PauseMenu005->SetScale({kGamePauseMenu005Scale, kGamePauseMenu005Scale});
+    m_PauseMenu005->SetScale({kGamePauseMenu005Scale * GetHudScale(), kGamePauseMenu005Scale * GetHudScale()});
     m_PauseMenu005->SetVisible(false);
     m_PauseMenu005->SetSFX(Resource::SETTING_SFX);
     m_PauseMenu005->SetOnClickFunction([this]()
@@ -739,19 +744,19 @@ void GameScene::BuildLevelHud()
 
     m_PauseMenu040Overlay = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Game_Menu_Item_040), 97.0f);
-    m_PauseMenu040Overlay->m_Transform.scale = {kGamePauseMenu040Scale, kGamePauseMenu040Scale};
+    m_PauseMenu040Overlay->m_Transform.scale = {kGamePauseMenu040Scale * GetHudScale(), kGamePauseMenu040Scale * GetHudScale()};
     m_PauseMenu040Overlay->SetVisible(false);
     AddElements(m_PauseMenu040Overlay);
 
     m_PauseMenu063 = std::make_shared<Button>(Resource::Game_Menu_Item_063);
     m_PauseMenu063->SetZIndex(96.0f);
-    m_PauseMenu063->SetScale({kGamePauseMenu063Scale, kGamePauseMenu063Scale});
+    m_PauseMenu063->SetScale({kGamePauseMenu063Scale * GetHudScale(), kGamePauseMenu063Scale * GetHudScale()});
     m_PauseMenu063->SetVisible(false);
     AddElements(m_PauseMenu063);
 
     m_PauseMenuLevelTitle = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Level_Title_1_1), 96.0f);
-    m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale, kGamePauseMenuLevelTitleScale};
+    m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale * GetHudScale(), kGamePauseMenuLevelTitleScale * GetHudScale()};
     m_PauseMenuLevelTitle->SetVisible(false);
     AddElements(m_PauseMenuLevelTitle);
 
@@ -762,7 +767,7 @@ void GameScene::BuildLevelHud()
     AddElements(m_LevelClearBackdrop);
 
     m_LevelClearTitle = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Text>(kUIFont, kLevelClearTitleSize, "LEVEL CLEARED!", kGameHudTextFillColor), 98.0f);
+        std::make_shared<Util::Text>(kUIFont, static_cast<int>(kLevelClearTitleSize * GetHudScale()), "LEVEL CLEARED!", kGameHudTextFillColor), 98.0f);
     m_LevelClearTitle->SetVisible(false);
     AddElements(m_LevelClearTitle);
 
@@ -773,20 +778,20 @@ void GameScene::BuildLevelHud()
         emptyStarDrawable->SetOpacity(kLevelClearEmptyStarOpacity);
         m_LevelClearStars[i] = std::make_shared<Util::GameObject>(
             emptyStarDrawable, 97.0f);
-        m_LevelClearStars[i]->m_Transform.scale = {kLevelClearStarScale, kLevelClearStarScale};
+        m_LevelClearStars[i]->m_Transform.scale = {kLevelClearStarScale * GetHudScale(), kLevelClearStarScale * GetHudScale()};
         m_LevelClearStars[i]->SetVisible(false);
         AddElements(m_LevelClearStars[i]);
 
         m_LevelClearEarnedStars[i] = std::make_shared<Util::GameObject>(
             std::make_shared<Util::Image>(Resource::Star_Filled), 97.2f);
-        m_LevelClearEarnedStars[i]->m_Transform.scale = {kLevelClearStarScale, kLevelClearStarScale};
+        m_LevelClearEarnedStars[i]->m_Transform.scale = {kLevelClearStarScale * GetHudScale(), kLevelClearStarScale * GetHudScale()};
         m_LevelClearEarnedStars[i]->SetVisible(false);
         AddElements(m_LevelClearEarnedStars[i]);
     }
 
     // Level Clear Score
     CreateOutlinedTextObjects(FormatScore(0),
-                              kLevelClearScoreValueSize,
+                              static_cast<int>(kLevelClearScoreValueSize * GetHudScale()),
                               {0.0f, 0.0f},
                               97.0f,
                               kLevelClearScoreFillColor,
@@ -805,7 +810,7 @@ void GameScene::BuildLevelHud()
 
     // Level Clear High Score
     CreateOutlinedTextObjects("BEST " + FormatScore(0),
-                              kLevelClearHighScoreValueSize,
+                              static_cast<int>(kLevelClearHighScoreValueSize * GetHudScale()),
                               {0.0f, 0.0f},
                               97.0f,
                               kGameHudTextFillColor,
@@ -833,7 +838,7 @@ void GameScene::BuildLevelHud()
     // Level Clear Buttons
     m_LevelClearMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
     m_LevelClearMenuButton->SetZIndex(98.0f);
-    m_LevelClearMenuButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
+    m_LevelClearMenuButton->SetScale({kLevelClearButtonScale * GetHudScale(), kLevelClearButtonScale * GetHudScale()});
     m_LevelClearMenuButton->SetVisible(false);
     m_LevelClearMenuButton->SetSFX(Resource::SETTING_SFX);
     m_LevelClearMenuButton->SetOnClickFunction([this]()
@@ -847,7 +852,7 @@ void GameScene::BuildLevelHud()
 
     m_LevelClearRestartButton = std::make_shared<Button>(Resource::Game_Menu_Item_082);
     m_LevelClearRestartButton->SetZIndex(98.0f);
-    m_LevelClearRestartButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
+    m_LevelClearRestartButton->SetScale({kLevelClearButtonScale * GetHudScale(), kLevelClearButtonScale * GetHudScale()});
     m_LevelClearRestartButton->SetVisible(false);
     m_LevelClearRestartButton->SetSFX(Resource::SETTING_SFX);
     m_LevelClearRestartButton->SetOnClickFunction([this]()
@@ -861,7 +866,7 @@ void GameScene::BuildLevelHud()
 
     m_LevelClearNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_078);
     m_LevelClearNextButton->SetZIndex(98.0f);
-    m_LevelClearNextButton->SetScale({kLevelClearButtonScale, kLevelClearButtonScale});
+    m_LevelClearNextButton->SetScale({kLevelClearButtonScale * GetHudScale(), kLevelClearButtonScale * GetHudScale()});
     m_LevelClearNextButton->SetVisible(false);
     m_LevelClearNextButton->SetSFX(Resource::SETTING_SFX);
     m_LevelClearNextButton->SetOnClickFunction([this]()
@@ -879,19 +884,19 @@ void GameScene::BuildLevelHud()
     AddElements(m_LevelFailedBackdrop);
 
     m_LevelFailedTitle = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Text>(kUIFont, kLevelFailedTitleSize, "LEVEL FAILED!", kGameHudTextFillColor), 98.0f);
+        std::make_shared<Util::Text>(kUIFont, static_cast<int>(kLevelFailedTitleSize * GetHudScale()), "LEVEL FAILED!", kGameHudTextFillColor), 98.0f);
     m_LevelFailedTitle->SetVisible(false);
     AddElements(m_LevelFailedTitle);
 
     m_LevelFailedPig = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::PIG_SMALL), 98.0f);
-    m_LevelFailedPig->m_Transform.scale = {kLevelFailedPigScale, kLevelFailedPigScale};
+    m_LevelFailedPig->m_Transform.scale = {kLevelFailedPigScale * GetHudScale(), kLevelFailedPigScale * GetHudScale()};
     m_LevelFailedPig->SetVisible(false);
     AddElements(m_LevelFailedPig);
 
     m_LevelFailedMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
     m_LevelFailedMenuButton->SetZIndex(98.0f);
-    m_LevelFailedMenuButton->SetScale({kLevelFailedButtonScale, kLevelFailedButtonScale});
+    m_LevelFailedMenuButton->SetScale({kLevelFailedButtonScale * GetHudScale(), kLevelFailedButtonScale * GetHudScale()});
     m_LevelFailedMenuButton->SetVisible(false);
     m_LevelFailedMenuButton->SetSFX(Resource::SETTING_SFX);
     m_LevelFailedMenuButton->SetOnClickFunction([this]()
@@ -905,7 +910,7 @@ void GameScene::BuildLevelHud()
 
     m_LevelFailedRestartButton = std::make_shared<Button>(Resource::Game_Menu_Item_082);
     m_LevelFailedRestartButton->SetZIndex(98.0f);
-    m_LevelFailedRestartButton->SetScale({kLevelFailedButtonScale, kLevelFailedButtonScale});
+    m_LevelFailedRestartButton->SetScale({kLevelFailedButtonScale * GetHudScale(), kLevelFailedButtonScale * GetHudScale()});
     m_LevelFailedRestartButton->SetVisible(false);
     m_LevelFailedRestartButton->SetSFX(Resource::SETTING_SFX);
     m_LevelFailedRestartButton->SetOnClickFunction([this]()
@@ -919,7 +924,7 @@ void GameScene::BuildLevelHud()
 
     m_LevelFailedNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_078);
     m_LevelFailedNextButton->SetZIndex(98.0f);
-    m_LevelFailedNextButton->SetScale({kLevelFailedButtonScale, kLevelFailedButtonScale});
+    m_LevelFailedNextButton->SetScale({kLevelFailedButtonScale * GetHudScale(), kLevelFailedButtonScale * GetHudScale()});
     m_LevelFailedNextButton->SetVisible(false);
     m_LevelFailedNextButton->SetSFX(Resource::SETTING_SFX);
     m_LevelFailedNextButton->SetOnClickFunction([this]()
@@ -944,10 +949,11 @@ void GameScene::UpdateHudPositions()
     const glm::vec2 cameraPos = Util::GetCameraPosition();
     const glm::vec2 viewportSize = Util::GetViewportSize();
     const float zoom = Util::GetCameraZoom();
+    const float hudScale = GetHudScale();
     const glm::vec2 topLeftAnchor = cameraPos +
                                     glm::vec2{
-                                        -viewportSize.x * 0.5f / zoom + kGameHudLeftPadding / zoom,
-                                        viewportSize.y * 0.5f / zoom - kGameHudTopPadding / zoom};
+                                        -viewportSize.x * 0.5f / zoom + (kGameHudLeftPadding * hudScale) / zoom,
+                                        viewportSize.y * 0.5f / zoom - (kGameHudTopPadding * hudScale) / zoom};
 
     if (m_LeftTopButton093)
     {
@@ -956,31 +962,31 @@ void GameScene::UpdateHudPositions()
 
     if (m_LeftTopButton031)
     {
-        m_LeftTopButton031->SetPosition(topLeftAnchor + glm::vec2{kGameHudButtonSpacing / zoom, 0.0f});
+        m_LeftTopButton031->SetPosition(topLeftAnchor + glm::vec2{(kGameHudButtonSpacing * hudScale) / zoom, 0.0f});
     }
 
     // High score positioned at top right
     const glm::vec2 topRightAnchor = cameraPos +
                                      glm::vec2{
-                                         viewportSize.x * 0.5f / zoom - kGameHudLeftPadding / zoom,
-                                         viewportSize.y * 0.5f / zoom - kGameHudTopPadding / zoom};
+                                         viewportSize.x * 0.5f / zoom - (kGameHudLeftPadding * hudScale) / zoom,
+                                         viewportSize.y * 0.5f / zoom - (kGameHudTopPadding * hudScale) / zoom};
 
-    const glm::vec2 scoreAnchor = topRightAnchor + glm::vec2{kGameHudScoreOffsetX / zoom, 0.0f};
-    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, kGameHudScoreLabelOffsetY / zoom},
+    const glm::vec2 scoreAnchor = topRightAnchor + glm::vec2{(kGameHudScoreOffsetX * hudScale) / zoom, 0.0f};
+    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, (kGameHudScoreLabelOffsetY * hudScale) / zoom},
                                 m_ScoreLabelOutline,
                                 m_ScoreLabel,
                                 zoom);
-    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, kGameHudScoreValueOffsetY / zoom},
+    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, (kGameHudScoreValueOffsetY * hudScale) / zoom},
                                 m_ScoreValueOutline,
                                 m_ScoreValue,
                                 zoom);
 
-    const glm::vec2 highScoreAnchor = topRightAnchor + glm::vec2{kGameHudHighScoreOffsetX / zoom, 0.0f};
-    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreLabelOffsetY / zoom},
+    const glm::vec2 highScoreAnchor = topRightAnchor + glm::vec2{(kGameHudHighScoreOffsetX * hudScale) / zoom, 0.0f};
+    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, (kGameHudHighScoreLabelOffsetY * hudScale) / zoom},
                                 m_HighScoreLabelOutline,
                                 m_HighScoreLabel,
                                 zoom);
-    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, kGameHudHighScoreValueOffsetY / zoom},
+    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, (kGameHudHighScoreValueOffsetY * hudScale) / zoom},
                                 m_HighScoreValueOutline,
                                 m_HighScoreValue,
                                 zoom);
@@ -989,61 +995,61 @@ void GameScene::UpdateHudPositions()
     {
         m_PauseMenu069->SetPosition(topLeftAnchor +
                                     glm::vec2{
-                                        kGamePauseMenu069OffsetX / zoom,
-                                        -kGamePauseMenu069OffsetY / zoom});
+                                        (kGamePauseMenu069OffsetX * hudScale) / zoom,
+                                        -(kGamePauseMenu069OffsetY * hudScale) / zoom});
     }
 
     if (m_PauseMenu082)
     {
         m_PauseMenu082->SetPosition(topLeftAnchor +
                                     glm::vec2{
-                                        kGamePauseMenu082OffsetX / zoom,
-                                        -kGamePauseMenu082OffsetY / zoom});
+                                        (kGamePauseMenu082OffsetX * hudScale) / zoom,
+                                        -(kGamePauseMenu082OffsetY * hudScale) / zoom});
     }
 
     if (m_PauseMenu073)
     {
         m_PauseMenu073->SetPosition(topLeftAnchor +
                                     glm::vec2{
-                                        kGamePauseMenu073OffsetX / zoom,
-                                        -kGamePauseMenu073OffsetY / zoom});
+                                        (kGamePauseMenu073OffsetX * hudScale) / zoom,
+                                        -(kGamePauseMenu073OffsetY * hudScale) / zoom});
     }
 
     if (m_PauseMenu005)
     {
         m_PauseMenu005->SetPosition(topLeftAnchor +
                                     glm::vec2{
-                                        kGamePauseMenu005OffsetX / zoom,
-                                        -kGamePauseMenu005OffsetY / zoom});
+                                        (kGamePauseMenu005OffsetX * hudScale) / zoom,
+                                        -(kGamePauseMenu005OffsetY * hudScale) / zoom});
     }
 
     if (m_PauseMenu040Overlay)
     {
         m_PauseMenu040Overlay->m_Transform.translation = topLeftAnchor +
                                                          glm::vec2{
-                                                             kGamePauseMenu040OffsetX / zoom,
-                                                             -kGamePauseMenu040OffsetY / zoom};
+                                                             (kGamePauseMenu040OffsetX * hudScale) / zoom,
+                                                             -(kGamePauseMenu040OffsetY * hudScale) / zoom};
         m_PauseMenu040Overlay->m_Transform.scale = {
-            kGamePauseMenu040Scale,
-            kGamePauseMenu040Scale};
+            kGamePauseMenu040Scale * hudScale,
+            kGamePauseMenu040Scale * hudScale};
     }
 
     if (m_PauseMenu063)
     {
         m_PauseMenu063->SetPosition(topLeftAnchor +
                                     glm::vec2{
-                                        kGamePauseMenu063OffsetX / zoom,
-                                        -kGamePauseMenu063OffsetY / zoom});
+                                        (kGamePauseMenu063OffsetX * hudScale) / zoom,
+                                        -(kGamePauseMenu063OffsetY * hudScale) / zoom});
     }
 
     if (m_PauseMenuBackdrop)
     {
         m_PauseMenuBackdrop->m_Transform.translation = cameraPos +
                                                        glm::vec2{
-                                                           -viewportSize.x * 0.5f / zoom + kGamePauseMenuBackdropCenterOffsetX / zoom,
-                                                           kGamePauseMenuBackdropCenterOffsetY / zoom};
+                                                           -viewportSize.x * 0.5f / zoom + (kGamePauseMenuBackdropCenterOffsetX * hudScale) / zoom,
+                                                           (kGamePauseMenuBackdropCenterOffsetY * hudScale) / zoom};
         m_PauseMenuBackdrop->m_Transform.scale = {
-            kGamePauseMenuBackdropWidth / zoom,
+            (kGamePauseMenuBackdropWidth * hudScale) / zoom,
             viewportSize.y * kGamePauseMenuBackdropHeightRatio / zoom};
     }
 
@@ -1051,9 +1057,9 @@ void GameScene::UpdateHudPositions()
     {
         m_PauseMenuLevelTitle->m_Transform.translation = cameraPos +
                                                          glm::vec2{
-                                                             -viewportSize.x * 0.5f / zoom + kGamePauseMenuLevelTitleOffsetX / zoom,
-                                                             kGamePauseMenuLevelTitleOffsetY / zoom};
-        m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale, kGamePauseMenuLevelTitleScale};
+                                                             -viewportSize.x * 0.5f / zoom + (kGamePauseMenuLevelTitleOffsetX * hudScale) / zoom,
+                                                             (kGamePauseMenuLevelTitleOffsetY * hudScale) / zoom};
+        m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale * hudScale, kGamePauseMenuLevelTitleScale * hudScale};
     }
 }
 
@@ -1398,24 +1404,25 @@ void GameScene::UpdateWinState()
     const glm::vec2 viewportSize = Util::GetViewportSize();
     const float zoom = Util::GetCameraZoom();
     const int score = m_ScoringSystem.GetScore();
-    const int stars = ComputeStarCount(score);
+    const int stars = m_ScoringSystem.GetStarCount(score);
     const int highScore = m_ScoringSystem.GetHighScore();
-    const int highScoreStars = ComputeStarCount(highScore);
+    const int highScoreStars = m_ScoringSystem.GetStarCount(highScore);
+    const float hudScale = GetHudScale();
     if (m_LevelClearBackdrop)
     {
         m_LevelClearBackdrop->SetVisible(true);
         m_LevelClearBackdrop->m_Transform.translation = cameraPos;
         m_LevelClearBackdrop->m_Transform.scale = {
-            kLevelClearPanelWidth / zoom,
+            (kLevelClearPanelWidth * hudScale) / zoom,
             viewportSize.y * kLevelClearPanelHeightRatio / zoom};
     }
     if (m_LevelClearTitle)
     {
         m_LevelClearTitle->SetVisible(true);
-        m_LevelClearTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelClearTitleOffsetY / zoom};
+        m_LevelClearTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelClearTitleOffsetY * hudScale) / zoom};
     }
-    const float starStartX = -(kLevelClearStarSpacing / zoom);
-    const float baseStarScale = kLevelClearStarScale / zoom;
+    const float starStartX = -((kLevelClearStarSpacing * hudScale) / zoom);
+    const float baseStarScale = (kLevelClearStarScale * hudScale) / zoom;
     for (int i = 0; i < 3; ++i)
     {
         if (!m_LevelClearStars[i])
@@ -1423,8 +1430,8 @@ void GameScene::UpdateWinState()
             continue;
         }
         const glm::vec2 baseStarPosition = cameraPos + glm::vec2{
-            starStartX + static_cast<float>(i) * (kLevelClearStarSpacing / zoom),
-            kLevelClearStarsOffsetY / zoom};
+            starStartX + static_cast<float>(i) * ((kLevelClearStarSpacing * hudScale) / zoom),
+            (kLevelClearStarsOffsetY * hudScale) / zoom};
         const bool earnedStar = i < stars;
         m_LevelClearStars[i]->SetVisible(true);
         m_LevelClearStars[i]->m_Transform.scale = {baseStarScale, baseStarScale};
@@ -1442,7 +1449,7 @@ void GameScene::UpdateWinState()
             if (popScale > 0.0f)
             {
                 const float normalizedProgress = std::clamp(starElapsedTime / kLevelClearStarPopDuration, 0.0f, 1.0f);
-                const float yOffset = (1.0f - normalizedProgress) * (kLevelClearStarPopYOffset / zoom);
+                const float yOffset = (1.0f - normalizedProgress) * ((kLevelClearStarPopYOffset * hudScale) / zoom);
                 m_LevelClearEarnedStars[i]->SetVisible(true);
                 m_LevelClearEarnedStars[i]->m_Transform.scale = {
                     baseStarScale * popScale,
@@ -1473,13 +1480,13 @@ void GameScene::UpdateWinState()
         {
             outline->SetVisible(true);
         }
-        m_LevelClearScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelClearScoreOffsetY / zoom};
+        m_LevelClearScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelClearScoreOffsetY * hudScale) / zoom};
         for (size_t i = 0; i < m_LevelClearScoreOutline.size(); ++i)
         {
             if (m_LevelClearScoreOutline[i])
             {
                 m_LevelClearScoreOutline[i]->m_Transform.translation =
-                    m_LevelClearScore->m_Transform.translation + kGameHudOutlineOffsets[i] / zoom;
+                    m_LevelClearScore->m_Transform.translation + (kGameHudOutlineOffsets[i] * hudScale) / zoom;
             }
         }
     }
@@ -1493,13 +1500,13 @@ void GameScene::UpdateWinState()
         {
             outline->SetVisible(true);
         }
-        m_LevelClearHighScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelClearHighScoreOffsetY / zoom};
+        m_LevelClearHighScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelClearHighScoreOffsetY * hudScale) / zoom};
         for (size_t i = 0; i < m_LevelClearHighScoreOutline.size(); ++i)
         {
             if (m_LevelClearHighScoreOutline[i])
             {
                 m_LevelClearHighScoreOutline[i]->m_Transform.translation =
-                    m_LevelClearHighScore->m_Transform.translation + kGameHudOutlineOffsets[i] / zoom;
+                    m_LevelClearHighScore->m_Transform.translation + (kGameHudOutlineOffsets[i] * hudScale) / zoom;
             }
         }
     }
@@ -1510,10 +1517,10 @@ void GameScene::UpdateWinState()
             continue;
         }
         m_LevelClearBestStars[i]->SetVisible(true);
-        m_LevelClearBestStars[i]->m_Transform.scale = {kLevelClearBestStarScale / zoom, kLevelClearBestStarScale / zoom};
+        m_LevelClearBestStars[i]->m_Transform.scale = {(kLevelClearBestStarScale * hudScale) / zoom, (kLevelClearBestStarScale * hudScale) / zoom};
         m_LevelClearBestStars[i]->m_Transform.translation = cameraPos + glm::vec2{
-            kLevelClearBestStarsOffsetX / zoom + static_cast<float>(i) * (kLevelClearBestStarSpacing / zoom),
-            kLevelClearHighScoreOffsetY / zoom};
+            (kLevelClearBestStarsOffsetX * hudScale) / zoom + static_cast<float>(i) * ((kLevelClearBestStarSpacing * hudScale) / zoom),
+            (kLevelClearHighScoreOffsetY * hudScale) / zoom};
         m_LevelClearBestStars[i]->SetDrawable(std::make_shared<Util::Image>(
             i < highScoreStars ? Resource::Star_Filled : Resource::Star_Empty));
     }
@@ -1521,22 +1528,22 @@ void GameScene::UpdateWinState()
     {
         m_LevelClearMenuButton->SetVisible(true);
         m_LevelClearMenuButton->SetPosition(cameraPos + glm::vec2{
-            -kLevelClearButtonSpacing / zoom,
-            kLevelClearButtonBaseOffsetY / zoom});
+            -(kLevelClearButtonSpacing * hudScale) / zoom,
+            (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
     }
     if (m_LevelClearRestartButton)
     {
         m_LevelClearRestartButton->SetVisible(true);
         m_LevelClearRestartButton->SetPosition(cameraPos + glm::vec2{
             0.0f,
-            kLevelClearButtonBaseOffsetY / zoom});
+            (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
     }
     if (m_LevelClearNextButton)
     {
         m_LevelClearNextButton->SetVisible(true);
         m_LevelClearNextButton->SetPosition(cameraPos + glm::vec2{
-            kLevelClearButtonSpacing / zoom,
-            kLevelClearButtonBaseOffsetY / zoom});
+            (kLevelClearButtonSpacing * hudScale) / zoom,
+            (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
     }
 }
 
@@ -1579,34 +1586,35 @@ void GameScene::UpdateFailState()
     const glm::vec2 viewportSize = Util::GetViewportSize();
     const float zoom = Util::GetCameraZoom();
 
+    const float hudScale = GetHudScale();
     if (m_LevelFailedBackdrop)
     {
         m_LevelFailedBackdrop->SetVisible(true);
         m_LevelFailedBackdrop->m_Transform.translation = cameraPos;
         m_LevelFailedBackdrop->m_Transform.scale = {
-            kLevelClearPanelWidth / zoom,
+            (kLevelClearPanelWidth * hudScale) / zoom,
             viewportSize.y * kLevelClearPanelHeightRatio / zoom};
     }
 
     if (m_LevelFailedTitle)
     {
         m_LevelFailedTitle->SetVisible(true);
-        m_LevelFailedTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelFailedTitleOffsetY / zoom};
+        m_LevelFailedTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelFailedTitleOffsetY * hudScale) / zoom};
     }
 
     if (m_LevelFailedPig)
     {
         m_LevelFailedPig->SetVisible(true);
-        m_LevelFailedPig->m_Transform.translation = cameraPos + glm::vec2{0.0f, kLevelFailedPigOffsetY / zoom};
-        m_LevelFailedPig->m_Transform.scale = {kLevelFailedPigScale / zoom, kLevelFailedPigScale / zoom};
+        m_LevelFailedPig->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelFailedPigOffsetY * hudScale) / zoom};
+        m_LevelFailedPig->m_Transform.scale = {(kLevelFailedPigScale * hudScale) / zoom, (kLevelFailedPigScale * hudScale) / zoom};
     }
 
     if (m_LevelFailedMenuButton)
     {
         m_LevelFailedMenuButton->SetVisible(true);
         m_LevelFailedMenuButton->SetPosition(cameraPos + glm::vec2{
-            -kLevelFailedButtonSpacing / zoom,
-            kLevelFailedButtonBaseOffsetY / zoom});
+            -(kLevelFailedButtonSpacing * hudScale) / zoom,
+            (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
     }
 
     if (m_LevelFailedRestartButton)
@@ -1614,15 +1622,15 @@ void GameScene::UpdateFailState()
         m_LevelFailedRestartButton->SetVisible(true);
         m_LevelFailedRestartButton->SetPosition(cameraPos + glm::vec2{
             0.0f,
-            kLevelFailedButtonBaseOffsetY / zoom});
+            (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
     }
 
     if (m_LevelFailedNextButton)
     {
         m_LevelFailedNextButton->SetVisible(true);
         m_LevelFailedNextButton->SetPosition(cameraPos + glm::vec2{
-            kLevelFailedButtonSpacing / zoom,
-            kLevelFailedButtonBaseOffsetY / zoom});
+            (kLevelFailedButtonSpacing * hudScale) / zoom,
+            (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
     }
 }
 

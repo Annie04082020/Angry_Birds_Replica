@@ -220,7 +220,7 @@ void Scene::StabilizeEnvironment(int steps)
   TraversalGuard guard(*this);
 
   constexpr float localDt = 1.0f / 120.0f; // finer substeps for stabilization
-  constexpr float gravity = 700.0f;
+  const float gravity = 700.0f * GetPhysicsScale();
   // First, run a few positional-only relaxation passes with no gravity to remove
   // tiny initial overlaps caused by level placement rounding. This prevents gravity
   // from immediately driving pieces through small gaps and creating cascade collapse.
@@ -302,7 +302,7 @@ void Scene::StepPhysics(float dt)
   TraversalGuard guard(*this);
 
   // Apply global gravity to all dynamic characters
-  constexpr float kGlobalGravity = 700.0f;
+  const float kGlobalGravity = 700.0f * GetPhysicsScale();
   for (auto &element : m_Elements)
   {
     auto ch = std::dynamic_pointer_cast<Character>(element);
@@ -366,7 +366,9 @@ void Scene::StepPhysics(float dt)
       {
         constexpr float kFloorDamageImpulseThreshold = 150.0f;
         constexpr float kFloorDamageFactor = 0.05f;
-        const float estimatedImpulse = ch->GetMass() * impactSpeed;
+        
+        // Un-scale the impulse to make damage resolution-independent
+        const float estimatedImpulse = (ch->GetMass() * impactSpeed) / (m_PhysicsScale > 0.0f ? m_PhysicsScale : 1.0f);
         if (estimatedImpulse > kFloorDamageImpulseThreshold)
         {
           const float resistance = CollisionUtils::GetDamageResistance(ch->GetMaterialType());
@@ -766,7 +768,7 @@ void Scene::RunCollisionDetection(int passes, bool stabilizing)
   {
     for (auto &cm : m_Contacts)
     {
-      CollisionResponse::ApplyAccumulatedDamage(cm);
+      CollisionResponse::ApplyAccumulatedDamage(cm, m_PhysicsScale);
     }
   }
 

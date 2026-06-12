@@ -287,7 +287,7 @@ void CollisionResponse::SolvePosition(ContactManifold &cm)
 
 // Apply damage accumulated over the solver iterations for this contact once
 // per physics step. This avoids multiplying damage by the number of iterations.
-void CollisionResponse::ApplyAccumulatedDamage(ContactManifold &cm)
+void CollisionResponse::ApplyAccumulatedDamage(ContactManifold &cm, float physicsScale)
 {
     if (cm.frameAccumulatedNormalImpulse <= 0.f)
         return;
@@ -296,7 +296,8 @@ void CollisionResponse::ApplyAccumulatedDamage(ContactManifold &cm)
     constexpr float kDamageThreshold = 150.f;
     constexpr float kDamageFactor = 0.05f;
 
-    float absJn = cm.frameAccumulatedNormalImpulse;
+    // Un-scale the impulse to make damage resolution-independent
+    float absJn = cm.frameAccumulatedNormalImpulse / (physicsScale > 0.f ? physicsScale : 1.0f);
     if (absJn <= kDamageThreshold)
     {
         cm.frameAccumulatedNormalImpulse = 0.f;

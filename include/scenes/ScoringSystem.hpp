@@ -22,6 +22,7 @@ public:
     // Difficulty multiplier
     void SetDifficultyMultiplier(float multiplier) { m_DifficultyMultiplier = multiplier; }
     [[nodiscard]] float GetDifficultyMultiplier() const { return m_DifficultyMultiplier; }
+    [[nodiscard]] int GetStarCount(int score) const;
 
     int AwardPigDestroyed();
     int AwardLeftoverBirds(int birdCount);
@@ -39,6 +40,7 @@ private:
     int m_Score = 0;
     int m_HighScore = 0;
     float m_DifficultyMultiplier = 1.0f;
+    std::vector<int> m_StarThresholds;
 
     // Points from config
     int m_PigPoints = 5000;
