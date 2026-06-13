@@ -102,7 +102,7 @@ namespace Resource
             {"WOOD_21x20_3", WOOD_21x20_3},
             {"WOOD_21x20_4", WOOD_21x20_4},
             {"SMILE", SMILE},
-
+            {"WOOD_BOX", WOOD_BOX},
             // Stone entries (matching updated Resource.hpp)
             {"STONE_ball_b_1", STONE_ball_b_1},
             {"STONE_ball_b_2", STONE_ball_b_2},

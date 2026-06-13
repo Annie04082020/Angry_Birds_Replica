@@ -22,7 +22,7 @@ namespace Resource
     const std::string EARTH_BLOCK = RESOURCE_DIR "/Image/themes/sprite_023.png";
     const std::string EARTH_TRI_TLBR = RESOURCE_DIR "/Image/themes/earth_tri_tlbr.png";
     const std::string EARTH_TRI_TRBL = RESOURCE_DIR "/Image/themes/earth_tri_trbl.png";
-    const std::string EARTH_HOUSE = RESOURCE_DIR "/Image/themes/earth_houses.png";
+    const std::string EARTH_HOUSE = RESOURCE_DIR "/Image/themes/earth_house.png";
     const std::string EARTH_LEVEL2 = RESOURCE_DIR "/Image/themes/earth_level2.png";
 
     // Pigs
@@ -81,6 +81,7 @@ namespace Resource
     const std::string WOOD_42x41_2 = RESOURCE_DIR "/Image/wood/sprite_110.png";
     const std::string WOOD_42x41_3 = RESOURCE_DIR "/Image/wood/sprite_082.png";
     const std::string SMILE = RESOURCE_DIR "/Image/smile/sprite_156.png";
+    const std::string WOOD_BOX = RESOURCE_DIR "/Image/themes/box.png";
 
     // stone 1 to 4: complete to broken
     const std::string STONE_ball_b_1 = RESOURCE_DIR "/Image/stone/sprite_201.png";
