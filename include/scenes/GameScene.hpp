@@ -80,7 +80,8 @@ private:
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
     std::vector<std::shared_ptr<Util::GameObject>> m_BirdTrailDots;
     std::unordered_map<const Character *, glm::vec2> m_BirdTrailLastEmitPositions;
-    size_t m_BirdTrailNextDotIndex = 0;
+    size_t m_BirdTrailActiveDotCount = 0;
+    int m_LastBirdTrailLaunchSequence = 0;
     std::array<std::shared_ptr<Util::GameObject>, 4> m_ScoreLabelOutline{};
     std::shared_ptr<Util::GameObject> m_ScoreLabel = nullptr;
     std::array<std::shared_ptr<Util::GameObject>, 4> m_ScoreValueOutline{};

@@ -35,6 +35,7 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
     m_BirdVelocity = {0.0f, 0.0f};
     m_ActiveBirdsInFlight.clear();
     m_HasSplit = false;
+    m_LaunchSequence = 0;
 
     std::vector<glm::vec2> slingshotPositions;
 
@@ -218,6 +219,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             m_IsHoldingBird = false;
             m_HasLaunchedBird = true;
             m_HasAnyBirdBeenLaunched = true;
+            ++m_LaunchSequence;
             m_ActiveBirdsInFlight.clear();
             m_ActiveBirdsInFlight.push_back(m_ActiveBird);
             m_HasSplit = false;

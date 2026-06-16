@@ -27,7 +27,7 @@ namespace
     constexpr const char *kBirdTrailDotImage = RESOURCE_DIR "/Image/assets/sprite_022.png";
     constexpr const char *kBirdTrailHeadImage = RESOURCE_DIR "/Image/assets/sprite_032.png";
     constexpr float kGrassTopRatio = 404.0f / 563.0f;
-    constexpr int kBirdTrailDotPoolSize = 18;
+    constexpr int kBirdTrailDotPoolSize = 140;
     constexpr float kBirdTrailDotScale = 0.82f;
     constexpr float kBirdTrailDotLifetime = 0.85f;
     constexpr float kBirdTrailEmitDistance = 18.0f;
@@ -266,7 +266,6 @@ namespace
         {
             m_Transform.translation = position;
             m_Transform.scale = scale;
-            m_RemainingLife = m_LifeTime;
             SetVisible(true);
             if (m_DrawableImage)
             {
@@ -276,7 +275,6 @@ namespace
 
         void Deactivate()
         {
-            m_RemainingLife = 0.0f;
             SetVisible(false);
             if (m_DrawableImage)
             {
@@ -286,22 +284,13 @@ namespace
 
         void Update() override
         {
-            if (!m_DrawableImage || m_RemainingLife <= 0.0f)
+            if (!m_DrawableImage)
             {
                 if (m_Visible)
                 {
                     SetVisible(false);
                 }
                 return;
-            }
-
-            const float deltaSec = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
-            m_RemainingLife = std::max(0.0f, m_RemainingLife - deltaSec);
-            const float ratio = (m_LifeTime > 0.0f) ? (m_RemainingLife / m_LifeTime) : 0.0f;
-            m_DrawableImage->SetOpacity(ratio);
-            if (m_RemainingLife <= 0.0f)
-            {
-                SetVisible(false);
             }
         }
 
@@ -1045,7 +1034,8 @@ void GameScene::BuildBirdTrail()
 void GameScene::ResetBirdTrail()
 {
     m_BirdTrailLastEmitPositions.clear();
-    m_BirdTrailNextDotIndex = 0;
+    m_BirdTrailActiveDotCount = 0;
+    m_LastBirdTrailLaunchSequence = 0;
     for (const auto &dot : m_BirdTrailDots)
     {
         if (!dot)
@@ -1065,6 +1055,21 @@ void GameScene::UpdateBirdTrail()
     if (!m_BirdLaunchController || m_BirdTrailDots.empty())
     {
         return;
+    }
+
+    const int launchSequence = m_BirdLaunchController->GetLaunchSequence();
+    if (launchSequence != m_LastBirdTrailLaunchSequence)
+    {
+        m_LastBirdTrailLaunchSequence = launchSequence;
+        m_BirdTrailLastEmitPositions.clear();
+        m_BirdTrailActiveDotCount = 0;
+        for (const auto &dot : m_BirdTrailDots)
+        {
+            if (auto trailDot = std::dynamic_pointer_cast<BirdTrailDotObject>(dot))
+            {
+                trailDot->Deactivate();
+            }
+        }
     }
 
     if (!m_BirdLaunchController->HasBirdInFlight())
@@ -1100,9 +1105,14 @@ void GameScene::UpdateBirdTrail()
 
         m_BirdTrailLastEmitPositions[key] = position;
 
+        if (m_BirdTrailActiveDotCount >= m_BirdTrailDots.size())
+        {
+            continue;
+        }
+
         auto dot = std::dynamic_pointer_cast<BirdTrailDotObject>(
-            m_BirdTrailDots[m_BirdTrailNextDotIndex % m_BirdTrailDots.size()]);
-        m_BirdTrailNextDotIndex = (m_BirdTrailNextDotIndex + 1) % m_BirdTrailDots.size();
+            m_BirdTrailDots[m_BirdTrailActiveDotCount]);
+        ++m_BirdTrailActiveDotCount;
         if (dot)
         {
             dot->Activate(position, dotScaleVec, 1.0f);

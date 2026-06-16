@@ -23,6 +23,7 @@ public:
     [[nodiscard]] bool HasAnyBirdBeenLaunched() const { return m_HasAnyBirdBeenLaunched; }
     [[nodiscard]] bool HasBirdInFlight() const { return m_HasLaunchedBird; }
     [[nodiscard]] bool IsOutOfBirds() const;
+    [[nodiscard]] int GetLaunchSequence() const { return m_LaunchSequence; }
     [[nodiscard]] std::vector<glm::vec2> GetRemainingBirdPositionsForBonus() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Character>> &GetActiveBirdsInFlight() const
     {
@@ -51,6 +52,7 @@ private:
     std::function<void(std::shared_ptr<Character>)> m_OnSpawnCharacter = nullptr;
     bool m_HasSplit = false;
     float m_PhysicsScale = 1.0f;
+    int m_LaunchSequence = 0;
     // stop detection now uses velocity/angle thresholds
 };
 
