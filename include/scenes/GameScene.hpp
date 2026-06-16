@@ -12,6 +12,7 @@
 #include "ui/Button.hpp"
 #include <array>
 #include <functional>
+#include <deque>
 #include <unordered_map>
 
 class GameScene : public Scene
@@ -60,7 +61,12 @@ private:
     void UpdateWinState();
     void UpdateFailState();
     void SpawnFloatingScore(const glm::vec2 &position, int points, const Util::Color &frontColor);
-    void SpawnOutlinedFloatingScore(const glm::vec2 &position, const std::string &text, const Util::Color &frontColor);
+    void SpawnOutlinedFloatingScore(const glm::vec2 &position,
+                                    const std::string &text,
+                                    const Util::Color &frontColor,
+                                    int fontSize,
+                                    float lifeTime,
+                                    const glm::vec2 &velocity);
     void FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition);
     void OnCharacterDeath(const std::shared_ptr<Character> &character) override;
     void SetPauseMenuVisible(bool visible);
@@ -140,6 +146,9 @@ private:
     bool m_LevelCleared = false;
     bool m_LevelFailed = false;
     bool m_LeftoverBirdsAwarded = false;
+    int m_PendingLeftoverBirdAwards = 0;
+    std::deque<glm::vec2> m_PendingLeftoverBirdAwardPositions;
+    float m_LeftoverBirdAwardTimer = 0.0f;
     float m_LevelClearAnimationTime = 0.0f;
 };
 

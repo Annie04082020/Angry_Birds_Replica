@@ -122,6 +122,36 @@ int BirdLaunchController::GetRemainingBirdCountForBonus() const
     return remaining;
 }
 
+std::vector<glm::vec2> BirdLaunchController::GetRemainingBirdPositionsForBonus() const
+{
+    std::vector<glm::vec2> positions;
+    if (m_BirdQueue.empty())
+    {
+        return positions;
+    }
+
+    const bool activeBirdReadyToLaunch =
+        m_ActiveBird &&
+        !m_HasLaunchedBird &&
+        m_CurrentBirdIndex < m_BirdQueue.size() &&
+        glm::distance(m_ActiveBird->GetPosition(), m_BirdAnchorPosition) <= kBirdReadyDistanceThreshold;
+
+    if (activeBirdReadyToLaunch)
+    {
+        positions.push_back(m_ActiveBird->GetPosition());
+    }
+
+    for (size_t i = m_CurrentBirdIndex + 1; i < m_BirdQueue.size(); ++i)
+    {
+        if (m_BirdQueue[i])
+        {
+            positions.push_back(m_BirdQueue[i]->GetPosition());
+        }
+    }
+
+    return positions;
+}
+
 bool BirdLaunchController::IsOutOfBirds() const
 {
     return m_HasAnyBirdBeenLaunched &&

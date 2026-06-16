@@ -32,6 +32,7 @@ namespace
     constexpr float kBirdTrailDotLifetime = 0.85f;
     constexpr float kBirdTrailEmitDistance = 18.0f;
     constexpr float kBirdTrailMinSpeed = 120.0f;
+    constexpr float kLeftoverBirdAwardInterval = 0.62f;
     std::string GetHudLabel(const std::shared_ptr<Character> &object)
     {
         if (!object)
@@ -208,7 +209,8 @@ namespace
               m_Velocity(velocity),
               m_BaseColor(baseColor),
               m_LifeTime(lifeTime),
-              m_RemainingLife(lifeTime)
+              m_RemainingLife(lifeTime),
+              m_BaseScale(1.0f, 1.0f)
         {
             m_Transform.translation = position;
         }
@@ -223,11 +225,18 @@ namespace
             const float deltaSec = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
             m_RemainingLife = std::max(0.0f, m_RemainingLife - deltaSec);
             m_Transform.translation += m_Velocity * deltaSec;
+            m_Velocity *= std::pow(0.92f, deltaSec * 60.0f);
 
-            const float ratio = (m_LifeTime > 0.0f) ? (m_RemainingLife / m_LifeTime) : 0.0f;
+            m_Transform.scale = m_BaseScale;
+
             Util::Color fadedColor = m_BaseColor;
-            fadedColor.a = std::max(0.0f, 255.0f * ratio);
+            fadedColor.a = 255.0f;
             m_DrawableText->SetColor(fadedColor);
+
+            if (m_RemainingLife <= 0.0f)
+            {
+                SetVisible(false);
+            }
         }
 
     private:
@@ -236,6 +245,7 @@ namespace
         Util::Color m_BaseColor = Util::Color::FromRGB(255, 255, 255);
         float m_LifeTime = 0.8f;
         float m_RemainingLife = 0.8f;
+        glm::vec2 m_BaseScale{1.0f, 1.0f};
     };
 
     class BirdTrailDotObject : public Util::GameObject
@@ -1350,6 +1360,9 @@ void GameScene::ResetScoreState()
     m_LevelCleared = false;
     m_LevelFailed = false;
     m_LeftoverBirdsAwarded = false;
+    m_PendingLeftoverBirdAwards = 0;
+    m_PendingLeftoverBirdAwardPositions.clear();
+    m_LeftoverBirdAwardTimer = 0.0f;
     m_LevelClearAnimationTime = 0.0f;
     m_IsLevelClearScreenVisible = false;
     m_IsLevelFailedScreenVisible = false;
@@ -1477,8 +1490,8 @@ void GameScene::ResetScoreState()
                 const int awarded = c->DrainScoreBudget(estimated);
                 if (awarded > 0)
                 {
-                    m_ScoringSystem.AwardBlockDamage(c->GetMaterialType(), damageRatio, awarded);
-                    SpawnFloatingScore(c->GetPosition(), awarded, Util::Color::FromRGB(255, 255, 255));
+                    const int actualScore = m_ScoringSystem.AwardBlockDamage(c->GetMaterialType(), damageRatio, awarded);
+                    SpawnFloatingScore(c->GetPosition(), actualScore, Util::Color::FromRGB(255, 255, 255));
                     UpdateScoreHud();
                 }
             });
@@ -1537,9 +1550,41 @@ void GameScene::UpdateWinState()
     {
         if (!m_LeftoverBirdsAwarded && m_BirdLaunchController)
         {
-            m_ScoringSystem.AwardLeftoverBirds(m_BirdLaunchController->GetRemainingBirdCountForBonus());
+            const auto remainingBirdPositions = m_BirdLaunchController->GetRemainingBirdPositionsForBonus();
+            m_PendingLeftoverBirdAwards = static_cast<int>(remainingBirdPositions.size());
+            m_PendingLeftoverBirdAwardPositions.clear();
+            for (const auto &position : remainingBirdPositions)
+            {
+                m_PendingLeftoverBirdAwardPositions.push_back(position);
+            }
             m_LeftoverBirdsAwarded = true;
-            UpdateScoreHud();
+            m_LeftoverBirdAwardTimer = 0.0f;
+        }
+
+        if (m_PendingLeftoverBirdAwards > 0 && m_BirdLaunchController)
+        {
+            m_LeftoverBirdAwardTimer += std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
+            if (m_LeftoverBirdAwardTimer >= kLeftoverBirdAwardInterval)
+            {
+                m_LeftoverBirdAwardTimer = 0.0f;
+                const int awarded = m_ScoringSystem.AwardLeftoverBirds(1);
+                glm::vec2 popupPosition = m_BirdLaunchController->GetBirdAnchorPosition() + glm::vec2{0.0f, 44.0f};
+                if (!m_PendingLeftoverBirdAwardPositions.empty())
+                {
+                    popupPosition = m_PendingLeftoverBirdAwardPositions.front();
+                    m_PendingLeftoverBirdAwardPositions.pop_front();
+                }
+                const glm::vec2 popupOffset = glm::vec2{34.0f, 18.0f};
+                SpawnOutlinedFloatingScore(popupPosition + popupOffset,
+                                           FormatScore(awarded),
+                                           Util::Color::FromRGB(214, 54, 54),
+                                            42,
+                                           1.65f,
+                                           glm::vec2{0.0f, 34.0f});
+                --m_PendingLeftoverBirdAwards;
+                UpdateScoreHud();
+            }
+            return;
         }
 
         m_ScoringSystem.CommitCurrentScoreToHighScore();
@@ -1797,37 +1842,40 @@ void GameScene::UpdateFailState()
 
 void GameScene::SpawnOutlinedFloatingScore(const glm::vec2 &position,
                                            const std::string &text,
-                                           const Util::Color &frontColor)
+                                           const Util::Color &frontColor,
+                                           const int fontSize,
+                                           const float lifeTime,
+                                           const glm::vec2 &velocity)
 {
-    const Util::Color outlineColor = Util::Color::FromRGB(170, 110, 80, 255);
+    const Util::Color outlineColor = Util::Color::FromRGB(120, 70, 45, 255);
     const std::array<glm::vec2, 4> offsets = {
-        glm::vec2{-2.0f, 0.0f},
-        glm::vec2{2.0f, 0.0f},
-        glm::vec2{0.0f, -2.0f},
-        glm::vec2{0.0f, 2.0f}};
+        glm::vec2{-2.5f, 0.0f},
+        glm::vec2{2.5f, 0.0f},
+        glm::vec2{0.0f, -2.5f},
+        glm::vec2{0.0f, 2.5f}};
 
     for (const auto &offset : offsets)
     {
-        auto shadowDrawable = std::make_shared<Util::Text>(kUIFont, 30, text, outlineColor);
+        auto shadowDrawable = std::make_shared<Util::Text>(kUIFont, fontSize, text, outlineColor);
         auto shadowObject = std::make_shared<FloatingTextObject>(
             shadowDrawable,
             position + offset,
-            glm::vec2{0.0f, 48.0f},
+            velocity,
             outlineColor,
             98.0f,
-            0.85f);
-        AddDebugEntity(shadowObject, 0.85f);
+            lifeTime);
+        AddDebugEntity(shadowObject, lifeTime);
     }
 
-    auto frontDrawable = std::make_shared<Util::Text>(kUIFont, 30, text, frontColor);
+    auto frontDrawable = std::make_shared<Util::Text>(kUIFont, fontSize, text, frontColor);
     auto frontObject = std::make_shared<FloatingTextObject>(
         frontDrawable,
         position,
-        glm::vec2{0.0f, 52.0f},
+        velocity + glm::vec2{0.0f, 6.0f},
         frontColor,
         99.0f,
-        0.85f);
-    AddDebugEntity(frontObject, 0.85f);
+        lifeTime);
+    AddDebugEntity(frontObject, lifeTime);
 }
 
 void GameScene::SpawnFloatingScore(const glm::vec2 &position,
@@ -1839,7 +1887,15 @@ void GameScene::SpawnFloatingScore(const glm::vec2 &position,
         return;
     }
 
-    SpawnOutlinedFloatingScore(position, FormatScore(points), frontColor);
+    const int fontSize = points >= 1000 ? 38 : (points >= 500 ? 34 : 28);
+    const float lifeTime = points >= 1000 ? 1.0f : 0.8f;
+    const glm::vec2 velocity = points >= 1000 ? glm::vec2{0.0f, 58.0f} : glm::vec2{0.0f, 44.0f};
+    SpawnOutlinedFloatingScore(position + glm::vec2{0.0f, 8.0f},
+                               FormatScore(points),
+                               frontColor,
+                               fontSize,
+                               lifeTime,
+                               velocity);
 }
 
 void GameScene::FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition)

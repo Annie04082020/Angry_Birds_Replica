@@ -23,9 +23,14 @@ public:
     [[nodiscard]] bool HasAnyBirdBeenLaunched() const { return m_HasAnyBirdBeenLaunched; }
     [[nodiscard]] bool HasBirdInFlight() const { return m_HasLaunchedBird; }
     [[nodiscard]] bool IsOutOfBirds() const;
+    [[nodiscard]] std::vector<glm::vec2> GetRemainingBirdPositionsForBonus() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Character>> &GetActiveBirdsInFlight() const
     {
         return m_ActiveBirdsInFlight;
+    }
+    [[nodiscard]] const glm::vec2 &GetBirdAnchorPosition() const
+    {
+        return m_BirdAnchorPosition;
     }
 
 private:
