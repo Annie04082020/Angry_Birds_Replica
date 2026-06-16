@@ -24,7 +24,14 @@ namespace
 {
     constexpr const char *kUIFont = RESOURCE_DIR "/font/angrybirds-regular.ttf";
     constexpr const char *kHighScoreFilePath = RESOURCE_DIR "/high_scores.json";
+    constexpr const char *kBirdTrailDotImage = RESOURCE_DIR "/Image/assets/sprite_022.png";
+    constexpr const char *kBirdTrailHeadImage = RESOURCE_DIR "/Image/assets/sprite_032.png";
     constexpr float kGrassTopRatio = 404.0f / 563.0f;
+    constexpr int kBirdTrailDotPoolSize = 18;
+    constexpr float kBirdTrailDotScale = 0.82f;
+    constexpr float kBirdTrailDotLifetime = 0.85f;
+    constexpr float kBirdTrailEmitDistance = 18.0f;
+    constexpr float kBirdTrailMinSpeed = 120.0f;
     std::string GetHudLabel(const std::shared_ptr<Character> &object)
     {
         if (!object)
@@ -229,6 +236,69 @@ namespace
         Util::Color m_BaseColor = Util::Color::FromRGB(255, 255, 255);
         float m_LifeTime = 0.8f;
         float m_RemainingLife = 0.8f;
+    };
+
+    class BirdTrailDotObject : public Util::GameObject
+    {
+    public:
+        BirdTrailDotObject(const std::shared_ptr<Util::Image> &drawable,
+                           const float zIndex,
+                           const float lifeTime)
+            : Util::GameObject(drawable, zIndex),
+              m_DrawableImage(drawable),
+              m_LifeTime(lifeTime),
+              m_RemainingLife(0.0f)
+        {
+            SetVisible(false);
+        }
+
+        void Activate(const glm::vec2 &position, const glm::vec2 &scale, const float opacity)
+        {
+            m_Transform.translation = position;
+            m_Transform.scale = scale;
+            m_RemainingLife = m_LifeTime;
+            SetVisible(true);
+            if (m_DrawableImage)
+            {
+                m_DrawableImage->SetOpacity(opacity);
+            }
+        }
+
+        void Deactivate()
+        {
+            m_RemainingLife = 0.0f;
+            SetVisible(false);
+            if (m_DrawableImage)
+            {
+                m_DrawableImage->SetOpacity(0.0f);
+            }
+        }
+
+        void Update() override
+        {
+            if (!m_DrawableImage || m_RemainingLife <= 0.0f)
+            {
+                if (m_Visible)
+                {
+                    SetVisible(false);
+                }
+                return;
+            }
+
+            const float deltaSec = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
+            m_RemainingLife = std::max(0.0f, m_RemainingLife - deltaSec);
+            const float ratio = (m_LifeTime > 0.0f) ? (m_RemainingLife / m_LifeTime) : 0.0f;
+            m_DrawableImage->SetOpacity(ratio);
+            if (m_RemainingLife <= 0.0f)
+            {
+                SetVisible(false);
+            }
+        }
+
+    private:
+        std::shared_ptr<Util::Image> m_DrawableImage = nullptr;
+        float m_LifeTime = 0.8f;
+        float m_RemainingLife = 0.0f;
     };
 
     std::shared_ptr<Util::GameObject> CreateTextObject(const std::string &text,
@@ -459,6 +529,8 @@ bool GameScene::LoadLevel(const std::string &levelPath)
 
     ResetScoreState();
     BuildLevelHud();
+    BuildBirdTrail();
+    ResetBirdTrail();
     UpdateHudPositions();
     UpdateScoreHud();
 
@@ -536,6 +608,7 @@ void GameScene::Update()
     {
         m_BirdLaunchController->Update();
     }
+    UpdateBirdTrail();
 
     if (m_SceneInputController)
     {
@@ -937,6 +1010,94 @@ void GameScene::BuildLevelHud()
     AddElements(m_LevelFailedNextButton);
 
     SetPauseMenuVisible(false);
+}
+
+void GameScene::BuildBirdTrail()
+{
+    if (!m_BirdTrailDots.empty())
+    {
+        return;
+    }
+
+    const float scale = kBirdTrailDotScale;
+    for (int i = 0; i < kBirdTrailDotPoolSize; ++i)
+    {
+        const char *imagePath = (i % 5 == 0) ? kBirdTrailHeadImage : kBirdTrailDotImage;
+        auto drawable = std::make_shared<Util::Image>(imagePath);
+        drawable->SetOpacity(0.0f);
+        auto dot = std::make_shared<BirdTrailDotObject>(drawable, 94.0f, kBirdTrailDotLifetime);
+        dot->m_Transform.scale = {scale, scale};
+        AddElements(dot);
+        m_BirdTrailDots.push_back(dot);
+    }
+}
+
+void GameScene::ResetBirdTrail()
+{
+    m_BirdTrailLastEmitPositions.clear();
+    m_BirdTrailNextDotIndex = 0;
+    for (const auto &dot : m_BirdTrailDots)
+    {
+        if (!dot)
+        {
+            continue;
+        }
+        dot->SetVisible(false);
+        if (auto trailDot = std::dynamic_pointer_cast<BirdTrailDotObject>(dot))
+        {
+            trailDot->Deactivate();
+        }
+    }
+}
+
+void GameScene::UpdateBirdTrail()
+{
+    if (!m_BirdLaunchController || m_BirdTrailDots.empty())
+    {
+        return;
+    }
+
+    if (!m_BirdLaunchController->HasBirdInFlight())
+    {
+        m_BirdTrailLastEmitPositions.clear();
+        return;
+    }
+
+    const float dotScale = kBirdTrailDotScale;
+    const glm::vec2 dotScaleVec{dotScale, dotScale};
+    const auto &birds = m_BirdLaunchController->GetActiveBirdsInFlight();
+    for (const auto &bird : birds)
+    {
+        if (!bird || bird->IsSleeping() || bird->IsStatic())
+        {
+            continue;
+        }
+
+        const glm::vec2 velocity = bird->GetVelocity();
+        if (glm::length(velocity) < kBirdTrailMinSpeed)
+        {
+            continue;
+        }
+
+        const glm::vec2 position = bird->GetPosition();
+        const Character *key = bird.get();
+        const auto it = m_BirdTrailLastEmitPositions.find(key);
+        if (it != m_BirdTrailLastEmitPositions.end() &&
+            glm::distance(it->second, position) < kBirdTrailEmitDistance)
+        {
+            continue;
+        }
+
+        m_BirdTrailLastEmitPositions[key] = position;
+
+        auto dot = std::dynamic_pointer_cast<BirdTrailDotObject>(
+            m_BirdTrailDots[m_BirdTrailNextDotIndex % m_BirdTrailDots.size()]);
+        m_BirdTrailNextDotIndex = (m_BirdTrailNextDotIndex + 1) % m_BirdTrailDots.size();
+        if (dot)
+        {
+            dot->Activate(position, dotScaleVec, 1.0f);
+        }
+    }
 }
 
 void GameScene::UpdateHudPositions()

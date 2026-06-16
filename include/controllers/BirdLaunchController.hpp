@@ -23,6 +23,10 @@ public:
     [[nodiscard]] bool HasAnyBirdBeenLaunched() const { return m_HasAnyBirdBeenLaunched; }
     [[nodiscard]] bool HasBirdInFlight() const { return m_HasLaunchedBird; }
     [[nodiscard]] bool IsOutOfBirds() const;
+    [[nodiscard]] const std::vector<std::shared_ptr<Character>> &GetActiveBirdsInFlight() const
+    {
+        return m_ActiveBirdsInFlight;
+    }
 
 private:
     bool HandleBirdLaunchPhysics();
