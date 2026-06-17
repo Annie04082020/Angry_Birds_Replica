@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Util/Image.hpp"
+#include "Util/Time.hpp"
 
 Character::Character(const std::string &ImagePath)
 {
@@ -15,9 +16,57 @@ Character::Character(const std::string &ImagePath)
 
 void Character::SetImage(const std::string &ImagePath)
 {
+    if (m_ImagePath == ImagePath && m_Drawable)
+    {
+        return;
+    }
+
     m_ImagePath = ImagePath;
 
     m_Drawable = std::make_shared<Util::Image>(m_ImagePath);
+}
+
+void Character::Update()
+{
+    if (m_AnimationFramePaths.size() <= 1 || m_AnimationFrameDuration <= 0.0f)
+    {
+        return;
+    }
+
+    const float deltaSeconds = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
+    if (deltaSeconds <= 0.0f)
+    {
+        return;
+    }
+
+    m_AnimationElapsed += deltaSeconds;
+    while (m_AnimationElapsed >= m_AnimationFrameDuration)
+    {
+        m_AnimationElapsed -= m_AnimationFrameDuration;
+        m_CurrentAnimationFrameIndex = (m_CurrentAnimationFrameIndex + 1) % m_AnimationFramePaths.size();
+        SetImage(m_AnimationFramePaths[m_CurrentAnimationFrameIndex]);
+    }
+}
+
+void Character::ConfigureLoopingAnimation(std::vector<std::string> framePaths, float frameDurationSeconds)
+{
+    m_AnimationFramePaths = std::move(framePaths);
+    m_AnimationFrameDuration = std::max(0.0f, frameDurationSeconds);
+    m_AnimationElapsed = 0.0f;
+    m_CurrentAnimationFrameIndex = 0;
+
+    if (!m_AnimationFramePaths.empty())
+    {
+        SetImage(m_AnimationFramePaths.front());
+    }
+}
+
+void Character::ClearAnimation()
+{
+    m_AnimationFramePaths.clear();
+    m_AnimationFrameDuration = 0.0f;
+    m_AnimationElapsed = 0.0f;
+    m_CurrentAnimationFrameIndex = 0;
 }
 
 void Character::SetPhysicsState(const PhysicsState &physicsState)
