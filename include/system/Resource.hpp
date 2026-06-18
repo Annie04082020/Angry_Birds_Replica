@@ -4,198 +4,240 @@
 #include "config.hpp"
 #include <string>
 
-namespace Resource
-{
-    // Backgrounds
-    const std::string SPLASH_IMAGE =
-        RESOURCE_DIR "/Image/title/SPLASHES_SHEET_1.png";
-    const std::string MOVING_BG_IMAGE = RESOURCE_DIR "/temp/background.png";
+namespace Resource {
+// Backgrounds
+const std::string SPLASH_IMAGE =
+    RESOURCE_DIR "/Image/title/SPLASHES_SHEET_1.png";
+const std::string MOVING_BG_IMAGE = RESOURCE_DIR "/temp/background.png";
+const std::string INTRO_WORD = RESOURCE_DIR "/Image/title/Title.png";
 
-    // Characters
-    const std::string BIRD_R = RESOURCE_DIR "/Image/birds/red_birds/sprite_003.png";
-    const std::string BIRD_Y = RESOURCE_DIR "/Image/birds/yellow_birds/sprite_000.png";
-    const std::string BIRD_B = RESOURCE_DIR "/Image/birds/blue_birds/sprite_070.png";
-    const std::string BIRD_K = RESOURCE_DIR "/Image/birds/black_birds/sprite_086.png";
-    const std::string SLINGSHOT_1 = RESOURCE_DIR "/Image/assets/sprite_147.png";
-    const std::string SLINGSHOT_2 = RESOURCE_DIR "/Image/assets/sprite_154.png";
-    const std::string EARTH_BLOCK = RESOURCE_DIR "/Image/themes/sprite_023.png";
-    const std::string EARTH_TRI_TLBR = RESOURCE_DIR "/Image/themes/earth_tri_tlbr.png";
-    const std::string EARTH_TRI_TRBL = RESOURCE_DIR "/Image/themes/earth_tri_trbl.png";
+// Characters
+const std::string BIRD_R = RESOURCE_DIR "/Image/birds/red_birds/sprite_003.png";
+const std::string BIRD_Y =
+    RESOURCE_DIR "/Image/birds/yellow_birds/sprite_000.png";
+const std::string BIRD_B =
+    RESOURCE_DIR "/Image/birds/blue_birds/sprite_070.png";
+const std::string BIRD_K =
+    RESOURCE_DIR "/Image/birds/black_birds/sprite_086.png";
+const std::string SLINGSHOT_1 = RESOURCE_DIR "/Image/assets/sprite_147.png";
+const std::string SLINGSHOT_2 = RESOURCE_DIR "/Image/assets/sprite_154.png";
+const std::string EARTH_BLOCK = RESOURCE_DIR "/Image/themes/sprite_023.png";
+const std::string EARTH_TRI_TLBR =
+    RESOURCE_DIR "/Image/themes/earth_tri_tlbr.png";
+const std::string EARTH_TRI_TRBL =
+    RESOURCE_DIR "/Image/themes/earth_tri_trbl.png";
+const std::string EARTH_HOUSE = RESOURCE_DIR "/Image/themes/earth_house.png";
+const std::string EARTH_LEVEL2 = RESOURCE_DIR "/Image/themes/earth_level2.png";
 
-    // Pigs
-    const std::string PIG_SMALL = RESOURCE_DIR "/Image/pigs/pig_small/sprite_009.png";
-    const std::string PIG_SMALL_1 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_021.png";
-    const std::string PIG_SMALL_2 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_002.png";
-    const std::string PIG_SMALL_3 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_027.png";
-    const std::string PIG_SMALL_4 = RESOURCE_DIR "/Image/pigs/pig_small/sprite_039.png";
-    const std::string PIG_MEDIUM = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
-    const std::string PIG_MEDIUM_1 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_062.png";
-    const std::string PIG_MEDIUM_2 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_075.png";
-    const std::string PIG_MEDIUM_3 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_074.png";
-    const std::string PIG_MEDIUM_076 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_076.png";
-    const std::string PIG_MEDIUM_076_1 = RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
-    // Wood 1 to 4: complete to broken
-    const std::string WOOD_stage = RESOURCE_DIR "/Image/wood/sprite_013.png";
-    const std::string WOOD_ball_1 = RESOURCE_DIR "/Image/wood/sprite_161.png";
-    const std::string WOOD_ball_2 = RESOURCE_DIR "/Image/wood/sprite_160.png";
-    const std::string WOOD_ball_3 = RESOURCE_DIR "/Image/wood/sprite_159.png";
-    const std::string WOOD_ball_4 = RESOURCE_DIR "/Image/wood/sprite_158.png";
-    const std::string WOOD_sqr_1 = RESOURCE_DIR "/Image/wood/sprite_183.png";
-    const std::string WOOD_sqr_2 = RESOURCE_DIR "/Image/wood/sprite_182.png";
-    const std::string WOOD_sqr_3 = RESOURCE_DIR "/Image/wood/sprite_181.png";
-    const std::string WOOD_sqr_4 = RESOURCE_DIR "/Image/wood/sprite_180.png";
-    const std::string WOOD_tri_empty_1 = RESOURCE_DIR "/Image/wood/sprite_179.png";
-    const std::string WOOD_tri_empty_2 = RESOURCE_DIR "/Image/wood/sprite_178.png";
-    const std::string WOOD_tri_empty_3 = RESOURCE_DIR "/Image/wood/sprite_177.png";
-    const std::string WOOD_tri_empty_4 = RESOURCE_DIR "/Image/wood/sprite_176.png";
-    const std::string WOOD_tri_1 = RESOURCE_DIR "/Image/wood/sprite_170.png";
-    const std::string WOOD_tri_2 = RESOURCE_DIR "/Image/wood/sprite_169.png";
-    const std::string WOOD_tri_3 = RESOURCE_DIR "/Image/wood/sprite_168.png";
-    const std::string WOOD_tri_4 = RESOURCE_DIR "/Image/wood/sprite_167.png";
-    const std::string WOOD_205_1 = RESOURCE_DIR "/Image/wood/sprite_113.png";
-    const std::string WOOD_205_2 = RESOURCE_DIR "/Image/wood/sprite_112.png";
-    const std::string WOOD_205_3 = RESOURCE_DIR "/Image/wood/sprite_111.png";
-    const std::string WOOD_205_4 = RESOURCE_DIR "/Image/wood/sprite_107.png";
-    const std::string WOOD_168_1 = RESOURCE_DIR "/Image/wood/sprite_093.png";
-    const std::string WOOD_168_2 = RESOURCE_DIR "/Image/wood/sprite_091.png";
-    const std::string WOOD_168_3 = RESOURCE_DIR "/Image/wood/sprite_078.png";
-    const std::string WOOD_83x20_1 = RESOURCE_DIR "/Image/wood/sprite_075.png";
-    const std::string WOOD_83x20_2 = RESOURCE_DIR "/Image/wood/sprite_076.png";
-    const std::string WOOD_83x20_3 = RESOURCE_DIR "/Image/wood/sprite_090.png";
-    const std::string WOOD_83x20_4 = RESOURCE_DIR "/Image/wood/sprite_066.png";
-    const std::string WOOD_83x41_1 = RESOURCE_DIR "/Image/wood/sprite_060.png";
-    const std::string WOOD_83x41_2 = RESOURCE_DIR "/Image/wood/sprite_025.png";
-    const std::string WOOD_83x41_3 = RESOURCE_DIR "/Image/wood/sprite_001.png";
-    const std::string WOOD_83x41_4 = RESOURCE_DIR "/Image/wood/sprite_018.png";
-    const std::string WOOD_41x20_1 = RESOURCE_DIR "/Image/wood/sprite_121.png";
-    const std::string WOOD_41x20_2 = RESOURCE_DIR "/Image/wood/sprite_089.png";
-    const std::string WOOD_41x20_3 = RESOURCE_DIR "/Image/wood/sprite_058.png";
-    const std::string WOOD_21x20_1 = RESOURCE_DIR "/Image/wood/sprite_007.png";
-    const std::string WOOD_21x20_2 = RESOURCE_DIR "/Image/wood/sprite_119.png";
-    const std::string WOOD_21x20_3 = RESOURCE_DIR "/Image/wood/sprite_096.png";
-    const std::string WOOD_21x20_4 = RESOURCE_DIR "/Image/wood/sprite_028.png";
-    const std::string WOOD_42x41_1 = RESOURCE_DIR "/Image/wood/sprite_070.png";
-    const std::string WOOD_42x41_2 = RESOURCE_DIR "/Image/wood/sprite_110.png";
-    const std::string WOOD_42x41_3 = RESOURCE_DIR "/Image/wood/sprite_082.png";
-    const std::string SMILE = RESOURCE_DIR "/Image/smile/sprite_156.png";
+// Pigs
+const std::string PIG_SMALL =
+    RESOURCE_DIR "/Image/pigs/pig_small/sprite_009.png";
+const std::string PIG_SMALL_1 =
+    RESOURCE_DIR "/Image/pigs/pig_small/sprite_021.png";
+const std::string PIG_SMALL_2 =
+    RESOURCE_DIR "/Image/pigs/pig_small/sprite_002.png";
+const std::string PIG_SMALL_3 =
+    RESOURCE_DIR "/Image/pigs/pig_small/sprite_027.png";
+const std::string PIG_SMALL_4 =
+    RESOURCE_DIR "/Image/pigs/pig_small/sprite_039.png";
+const std::string PIG_MEDIUM =
+    RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
+const std::string PIG_MEDIUM_1 =
+    RESOURCE_DIR "/Image/pigs/pig_medium/sprite_062.png";
+const std::string PIG_MEDIUM_2 =
+    RESOURCE_DIR "/Image/pigs/pig_medium/sprite_075.png";
+const std::string PIG_MEDIUM_3 =
+    RESOURCE_DIR "/Image/pigs/pig_medium/sprite_074.png";
+const std::string PIG_MEDIUM_076 =
+    RESOURCE_DIR "/Image/pigs/pig_medium/sprite_076.png";
+const std::string PIG_MEDIUM_076_1 =
+    RESOURCE_DIR "/Image/pigs/pig_medium/sprite_084.png";
+// Wood 1 to 4: complete to broken
+const std::string WOOD_stage = RESOURCE_DIR "/Image/wood/sprite_013.png";
+const std::string WOOD_ball_1 = RESOURCE_DIR "/Image/wood/sprite_161.png";
+const std::string WOOD_ball_2 = RESOURCE_DIR "/Image/wood/sprite_160.png";
+const std::string WOOD_ball_3 = RESOURCE_DIR "/Image/wood/sprite_159.png";
+const std::string WOOD_ball_4 = RESOURCE_DIR "/Image/wood/sprite_158.png";
+const std::string WOOD_sqr_1 = RESOURCE_DIR "/Image/wood/sprite_183.png";
+const std::string WOOD_sqr_2 = RESOURCE_DIR "/Image/wood/sprite_182.png";
+const std::string WOOD_sqr_3 = RESOURCE_DIR "/Image/wood/sprite_181.png";
+const std::string WOOD_sqr_4 = RESOURCE_DIR "/Image/wood/sprite_180.png";
+const std::string WOOD_tri_empty_1 = RESOURCE_DIR "/Image/wood/sprite_179.png";
+const std::string WOOD_tri_empty_2 = RESOURCE_DIR "/Image/wood/sprite_178.png";
+const std::string WOOD_tri_empty_3 = RESOURCE_DIR "/Image/wood/sprite_177.png";
+const std::string WOOD_tri_empty_4 = RESOURCE_DIR "/Image/wood/sprite_176.png";
+const std::string WOOD_tri_1 = RESOURCE_DIR "/Image/wood/sprite_170.png";
+const std::string WOOD_tri_2 = RESOURCE_DIR "/Image/wood/sprite_169.png";
+const std::string WOOD_tri_3 = RESOURCE_DIR "/Image/wood/sprite_168.png";
+const std::string WOOD_tri_4 = RESOURCE_DIR "/Image/wood/sprite_167.png";
+const std::string WOOD_205_1 = RESOURCE_DIR "/Image/wood/sprite_113.png";
+const std::string WOOD_205_2 = RESOURCE_DIR "/Image/wood/sprite_112.png";
+const std::string WOOD_205_3 = RESOURCE_DIR "/Image/wood/sprite_111.png";
+const std::string WOOD_205_4 = RESOURCE_DIR "/Image/wood/sprite_107.png";
+const std::string WOOD_168_1 = RESOURCE_DIR "/Image/wood/sprite_093.png";
+const std::string WOOD_168_2 = RESOURCE_DIR "/Image/wood/sprite_091.png";
+const std::string WOOD_168_3 = RESOURCE_DIR "/Image/wood/sprite_078.png";
+const std::string WOOD_83x20_1 = RESOURCE_DIR "/Image/wood/sprite_075.png";
+const std::string WOOD_83x20_2 = RESOURCE_DIR "/Image/wood/sprite_076.png";
+const std::string WOOD_83x20_3 = RESOURCE_DIR "/Image/wood/sprite_090.png";
+const std::string WOOD_83x20_4 = RESOURCE_DIR "/Image/wood/sprite_066.png";
+const std::string WOOD_83x41_1 = RESOURCE_DIR "/Image/wood/sprite_060.png";
+const std::string WOOD_83x41_2 = RESOURCE_DIR "/Image/wood/sprite_025.png";
+const std::string WOOD_83x41_3 = RESOURCE_DIR "/Image/wood/sprite_001.png";
+const std::string WOOD_83x41_4 = RESOURCE_DIR "/Image/wood/sprite_018.png";
+const std::string WOOD_41x20_1 = RESOURCE_DIR "/Image/wood/sprite_121.png";
+const std::string WOOD_41x20_2 = RESOURCE_DIR "/Image/wood/sprite_089.png";
+const std::string WOOD_41x20_3 = RESOURCE_DIR "/Image/wood/sprite_058.png";
+const std::string WOOD_21x20_1 = RESOURCE_DIR "/Image/wood/sprite_007.png";
+const std::string WOOD_21x20_2 = RESOURCE_DIR "/Image/wood/sprite_119.png";
+const std::string WOOD_21x20_3 = RESOURCE_DIR "/Image/wood/sprite_096.png";
+const std::string WOOD_21x20_4 = RESOURCE_DIR "/Image/wood/sprite_028.png";
+const std::string WOOD_42x41_1 = RESOURCE_DIR "/Image/wood/sprite_070.png";
+const std::string WOOD_42x41_2 = RESOURCE_DIR "/Image/wood/sprite_110.png";
+const std::string WOOD_42x41_3 = RESOURCE_DIR "/Image/wood/sprite_082.png";
+const std::string SMILE = RESOURCE_DIR "/Image/smile/sprite_156.png";
+const std::string WOOD_BOX = RESOURCE_DIR "/Image/themes/box.png";
 
-    // stone 1 to 4: complete to broken
-    const std::string STONE_ball_b_1 = RESOURCE_DIR "/Image/stone/sprite_201.png";
-    const std::string STONE_ball_b_2 = RESOURCE_DIR "/Image/stone/sprite_200.png";
-    const std::string STONE_ball_b_3 = RESOURCE_DIR "/Image/stone/sprite_155.png";
-    const std::string STONE_ball_b_4 = RESOURCE_DIR "/Image/stone/sprite_154.png";
-    const std::string STONE_ball_s_1 = RESOURCE_DIR "/Image/stone/sprite_020.png";
-    const std::string STONE_ball_s_2 = RESOURCE_DIR "/Image/stone/sprite_059.png";
-    const std::string STONE_ball_s_3 = RESOURCE_DIR "/Image/stone/sprite_042.png";
-    const std::string STONE_ball_s_4 = RESOURCE_DIR "/Image/stone/sprite_039.png";
-    const std::string STONE_205_1 = RESOURCE_DIR "/Image/stone/sprite_106.png";
-    const std::string STONE_205_2 = RESOURCE_DIR "/Image/stone/sprite_105.png";
-    const std::string STONE_205_3 = RESOURCE_DIR "/Image/stone/sprite_101.png";
-    const std::string STONE_205_4 = RESOURCE_DIR "/Image/stone/sprite_100.png";
-    const std::string STONE_168_1 = RESOURCE_DIR "/Image/stone/sprite_099.png";
-    const std::string STONE_168_2 = RESOURCE_DIR "/Image/stone/sprite_092.png";
-    const std::string STONE_168_3 = RESOURCE_DIR "/Image/stone/sprite_087.png";
-    const std::string STONE_168_4 = RESOURCE_DIR "/Image/stone/sprite_085.png";
-    const std::string STONE_83x41_1 = RESOURCE_DIR "/Image/stone/sprite_079.png";
-    const std::string STONE_83x41_2 = RESOURCE_DIR "/Image/stone/sprite_038.png";
-    const std::string STONE_83x41_3 = RESOURCE_DIR "/Image/stone/sprite_009.png";
-    const std::string STONE_83x41_4 = RESOURCE_DIR "/Image/stone/sprite_031.png";
-    const std::string STONE_42x41_1 = RESOURCE_DIR "/Image/stone/sprite_037.png";
-    const std::string STONE_42x41_2 = RESOURCE_DIR "/Image/stone/sprite_048.png";
-    const std::string STONE_42x41_3 = RESOURCE_DIR "/Image/stone/sprite_120.png";
-    const std::string STONE_42x41_4 = RESOURCE_DIR "/Image/stone/sprite_097.png";
-    const std::string STONE_21x20_1 = RESOURCE_DIR "/Image/stone/sprite_019.png";
-    const std::string STONE_21x20_2 = RESOURCE_DIR "/Image/stone/sprite_000.png";
-    const std::string STONE_21x20_3 = RESOURCE_DIR "/Image/stone/sprite_109.png";
-    const std::string STONE_83x20_1 = RESOURCE_DIR "/Image/stone/sprite_064.png";
+// stone 1 to 4: complete to broken
+const std::string STONE_ball_b_1 = RESOURCE_DIR "/Image/stone/sprite_201.png";
+const std::string STONE_ball_b_2 = RESOURCE_DIR "/Image/stone/sprite_200.png";
+const std::string STONE_ball_b_3 = RESOURCE_DIR "/Image/stone/sprite_155.png";
+const std::string STONE_ball_b_4 = RESOURCE_DIR "/Image/stone/sprite_154.png";
+const std::string STONE_ball_s_1 = RESOURCE_DIR "/Image/stone/sprite_020.png";
+const std::string STONE_ball_s_2 = RESOURCE_DIR "/Image/stone/sprite_059.png";
+const std::string STONE_ball_s_3 = RESOURCE_DIR "/Image/stone/sprite_042.png";
+const std::string STONE_ball_s_4 = RESOURCE_DIR "/Image/stone/sprite_039.png";
+const std::string STONE_205_1 = RESOURCE_DIR "/Image/stone/sprite_106.png";
+const std::string STONE_205_2 = RESOURCE_DIR "/Image/stone/sprite_105.png";
+const std::string STONE_205_3 = RESOURCE_DIR "/Image/stone/sprite_101.png";
+const std::string STONE_205_4 = RESOURCE_DIR "/Image/stone/sprite_100.png";
+const std::string STONE_168_1 = RESOURCE_DIR "/Image/stone/sprite_099.png";
+const std::string STONE_168_2 = RESOURCE_DIR "/Image/stone/sprite_092.png";
+const std::string STONE_168_3 = RESOURCE_DIR "/Image/stone/sprite_087.png";
+const std::string STONE_168_4 = RESOURCE_DIR "/Image/stone/sprite_085.png";
+const std::string STONE_83x41_1 = RESOURCE_DIR "/Image/stone/sprite_079.png";
+const std::string STONE_83x41_2 = RESOURCE_DIR "/Image/stone/sprite_038.png";
+const std::string STONE_83x41_3 = RESOURCE_DIR "/Image/stone/sprite_009.png";
+const std::string STONE_83x41_4 = RESOURCE_DIR "/Image/stone/sprite_031.png";
+const std::string STONE_42x41_1 = RESOURCE_DIR "/Image/stone/sprite_037.png";
+const std::string STONE_42x41_2 = RESOURCE_DIR "/Image/stone/sprite_048.png";
+const std::string STONE_42x41_3 = RESOURCE_DIR "/Image/stone/sprite_120.png";
+const std::string STONE_42x41_4 = RESOURCE_DIR "/Image/stone/sprite_097.png";
+const std::string STONE_21x20_1 = RESOURCE_DIR "/Image/stone/sprite_019.png";
+const std::string STONE_21x20_2 = RESOURCE_DIR "/Image/stone/sprite_000.png";
+const std::string STONE_21x20_3 = RESOURCE_DIR "/Image/stone/sprite_109.png";
+const std::string STONE_83x20_1 = RESOURCE_DIR "/Image/stone/sprite_064.png";
 
-    // ice 1 to 4: complete to broken
-    const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
-    const std::string ICE_056 = RESOURCE_DIR "/Image/ice/sprite_056.png";
-    const std::string ICE_SQUARE = RESOURCE_DIR "/Image/ice/sprite_058.png";
-    const std::string ICE_83x41_1 = RESOURCE_DIR "/Image/ice/sprite_014.png";
-    const std::string ICE_83x41_2 = RESOURCE_DIR "/Image/ice/sprite_028.png";
-    const std::string ICE_83x41_3 = RESOURCE_DIR "/Image/ice/sprite_027.png";
-    const std::string ICE_83x41_4 = RESOURCE_DIR "/Image/ice/sprite_020.png";
-    const std::string ICE_83x20_1 = RESOURCE_DIR "/Image/ice/sprite_005.png";
-    const std::string ICE_83x20_2 = RESOURCE_DIR "/Image/ice/sprite_065.png";
-    const std::string ICE_83x20_3 = RESOURCE_DIR "/Image/ice/sprite_002.png";
-    const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
-    const std::string ICE_168x20_1 = RESOURCE_DIR "/Image/ice/sprite_055.png";
-    const std::string ICE_205x20_1 = RESOURCE_DIR "/Image/ice/sprite_063.png";
-    const std::string ICE_41x20_1 = RESOURCE_DIR "/Image/ice/sprite_001.png";
-    // UI
-    const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
-    const std::string Exit_Button = RESOURCE_DIR "/Image/ui/button/sprite_070.png";
-    const std::string Setting_Button_Base = RESOURCE_DIR "/Image/ui/button/sprite_068.png";
-    const std::string Setting_Button_Overlay = RESOURCE_DIR "/Image/ui/button/sprite_030.png";
-    const std::string Setting_Menu_Item_017 = RESOURCE_DIR "/Image/ui/button/sprite_017.png";
-    const std::string Setting_Menu_Item_032 = RESOURCE_DIR "/Image/ui/button/sprite_032.png";
-    const std::string Setting_Menu_Item_043 = RESOURCE_DIR "/Image/ui/button/sprite_043.png";
-    const std::string Exit_Confirm_048 = RESOURCE_DIR "/Image/ui/button/sprite_048.png";
-    const std::string Exit_Button_105 = RESOURCE_DIR "/Image/ui/button/sprite_105.png";
-    const std::string Exit_Button_95 = RESOURCE_DIR "/Image/ui/button/sprite_095.png";
-    const std::string Exit_Dialog = RESOURCE_DIR "/Image/word/exit_dialog.png";
-    const std::string Additional_Button_Base = RESOURCE_DIR "/Image/ui/button/sprite_068.png";
-    const std::string Additional_Button_Overlay = RESOURCE_DIR "/Image/ui/button/sprite_096.png";
-    const std::string Additional_Menu_Item_108 = RESOURCE_DIR "/Image/ui/button/sprite_108.png";
-    const std::string Additional_Menu_Item_006 = RESOURCE_DIR "/Image/ui/button/sprite_006.png";
-    const std::string Additional_Menu_Item_041 = RESOURCE_DIR "/Image/ui/button/sprite_041.png";
-    const std::string Game_Button_093 = RESOURCE_DIR "/Image/ui/button/sprite_093.png";
-    const std::string Game_Button_031 = RESOURCE_DIR "/Image/ui/button/sprite_031.png";
-    const std::string Game_Menu_Item_069 = RESOURCE_DIR "/Image/ui/button/sprite_069.png";
-    const std::string Game_Menu_Item_082 = RESOURCE_DIR "/Image/ui/button/sprite_082.png";
-    const std::string Game_Menu_Item_073 = RESOURCE_DIR "/Image/ui/button/sprite_073.png";
-    const std::string Game_Menu_Item_078 = RESOURCE_DIR "/Image/ui/button/sprite_078.png";
-    const std::string Game_Menu_Item_005 = RESOURCE_DIR "/Image/ui/button/sprite_005.png";
-    const std::string Game_Menu_Item_063 = RESOURCE_DIR "/Image/ui/button/sprite_063.png";
-    const std::string Game_Menu_Item_040 = RESOURCE_DIR "/Image/ui/button/sprite_040.png";
+// ice 1 to 4: complete to broken
+const std::string ICE_005 = RESOURCE_DIR "/Image/ice/sprite_005.png";
+const std::string ICE_056 = RESOURCE_DIR "/Image/ice/sprite_056.png";
+const std::string ICE_SQUARE = RESOURCE_DIR "/Image/ice/sprite_058.png";
+const std::string ICE_83x41_1 = RESOURCE_DIR "/Image/ice/sprite_014.png";
+const std::string ICE_83x41_2 = RESOURCE_DIR "/Image/ice/sprite_028.png";
+const std::string ICE_83x41_3 = RESOURCE_DIR "/Image/ice/sprite_027.png";
+const std::string ICE_83x41_4 = RESOURCE_DIR "/Image/ice/sprite_020.png";
+const std::string ICE_83x20_1 = RESOURCE_DIR "/Image/ice/sprite_005.png";
+const std::string ICE_83x20_2 = RESOURCE_DIR "/Image/ice/sprite_065.png";
+const std::string ICE_83x20_3 = RESOURCE_DIR "/Image/ice/sprite_002.png";
+const std::string ICE_83x20_4 = RESOURCE_DIR "/Image/ice/sprite_009.png";
+const std::string ICE_168x20_1 = RESOURCE_DIR "/Image/ice/sprite_055.png";
+const std::string ICE_205x20_1 = RESOURCE_DIR "/Image/ice/sprite_063.png";
+const std::string ICE_41x20_1 = RESOURCE_DIR "/Image/ice/sprite_001.png";
+// UI
+const std::string Play_Button = RESOURCE_DIR "/Image/ui/button/play.png";
+const std::string Exit_Button = RESOURCE_DIR "/Image/ui/button/sprite_070.png";
+const std::string Setting_Button_Base =
+    RESOURCE_DIR "/Image/ui/button/sprite_068.png";
+const std::string Setting_Button_Overlay =
+    RESOURCE_DIR "/Image/ui/button/sprite_030.png";
+const std::string Setting_Menu_Item_017 =
+    RESOURCE_DIR "/Image/ui/button/sprite_017.png";
+const std::string Setting_Menu_Item_032 =
+    RESOURCE_DIR "/Image/ui/button/sprite_032.png";
+const std::string Setting_Menu_Item_043 =
+    RESOURCE_DIR "/Image/ui/button/sprite_043.png";
+const std::string Exit_Confirm_048 =
+    RESOURCE_DIR "/Image/ui/button/sprite_048.png";
+const std::string Exit_Button_105 =
+    RESOURCE_DIR "/Image/ui/button/sprite_105.png";
+const std::string Exit_Button_95 =
+    RESOURCE_DIR "/Image/ui/button/sprite_095.png";
+const std::string Exit_Dialog = RESOURCE_DIR "/Image/word/exit_dialog.png";
+const std::string Additional_Button_Base =
+    RESOURCE_DIR "/Image/ui/button/sprite_068.png";
+const std::string Additional_Button_Overlay =
+    RESOURCE_DIR "/Image/ui/button/sprite_096.png";
+const std::string Additional_Menu_Item_108 =
+    RESOURCE_DIR "/Image/ui/button/sprite_108.png";
+const std::string Additional_Menu_Item_006 =
+    RESOURCE_DIR "/Image/ui/button/sprite_006.png";
+const std::string Additional_Menu_Item_041 =
+    RESOURCE_DIR "/Image/ui/button/sprite_041.png";
+const std::string Game_Button_093 =
+    RESOURCE_DIR "/Image/ui/button/sprite_093.png";
+const std::string Game_Button_031 =
+    RESOURCE_DIR "/Image/ui/button/sprite_031.png";
+const std::string Game_Menu_Item_069 =
+    RESOURCE_DIR "/Image/ui/button/sprite_069.png";
+const std::string Game_Menu_Item_082 =
+    RESOURCE_DIR "/Image/ui/button/sprite_082.png";
+const std::string Game_Menu_Item_073 =
+    RESOURCE_DIR "/Image/ui/button/sprite_073.png";
+const std::string Game_Menu_Item_078 =
+    RESOURCE_DIR "/Image/ui/button/sprite_078.png";
+const std::string Game_Menu_Item_005 =
+    RESOURCE_DIR "/Image/ui/button/sprite_005.png";
+const std::string Game_Menu_Item_063 =
+    RESOURCE_DIR "/Image/ui/button/sprite_063.png";
+const std::string Game_Menu_Item_040 =
+    RESOURCE_DIR "/Image/ui/button/sprite_040.png";
 
-    // Stars (for level clear screen)
-    const std::string Star_Empty = RESOURCE_DIR "/Image/ui/mark/star_003.png";
-    const std::string Star_Filled = RESOURCE_DIR "/Image/ui/mark/star_001.png";
+// Stars (for level clear screen)
+const std::string Star_Empty = RESOURCE_DIR "/Image/ui/mark/star_003.png";
+const std::string Star_Filled = RESOURCE_DIR "/Image/ui/mark/star_001.png";
 
-    // Level Titles
-    const std::string Level_Title_1_1 = RESOURCE_DIR "/Image/word/1-1.png";
-    const std::string Level_Title_1_2 = RESOURCE_DIR "/Image/word/1-2.png";
-    const std::string Level_Title_1_3 = RESOURCE_DIR "/Image/word/1-3.png";
-    const std::string Level_Title_1_4 = RESOURCE_DIR "/Image/word/1-4.png";
-    const std::string Level_Title_1_5 = RESOURCE_DIR "/Image/word/1-5.png";
-    const std::string Level_Title_1_6 = RESOURCE_DIR "/Image/word/1-6.png";
-    const std::string Level_Title_1_7 = RESOURCE_DIR "/Image/word/1-7.png";
-    const std::string Level_Title_1_8 = RESOURCE_DIR "/Image/word/1-8.png";
-    const std::string Level_Title_1_9 = RESOURCE_DIR "/Image/word/1-9.png";
-    const std::string Level_Title_1_10 = RESOURCE_DIR "/Image/word/1-10.png";
+// Level Titles
+const std::string Level_Title_1_1 = RESOURCE_DIR "/Image/word/1-1.png";
+const std::string Level_Title_1_2 = RESOURCE_DIR "/Image/word/1-2.png";
+const std::string Level_Title_1_3 = RESOURCE_DIR "/Image/word/1-3.png";
+const std::string Level_Title_1_4 = RESOURCE_DIR "/Image/word/1-4.png";
+const std::string Level_Title_1_5 = RESOURCE_DIR "/Image/word/1-5.png";
+const std::string Level_Title_1_6 = RESOURCE_DIR "/Image/word/1-6.png";
+const std::string Level_Title_1_7 = RESOURCE_DIR "/Image/word/1-7.png";
+const std::string Level_Title_1_8 = RESOURCE_DIR "/Image/word/1-8.png";
+const std::string Level_Title_1_9 = RESOURCE_DIR "/Image/word/1-9.png";
+const std::string Level_Title_1_10 = RESOURCE_DIR "/Image/word/1-10.png";
 
-    // Audio - Music
-    const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.mp3";
+// Audio - Music
+const std::string TITLE_THEME = RESOURCE_DIR "/Audio/music/title_theme.mp3";
 
-    // Audio - SFX
-    const std::string BIRD_LAUNCH_SFX = RESOURCE_DIR "/Audio/sfx/bird_launch.wav";
-    const std::string SETTING_SFX = RESOURCE_DIR "/Audio/SFX/menu_confirm.wav";
+// Audio - SFX
+const std::string BIRD_LAUNCH_SFX = RESOURCE_DIR "/Audio/sfx/bird_launch.wav";
+const std::string SETTING_SFX = RESOURCE_DIR "/Audio/SFX/menu_confirm.wav";
 
-    // Level Data
-    const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
-    const std::string LEVEL_1_TEST_DATA = RESOURCE_DIR "/levels/level_1_test.json";
-    const std::string LEVEL_2_DATA = RESOURCE_DIR "/levels/level_2.json";
-    const std::string LEVEL_3_DATA = RESOURCE_DIR "/levels/level_3.json";
-    const std::string LEVEL_4_DATA = RESOURCE_DIR "/levels/level_4.json";
-    const std::string LEVEL_5_DATA = RESOURCE_DIR "/levels/level_5.json";
-    const std::string LEVEL_6_DATA = RESOURCE_DIR "/levels/level_6.json";
-    const std::string LEVEL_7_DATA = RESOURCE_DIR "/levels/level_7.json";
-    const std::string LEVEL_8_DATA = RESOURCE_DIR "/levels/level_8.json";
-    const std::string LEVEL_9_DATA = RESOURCE_DIR "/levels/level_9.json";
-    const std::string LEVEL_10_DATA = RESOURCE_DIR "/levels/level_10.json";
-    const std::string DEFAULT_LEVEL_DATA = LEVEL_2_DATA;
-    const std::string LEVEL_EARTH_TEST_DATA = RESOURCE_DIR "/levels/level_earth_test.json";
-    const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
-    const std::string ENTITY_TEMPLATE_DATA = RESOURCE_DIR "/entities/entity_templates.json";
+// Level Data
+const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
+const std::string LEVEL_1_TEST_DATA = RESOURCE_DIR "/levels/level_1_test.json";
+const std::string LEVEL_2_DATA = RESOURCE_DIR "/levels/level_2.json";
+const std::string LEVEL_3_DATA = RESOURCE_DIR "/levels/level_3.json";
+const std::string LEVEL_4_DATA = RESOURCE_DIR "/levels/level_4.json";
+const std::string LEVEL_5_DATA = RESOURCE_DIR "/levels/level_5.json";
+const std::string LEVEL_6_DATA = RESOURCE_DIR "/levels/level_6.json";
+const std::string LEVEL_7_DATA = RESOURCE_DIR "/levels/level_7.json";
+const std::string LEVEL_8_DATA = RESOURCE_DIR "/levels/level_8.json";
+const std::string LEVEL_9_DATA = RESOURCE_DIR "/levels/level_9.json";
+const std::string LEVEL_10_DATA = RESOURCE_DIR "/levels/level_10.json";
+const std::string LEVEL_EARTH_TEST_DATA =
+    RESOURCE_DIR "/levels/level_earth_test.json";
+const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
+const std::string ENTITY_TEMPLATE_DATA =
+    RESOURCE_DIR "/entities/entity_templates.json";
 } // namespace Resource
 
-namespace Resource
-{
-    // Return the resource path for a global resource id, or empty string if not found
-    std::string GetPath(const std::string &id);
-}
+namespace Resource {
+// Return the resource path for a global resource id, or empty string if not
+// found
+std::string GetPath(const std::string &id);
+} // namespace Resource
 
 #endif // RESOURCE_HPP

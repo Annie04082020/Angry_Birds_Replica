@@ -124,7 +124,7 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
     }
     m_ActiveBirdVocalCooldown = NextBirdVocalCooldown();
 
-    std::vector<glm::vec2> slingshotPositions;
+    m_Slingshots.clear();
 
     for (const auto &obj : objects)
     {
@@ -151,18 +151,18 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
             pathLower.find("sprite_147") != std::string::npos ||
             pathLower.find("sprite_154") != std::string::npos)
         {
-            slingshotPositions.push_back(obj->GetPosition());
+            m_Slingshots.push_back(obj);
         }
     }
 
-    if (!slingshotPositions.empty())
+    if (!m_Slingshots.empty())
     {
         glm::vec2 center{0.0f, 0.0f};
-        for (const auto &position : slingshotPositions)
+        for (const auto &sling : m_Slingshots)
         {
-            center += position;
+            center += sling->GetPosition();
         }
-        center /= static_cast<float>(slingshotPositions.size());
+        center /= static_cast<float>(m_Slingshots.size());
         m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f * m_PhysicsScale);
     }
 

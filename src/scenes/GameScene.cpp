@@ -470,6 +470,16 @@ namespace
                character->GetMaterialType() != Character::MaterialType::None &&
                character->GetMaxHealth() < 9000.0f;
     }
+
+    bool IsLevelThreeSmileTarget(const LevelManager *levelManager,
+                                 const std::shared_ptr<Character> &character)
+    {
+        return levelManager &&
+               levelManager->GetLevel() == 3 &&
+               character &&
+               character->IsSpecialItem() &&
+               character->GetBaseImageId() == "SMILE";
+    }
 }
 
 bool GameScene::LoadLevel(const std::string &levelPath)
@@ -477,6 +487,7 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     m_ZoomScrollAccumulator = 0.0f;
     m_DamageOutputTimer = 0.0f;
     m_ShowDamageHud = false;
+    m_DamageImmunityTimer = 2.0f;
 
     Util::SetCameraZoom(1.0f);
     Util::SetCameraPosition({0.0f, 0.0f});
@@ -606,6 +617,18 @@ void GameScene::Update()
     if (m_BirdLaunchController && !IsPhysicsPaused())
     {
         m_BirdLaunchController->Update();
+
+        // Keep structures immune to self-inflicted collision damage until the
+        // player actually fires the first bird. This prevents stacked levels
+        // from breaking during initial settling.
+        if (!m_BirdLaunchController->HasAnyBirdBeenLaunched())
+        {
+            m_DamageImmunityTimer = std::max(m_DamageImmunityTimer, 0.1f);
+        }
+        else
+        {
+            m_DamageImmunityTimer = 0.0f;
+        }
     }
     UpdateBirdTrail();
 
@@ -1484,7 +1507,8 @@ void GameScene::ResetScoreState()
             object->SetParticipatesInPhysics(true);
         }
 
-        if (object->GetEntityKind() == Character::EntityKind::Pig)
+        if (object->GetEntityKind() == Character::EntityKind::Pig ||
+            IsLevelThreeSmileTarget(m_LevelManager.get(), object))
         {
             ++m_RemainingPigCount;
         }
@@ -1530,7 +1554,8 @@ void GameScene::RefreshRemainingPigCount()
             continue;
         }
 
-        if (object->GetEntityKind() != Character::EntityKind::Pig)
+        if (object->GetEntityKind() != Character::EntityKind::Pig &&
+            !IsLevelThreeSmileTarget(m_LevelManager.get(), object))
         {
             continue;
         }
@@ -1919,6 +1944,18 @@ void GameScene::FinalizeScoreForCharacter(const std::shared_ptr<Character> &char
     if (character->GetEntityKind() == Character::EntityKind::Pig)
     {
         awarded = m_ScoringSystem.AwardPigDestroyed();
+        if (m_RemainingPigCount > 0)
+        {
+            --m_RemainingPigCount;
+        }
+        if (m_RemainingPigCount == 0)
+        {
+            m_LevelCleared = true;
+        }
+    }
+    else if (IsLevelThreeSmileTarget(m_LevelManager.get(), character))
+    {
+        awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
         if (m_RemainingPigCount > 0)
         {
             --m_RemainingPigCount;

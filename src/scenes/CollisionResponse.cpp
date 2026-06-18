@@ -292,28 +292,37 @@ void CollisionResponse::ApplyAccumulatedDamage(ContactManifold &cm, float physic
     if (cm.frameAccumulatedNormalImpulse <= 0.f)
         return;
 
-    // Same constants as before; apply once based on accumulated impulse.
-    constexpr float kDamageThreshold = 150.f;
-    constexpr float kDamageFactor = 0.05f;
-
     // Un-scale the impulse to make damage resolution-independent
     float absJn = cm.frameAccumulatedNormalImpulse / (physicsScale > 0.f ? physicsScale : 1.0f);
-    if (absJn <= kDamageThreshold)
-    {
-        cm.frameAccumulatedNormalImpulse = 0.f;
-        return;
-    }
-
-    float base = (absJn - kDamageThreshold) * kDamageFactor;
 
     auto bd = Setup(cm);
     auto applyDmg = [&](Character *c, bool isStatic)
     {
-        if (!isStatic && c->GetEntityKind() != Character::EntityKind::Bird)
+        if (isStatic || c->GetEntityKind() == Character::EntityKind::Bird)
         {
-            float r = CollisionUtils::GetDamageResistance(c->GetMaterialType());
-            c->ApplyDamage(base / r);
+            return;
         }
+
+        float damageThreshold = 150.0f;
+        float damageFactor = 0.05f;
+
+        if (c->GetEntityKind() == Character::EntityKind::Pig || c->IsSpecialItem())
+        {
+            // Pigs and the level 3 smile target should reliably die from
+            // meaningful impacts, even when the collision only topples them
+            // instead of producing a huge structure-on-structure impulse.
+            damageThreshold = 70.0f;
+            damageFactor = 0.11f;
+        }
+
+        if (absJn <= damageThreshold)
+        {
+            return;
+        }
+
+        const float base = (absJn - damageThreshold) * damageFactor;
+        float r = CollisionUtils::GetDamageResistance(c->GetMaterialType());
+        c->ApplyDamage(base / r);
     };
 
     applyDmg(bd.a, bd.aStatic);

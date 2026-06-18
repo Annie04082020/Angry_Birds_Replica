@@ -58,6 +58,11 @@
         "yPercent": 50.0,
         "scale": 2
     },
+    "introWord": {
+        "xPercent": 50.0,
+        "yPercent": 18.0,
+        "scale": 0.8
+    },
     "exit": {
         "xPercent": 6.5,
         "yPercent": 90.5,
