@@ -35,12 +35,26 @@ ParsedLevelData LevelParser::Parse(const std::string &jsonStr)
         LevelObjectDefinition objectDefinition;
 
         objectDefinition.typeStr = JsonParseUtils::ExtractString(entityJson, "type");
-        objectDefinition.posX = JsonParseUtils::HasKey(entityJson, "xPercent")
-                                    ? JsonParseUtils::ExtractFloat(entityJson, "xPercent") * static_cast<float>(WINDOW_WIDTH) / 100.0f
-                                    : JsonParseUtils::ExtractFloat(entityJson, "x");
-        objectDefinition.posY = JsonParseUtils::HasKey(entityJson, "yPercent")
-                                    ? JsonParseUtils::ExtractFloat(entityJson, "yPercent") * static_cast<float>(WINDOW_HEIGHT) / 100.0f
-                                    : JsonParseUtils::ExtractFloat(entityJson, "y");
+        objectDefinition.usesPercentX = JsonParseUtils::HasKey(entityJson, "xPercent");
+        objectDefinition.usesPercentY = JsonParseUtils::HasKey(entityJson, "yPercent");
+        if (objectDefinition.usesPercentX)
+        {
+            objectDefinition.rawPercentX = JsonParseUtils::ExtractFloat(entityJson, "xPercent");
+            objectDefinition.posX = objectDefinition.rawPercentX * static_cast<float>(WINDOW_WIDTH) / 100.0f;
+        }
+        else
+        {
+            objectDefinition.posX = JsonParseUtils::ExtractFloat(entityJson, "x");
+        }
+        if (objectDefinition.usesPercentY)
+        {
+            objectDefinition.rawPercentY = JsonParseUtils::ExtractFloat(entityJson, "yPercent");
+            objectDefinition.posY = objectDefinition.rawPercentY * static_cast<float>(WINDOW_HEIGHT) / 100.0f;
+        }
+        else
+        {
+            objectDefinition.posY = JsonParseUtils::ExtractFloat(entityJson, "y");
+        }
         objectDefinition.scaleX = JsonParseUtils::ExtractFloat(entityJson, "scaleX");
         objectDefinition.scaleY = JsonParseUtils::ExtractFloat(entityJson, "scaleY");
         objectDefinition.rotation = JsonParseUtils::ExtractFloat(entityJson, "rotation");

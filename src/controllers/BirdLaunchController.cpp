@@ -33,8 +33,10 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
     m_HasLaunchedBird = false;
     m_HasAnyBirdBeenLaunched = false;
     m_BirdVelocity = {0.0f, 0.0f};
+    m_ActiveBirdsInFlight.clear();
+    m_HasSplit = false;
 
-    std::vector<glm::vec2> slingshotPositions;
+    m_Slingshots.clear();
 
     for (const auto &obj : objects)
     {
@@ -54,19 +56,19 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
             pathLower.find("sprite_147") != std::string::npos ||
             pathLower.find("sprite_154") != std::string::npos)
         {
-            slingshotPositions.push_back(obj->GetPosition());
+            m_Slingshots.push_back(obj);
         }
     }
 
-    if (!slingshotPositions.empty())
+    if (!m_Slingshots.empty())
     {
         glm::vec2 center{0.0f, 0.0f};
-        for (const auto &position : slingshotPositions)
+        for (const auto &sling : m_Slingshots)
         {
-            center += position;
+            center += sling->GetPosition();
         }
-        center /= static_cast<float>(slingshotPositions.size());
-        m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f);
+        center /= static_cast<float>(m_Slingshots.size());
+        m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f * m_PhysicsScale);
     }
 
     if (!m_BirdQueue.empty())
@@ -90,6 +92,22 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
 
 bool BirdLaunchController::Update()
 {
+    if (!m_Slingshots.empty())
+    {
+        glm::vec2 center{0.0f, 0.0f};
+        for (const auto &sling : m_Slingshots)
+        {
+            center += sling->GetPosition();
+        }
+        center /= static_cast<float>(m_Slingshots.size());
+        m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f * m_PhysicsScale);
+        
+        if (m_ActiveBird && !m_IsHoldingBird && !m_HasLaunchedBird)
+        {
+            m_ActiveBird->SetPosition(m_BirdAnchorPosition);
+        }
+    }
+
     return HandleBirdLaunchPhysics();
 }
 
@@ -147,8 +165,8 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     const bool mousePressed = Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB);
     const glm::vec2 mouseWorldPos = GetMouseWorldPosition();
 
-    constexpr float maxPullDistance = 140.0f;
-    constexpr float launchPower = 9.0f;
+    const float maxPullDistance = 140.0f * m_PhysicsScale;
+    const float launchPower = 9.0f; // Do not scale launchPower, as pull distance is already scaled!
     if (!m_HasLaunchedBird)
     {
         if (mousePressed)
@@ -186,50 +204,122 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             m_IsHoldingBird = false;
             m_HasLaunchedBird = true;
             m_HasAnyBirdBeenLaunched = true;
+            m_ActiveBirdsInFlight.clear();
+            m_ActiveBirdsInFlight.push_back(m_ActiveBird);
+            m_HasSplit = false;
             return true;
         }
 
         return m_IsHoldingBird;
     }
 
-    glm::vec2 velocity = m_ActiveBird->GetVelocity();
-    // gravity applied centrally in Scene::Update
-    m_ActiveBird->SetVelocity(velocity);
-    m_BirdVelocity = velocity;
-
-    glm::vec2 nextPos = m_ActiveBird->GetPosition() + velocity * dt;
-    const float halfH = m_ActiveBird->GetSize().y * 0.5f;
-
-    // Check bottom edge contact (center.y - halfHeight)
-    if (nextPos.y - halfH < m_WorldFloorY)
+    // Check for split trigger if it is a blue bird and has not split yet
+    const std::string imgPath = ToLowerCopy(m_ActiveBird->GetImagePath());
+    const bool isBlueBird = (m_ActiveBird->GetBaseImageId() == "BIRD_BLUE" || imgPath.find("blue_birds") != std::string::npos);
+    const bool triggerSplit = isBlueBird && !m_HasSplit && 
+                              (Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB) || 
+                               Util::Input::IsKeyPressed(Util::Keycode::SPACE));
+    if (triggerSplit)
     {
-        nextPos.y = m_WorldFloorY + halfH;
-        m_ActiveBird->SetPosition(nextPos);
-        m_ActiveBird->SetVelocity({0.0f, 0.0f});
-        m_ActiveBird->SetAngularVelocity(0.0f);
-        m_ActiveBird->SetSleeping(true);
-        m_BirdVelocity = {0.0f, 0.0f};
-        m_HasLaunchedBird = false;
+        m_HasSplit = true;
+        
+        auto cloneBird = [](const std::shared_ptr<Character>& original, float angleOffsetDeg) {
+            auto clone = std::make_shared<Character>(original->GetImagePath());
+            clone->SetBaseImageId(original->GetBaseImageId());
+            clone->SetScale(original->GetTransform().scale);
+            clone->SetRotation(original->GetTransform().rotation);
+            clone->SetZIndex(original->GetZIndex());
+            clone->SetEntityKind(original->GetEntityKind());
+            clone->SetMaterialType(original->GetMaterialType());
+            clone->SetColliderShape(original->GetColliderShape());
+            clone->SetMass(original->GetMass());
+            clone->SetInertia(original->GetInertia());
+            clone->SetHealth(original->GetHealth());
+            clone->SetMaxHealth(original->GetMaxHealth());
+            clone->SetNumDamageStates(original->GetNumDamageStates());
+            clone->SetStatic(false);
+            clone->SetParticipatesInPhysics(true);
+            clone->SetImpactActivated(true);
+            
+            glm::vec2 originalPos = original->GetPosition();
+            glm::vec2 originalVel = original->GetVelocity();
+            
+            float angleRad = glm::radians(angleOffsetDeg);
+            float cosA = std::cos(angleRad);
+            float sinA = std::sin(angleRad);
+            glm::vec2 rotatedVel = {
+                originalVel.x * cosA - originalVel.y * sinA,
+                originalVel.x * sinA + originalVel.y * cosA
+            };
+            
+            glm::vec2 perpDir = {0.0f, 1.0f};
+            if (glm::length(originalVel) > 0.001f) {
+                glm::vec2 normalizedVel = glm::normalize(originalVel);
+                perpDir = {-normalizedVel.y, normalizedVel.x};
+            }
+            clone->SetPosition(originalPos + perpDir * (angleOffsetDeg > 0.0f ? 30.0f : -30.0f));
+            clone->SetVelocity(rotatedVel);
+            return clone;
+        };
 
-        if (m_CurrentBirdIndex + 1 < m_BirdQueue.size())
+        auto upperBird = cloneBird(m_ActiveBird, 15.0f);
+        auto lowerBird = cloneBird(m_ActiveBird, -15.0f);
+
+        if (m_OnSpawnCharacter)
         {
-            ActivateBirdByIndex(m_CurrentBirdIndex + 1);
+            m_OnSpawnCharacter(upperBird);
+            m_OnSpawnCharacter(lowerBird);
         }
-        return true;
+
+        m_ActiveBirdsInFlight.push_back(upperBird);
+        m_ActiveBirdsInFlight.push_back(lowerBird);
     }
 
-    // If the bird has effectively come to rest (on an object or ground),
-    // advance to next bird. Use static flag or a small velocity + angular
-    // velocity threshold to detect stopping.
+    bool allBirdsStopped = true;
     const float stopSpeedThreshold = 10.0f;  // px/sec
     const float stopAngularThreshold = 5.0f; // rad/sec
-    if (m_ActiveBird->IsStatic() || m_ActiveBird->IsSleeping() ||
-        (glm::length(m_BirdVelocity) < stopSpeedThreshold && std::fabs(m_ActiveBird->GetAngularVelocity()) < stopAngularThreshold))
+
+    for (auto &bird : m_ActiveBirdsInFlight)
     {
-        m_ActiveBird->SetSleeping(true);
-        m_ActiveBird->SetVelocity({0.0f, 0.0f});
-        m_ActiveBird->SetAngularVelocity(0.0f);
+        if (!bird) continue;
+        
+        if (bird->IsStatic() || bird->IsSleeping())
+        {
+            continue;
+        }
+
+        glm::vec2 vel = bird->GetVelocity();
+        glm::vec2 nextPos = bird->GetPosition() + vel * dt;
+        const float halfH = bird->GetSize().y * 0.5f;
+
+        // Check bottom edge contact (center.y - halfHeight)
+        if (nextPos.y - halfH < m_WorldFloorY)
+        {
+            nextPos.y = m_WorldFloorY + halfH;
+            bird->SetPosition(nextPos);
+            bird->SetVelocity({0.0f, 0.0f});
+            bird->SetAngularVelocity(0.0f);
+            bird->SetSleeping(true);
+            continue;
+        }
+
+        // Check if this bird has come to rest
+        if (glm::length(vel) < stopSpeedThreshold && std::fabs(bird->GetAngularVelocity()) < stopAngularThreshold)
+        {
+            bird->SetSleeping(true);
+            bird->SetVelocity({0.0f, 0.0f});
+            bird->SetAngularVelocity(0.0f);
+            continue;
+        }
+
+        // If we reach here, at least one bird is still flying
+        allBirdsStopped = false;
+    }
+
+    if (allBirdsStopped)
+    {
         m_HasLaunchedBird = false;
+        m_ActiveBirdsInFlight.clear();
         m_BirdVelocity = {0.0f, 0.0f};
         if (m_CurrentBirdIndex + 1 < m_BirdQueue.size())
         {
@@ -237,8 +327,6 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         }
     }
 
-    // Position integration is handled by Scene::Update -> Character::IntegratePhysics.
-    // Keep controller responsible for launch state and gravity only.
     return true;
 }
 
@@ -265,4 +353,6 @@ void BirdLaunchController::ActivateBirdByIndex(size_t index)
     m_IsHoldingBird = false;
     m_HasLaunchedBird = false;
     m_ActiveBird->SetZIndex(0.0f);
+    m_ActiveBirdsInFlight.clear();
+    m_HasSplit = false;
 }

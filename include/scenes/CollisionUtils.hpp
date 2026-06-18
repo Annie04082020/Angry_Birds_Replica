@@ -3,6 +3,7 @@
 
 #include "Character.hpp"
 #include <glm/vec2.hpp>
+#include <vector>
 
 namespace CollisionUtils
 {
@@ -22,6 +23,8 @@ namespace CollisionUtils
     bool ComputeOBBMTV(const Character &A, const Character &B,
                        glm::vec2 &outNormal, float &outDepth,
                        glm::vec2 &outContactPoint);
+
+    std::vector<glm::vec2> BuildWorldCollider(const Character &character);
 }
 
 #endif // SCENES_COLLISION_UTILS_HPP

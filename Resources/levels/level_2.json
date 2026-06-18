@@ -42,7 +42,7 @@
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -19.166667,
-      "yPercent": 1.544444
+      "yPercent": -1.615
     },
     {
       "type": "SLINGSHOT",
@@ -52,7 +52,7 @@
       "sizeBase": "height",
       "rotation": 0.0,
       "xPercent": -17.59375,
-      "yPercent": -3.374074
+      "yPercent": -6.245
     },
     {
       "type": "BIRD",
@@ -216,7 +216,7 @@
       "groupId": "EarthBlock",
       "widthPercent": 40,
       "heightPercent": 30,
-      "collisionShape": "diagonal_trbl",
+      "collisionShape": "box",
       "rotation": 0.0,
       "xPercent": 28,
       "yPercent": 1.15

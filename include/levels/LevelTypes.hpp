@@ -17,6 +17,10 @@ struct LevelObjectDefinition
     std::string resourcePath;
     float posX = 0.0f;
     float posY = 0.0f;
+    float rawPercentX = 0.0f; // Raw xPercent value before conversion
+    float rawPercentY = 0.0f; // Raw yPercent value before conversion
+    bool usesPercentX = false;
+    bool usesPercentY = false;
     float scaleX = 1.0f;
     float scaleY = 1.0f;
     float rotation = 0.0f;
