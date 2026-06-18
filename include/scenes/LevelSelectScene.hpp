@@ -30,6 +30,7 @@ protected:
 
 private:
     void BuildLevelSelectUI();
+    void SetButtonsInputEnabled(bool enabled);
 
     std::shared_ptr<DynamicBackground> m_movingBg;
     std::shared_ptr<Util::GameObject> m_title;
@@ -42,6 +43,7 @@ private:
     std::vector<glm::vec2> m_levelLabelBaseScales;
     std::function<bool(int)> m_onLevelSelect = nullptr;
     std::function<void()> m_onBackClick = nullptr;
+    bool m_BlockInputUntilMouseRelease = false;
 };
 
 #endif
