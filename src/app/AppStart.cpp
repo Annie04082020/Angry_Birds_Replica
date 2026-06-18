@@ -3,70 +3,63 @@
 #include "IntroScene.hpp"
 #include "LevelSelectScene.hpp"
 #include "Resource.hpp"
+#include "SDL.h"
+#include "SDL_image.h"
 #include "Scene.hpp"
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
-#include "SDL.h"
-#include "SDL_image.h"
 #include "config.hpp"
 #include <memory>
 
-namespace
-{
-  std::string ResolveLevelPath(const int levelNumber)
-  {
-    switch (levelNumber)
-    {
-    case 1:
-      return Resource::LEVEL_1_TEST_DATA;
-      // return Resource::LEVEL_EARTH_TEST_DATA;
-    case 2:
-      return Resource::LEVEL_2_DATA;
-    case 3:
-      return Resource::LEVEL_3_DATA;
-    case 4:
-      return Resource::LEVEL_4_DATA;
-    case 5:
-      return Resource::LEVEL_5_DATA;
-    case 6:
-      return Resource::LEVEL_6_DATA;
-    case 7:
-      return Resource::LEVEL_7_DATA;
-    case 8:
-      return Resource::LEVEL_8_DATA;
-    case 9:
-      return Resource::LEVEL_9_DATA;
-    case 10:
-      return Resource::LEVEL_10_DATA;
-    default:
-      return "";
-    }
-  }
-
-  void ApplyStartupHandCursor()
-  {
-    static SDL_Cursor *defaultHandCursor = nullptr;
-    if (defaultHandCursor == nullptr)
-    {
-      SDL_Surface *surface = IMG_Load(RESOURCE_DIR "/Image/hand/sprite_002.png");
-      if (surface != nullptr)
-      {
-        defaultHandCursor = SDL_CreateColorCursor(surface, 8, 8);
-        SDL_FreeSurface(surface);
-      }
-    }
-
-    if (defaultHandCursor != nullptr)
-    {
-      SDL_SetCursor(defaultHandCursor);
-      SDL_ShowCursor(SDL_ENABLE);
-    }
+namespace {
+std::string ResolveLevelPath(const int levelNumber) {
+  switch (levelNumber) {
+  case 1:
+    return Resource::LEVEL_1_TEST_DATA;
+    // return Resource::LEVEL_EARTH_TEST_DATA;
+  case 2:
+    // return Resource::LEVEL_2_DATA;
+    return Resource::LEVEL_2_TEST_DATA;
+  case 3:
+    return Resource::LEVEL_3_DATA;
+  case 4:
+    return Resource::LEVEL_4_DATA;
+  case 5:
+    return Resource::LEVEL_5_DATA;
+  case 6:
+    return Resource::LEVEL_6_DATA;
+  case 7:
+    return Resource::LEVEL_7_DATA;
+  case 8:
+    return Resource::LEVEL_8_DATA;
+  case 9:
+    return Resource::LEVEL_9_DATA;
+  case 10:
+    return Resource::LEVEL_10_DATA;
+  default:
+    return "";
   }
 }
 
-void App::Start()
-{
+void ApplyStartupHandCursor() {
+  static SDL_Cursor *defaultHandCursor = nullptr;
+  if (defaultHandCursor == nullptr) {
+    SDL_Surface *surface = IMG_Load(RESOURCE_DIR "/Image/hand/sprite_002.png");
+    if (surface != nullptr) {
+      defaultHandCursor = SDL_CreateColorCursor(surface, 8, 8);
+      SDL_FreeSurface(surface);
+    }
+  }
+
+  if (defaultHandCursor != nullptr) {
+    SDL_SetCursor(defaultHandCursor);
+    SDL_ShowCursor(SDL_ENABLE);
+  }
+}
+} // namespace
+
+void App::Start() {
   LOG_TRACE("Start");
 
   ApplyStartupHandCursor();
@@ -78,14 +71,15 @@ void App::Start()
 
   m_introScene = IntroScene::Create();
   m_levelSelectScene = LevelSelectScene::Create();
-  m_introScene->SetOnPlayClickCallback([this]()
-                                       {
-                                         this->ShowLevelSelectScene();
-                                         return true; });
-  m_levelSelectScene->SetOnBackClickCallback([this]()
-                                             { this->ShowIntroScene(); });
-  m_levelSelectScene->SetOnLevelSelectCallback([this](const int levelNumber)
-                                               { return this->TransitionToGame(levelNumber); });
+  m_introScene->SetOnPlayClickCallback([this]() {
+    this->ShowLevelSelectScene();
+    return true;
+  });
+  m_levelSelectScene->SetOnBackClickCallback(
+      [this]() { this->ShowIntroScene(); });
+  m_levelSelectScene->SetOnLevelSelectCallback([this](const int levelNumber) {
+    return this->TransitionToGame(levelNumber);
+  });
 
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
@@ -99,41 +93,33 @@ void App::Start()
   m_CurrentState = State::UPDATE;
 }
 
-void App::ShowIntroScene()
-{
-  if (m_introScene)
-  {
+void App::ShowIntroScene() {
+  if (m_introScene) {
     m_introScene->SetVisible(true);
     m_introScene->SetMenuVisible(true);
   }
-  if (m_levelSelectScene)
-  {
+  if (m_levelSelectScene) {
     m_levelSelectScene->SetVisible(false);
     m_levelSelectScene->SetSceneVisible(false);
   }
 }
 
-void App::ShowLevelSelectScene()
-{
-  if (m_introScene)
-  {
+void App::ShowLevelSelectScene() {
+  if (m_introScene) {
     m_introScene->SetVisible(false);
     m_introScene->SetMenuVisible(false);
   }
-  if (m_levelSelectScene)
-  {
+  if (m_levelSelectScene) {
     m_levelSelectScene->SetVisible(true);
     m_levelSelectScene->SetSceneVisible(true);
   }
 }
 
-bool App::TransitionToGame(const int levelNumber)
-{
+bool App::TransitionToGame(const int levelNumber) {
   LOG_DEBUG("Transitioning to GAME state");
 
   const std::string levelPath = ResolveLevelPath(levelNumber);
-  if (levelPath.empty())
-  {
+  if (levelPath.empty()) {
     LOG_WARN("Level {} is not implemented yet", levelNumber);
     return false;
   }
@@ -141,8 +127,7 @@ bool App::TransitionToGame(const int levelNumber)
   m_currentLevelNumber = levelNumber;
   m_currentLevelPath = levelPath;
 
-  if (!LoadLevel(levelPath))
-  {
+  if (!LoadLevel(levelPath)) {
     LOG_ERROR("Failed to load level {}", levelNumber);
     return false;
   }
@@ -150,32 +135,29 @@ bool App::TransitionToGame(const int levelNumber)
   return true;
 }
 
-bool App::LoadLevel(const std::string &levelPath)
-{
+bool App::LoadLevel(const std::string &levelPath) {
   // Unload any existing game scene first
   UnloadCurrentGameScene();
 
   m_gameScene = std::make_shared<GameScene>(
       std::make_shared<DynamicBackground>(Resource::MOVING_BG_IMAGE));
 
-  m_gameScene->SetOnRestartLevelCallback([this]()
-                                         { m_pendingGameAction = PendingGameAction::RestartCurrentLevel; });
-  m_gameScene->SetOnOpenLevelSelectCallback([this]()
-                                            { m_pendingGameAction = PendingGameAction::OpenLevelSelect; });
-  m_gameScene->SetOnNextLevelCallback([this]()
-                                      { m_pendingGameAction = PendingGameAction::OpenNextLevel; });
+  m_gameScene->SetOnRestartLevelCallback([this]() {
+    m_pendingGameAction = PendingGameAction::RestartCurrentLevel;
+  });
+  m_gameScene->SetOnOpenLevelSelectCallback(
+      [this]() { m_pendingGameAction = PendingGameAction::OpenLevelSelect; });
+  m_gameScene->SetOnNextLevelCallback(
+      [this]() { m_pendingGameAction = PendingGameAction::OpenNextLevel; });
 
-  if (m_gameScene && m_gameScene->LoadLevel(levelPath))
-  {
+  if (m_gameScene && m_gameScene->LoadLevel(levelPath)) {
     LOG_DEBUG("Level loaded successfully: {}", levelPath);
     m_loadingScene->SetVisible(false);
-    if (m_introScene)
-    {
+    if (m_introScene) {
       m_introScene->SetVisible(false);
       m_introScene->SetMenuVisible(false);
     }
-    if (m_levelSelectScene)
-    {
+    if (m_levelSelectScene) {
       m_levelSelectScene->SetVisible(false);
       m_levelSelectScene->SetSceneVisible(false);
     }
@@ -192,37 +174,30 @@ bool App::LoadLevel(const std::string &levelPath)
   return false;
 }
 
-bool App::RestartCurrentLevel()
-{
-  if (m_currentLevelNumber > 0)
-  {
+bool App::RestartCurrentLevel() {
+  if (m_currentLevelNumber > 0) {
     const std::string levelPath = ResolveLevelPath(m_currentLevelNumber);
-    if (!levelPath.empty())
-    {
+    if (!levelPath.empty()) {
       m_currentLevelPath = levelPath;
       return LoadLevel(levelPath);
     }
   }
 
-  if (m_currentLevelPath.empty())
-  {
+  if (m_currentLevelPath.empty()) {
     return false;
   }
 
   return LoadLevel(m_currentLevelPath);
 }
 
-bool App::OpenNextLevel()
-{
-  if (m_currentLevelNumber <= 0)
-  {
+bool App::OpenNextLevel() {
+  if (m_currentLevelNumber <= 0) {
     return false;
   }
 
   const int nextLevelNumber = m_currentLevelNumber + 1;
   const std::string nextLevelPath = ResolveLevelPath(nextLevelNumber);
-  if (nextLevelPath.empty())
-  {
+  if (nextLevelPath.empty()) {
     UnloadCurrentGameScene();
     ShowLevelSelectScene();
     m_CurrentState = State::UPDATE;
@@ -234,39 +209,32 @@ bool App::OpenNextLevel()
   return LoadLevel(nextLevelPath);
 }
 
-void App::UnloadCurrentGameScene()
-{
-  if (m_gameScene)
-  {
+void App::UnloadCurrentGameScene() {
+  if (m_gameScene) {
     m_Root.RemoveChild(m_gameScene);
     m_gameScene.reset();
   }
 }
 
-void App::End()
-{ // NOLINT(this method will mutate members in the future)
+void App::End() { // NOLINT(this method will mutate members in the future)
   LOG_TRACE("End");
 
-  if (m_gameScene)
-  {
+  if (m_gameScene) {
     m_Root.RemoveChild(m_gameScene);
     m_gameScene.reset();
   }
 
-  if (m_introScene)
-  {
+  if (m_introScene) {
     m_Root.RemoveChild(m_introScene);
     m_introScene.reset();
   }
 
-  if (m_levelSelectScene)
-  {
+  if (m_levelSelectScene) {
     m_Root.RemoveChild(m_levelSelectScene);
     m_levelSelectScene.reset();
   }
 
-  if (m_loadingScene)
-  {
+  if (m_loadingScene) {
     m_Root.RemoveChild(m_loadingScene);
     m_loadingScene.reset();
   }
