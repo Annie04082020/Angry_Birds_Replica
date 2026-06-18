@@ -1963,6 +1963,7 @@ void GameScene::TogglePauseMenu()
 void GameScene::ToggleMusicMute()
 {
     m_IsMusicMuted = !m_IsMusicMuted;
+    SoundEffect::SetMuted(m_IsMusicMuted);
 
     if (m_IsMusicMuted)
     {
@@ -1970,7 +1971,10 @@ void GameScene::ToggleMusicMute()
     }
     else
     {
-        Mix_ResumeMusic();
+        if (Mix_PausedMusic() == 1)
+        {
+            Mix_ResumeMusic();
+        }
     }
 
     if (m_PauseMenu040Overlay)
