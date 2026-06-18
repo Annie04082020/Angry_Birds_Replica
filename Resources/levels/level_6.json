@@ -21,6 +21,15 @@
       "offsetYPercent": -0.5,
       "scalePivotXPercent": 0.0,
       "scalePivotYPercent": 0.0
+    },
+    {
+      "id": "EarthBlock",
+      "scaleMultiplier": 1.55,
+      "scalePosition": true,
+      "offsetXPercent": 0.0,
+      "offsetYPercent": -0.5,
+      "scalePivotXPercent": 0.0,
+      "scalePivotYPercent": 0.0
     }
   ],
   "objects": [
@@ -55,20 +64,29 @@
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_YELLOW",
+      "imageId": "BIRD_RED",
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -21,
-      "yPercent": -18
+      "xPercent": -42,
+      "yPercent": -20
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_BLUE",
-      "heightPercent": 3,
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -22,
+      "xPercent": -44,
+      "yPercent": -20
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_RED",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -46,
       "yPercent": -20
     },
     {
@@ -169,7 +187,7 @@
       "heightPercent": 2.8,
       "rotation": 0.0,
       "xPercent": 11.75,
-      "yPercent": -4
+      "yPercent": -4.7
     },
     {
         "type": "STONE",
@@ -269,7 +287,51 @@
         "heightPercent": 2.8,
         "rotation": 0.0,
         "xPercent": 20.75,
-        "yPercent": 6
+        "yPercent": 5.3
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_BLOCK",
+      "groupId": "EarthBlock",
+      "widthPercent": 8,
+      "heightPercent": 4,
+      "collisionShape": "box",
+      "rotation": 0.0,
+      "xPercent": 12,
+      "yPercent": -12.5
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_BLOCK",
+      "groupId": "EarthBlock",
+      "widthPercent": 8,
+      "heightPercent": 14,
+      "collisionShape": "box",
+      "rotation": 0.0,
+      "xPercent": 21,
+      "yPercent": -7.5
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 12,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 29,
+      "yPercent": -8
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TLBR",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 12,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 34,
+      "yPercent": -8
     }
   ]
 }

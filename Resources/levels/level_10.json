@@ -21,6 +21,15 @@
       "offsetYPercent": -0.5,
       "scalePivotXPercent": 0.0,
       "scalePivotYPercent": 0.0
+    },
+    {
+      "id": "EarthBlock",
+      "scaleMultiplier": 1.55,
+      "scalePosition": true,
+      "offsetXPercent": 0.0,
+      "offsetYPercent": -0.5,
+      "scalePivotXPercent": 0.0,
+      "scalePivotYPercent": 0.0
     }
   ],
   "objects": [
@@ -46,7 +55,7 @@
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_RED",
+      "imageId": "BIRD_BLUE",
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
@@ -55,22 +64,449 @@
     },
     {
       "type": "BIRD",
-      "imageId": "BIRD_YELLOW",
+      "imageId": "BIRD_BLUE",
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -21,
-      "yPercent": -18
+      "xPercent": -42,
+      "yPercent": -20
     },
     {
       "type": "BIRD",
       "imageId": "BIRD_BLUE",
-      "heightPercent": 3,
+      "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -22,
+      "xPercent": -44,
       "yPercent": -20
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_BLUE",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -46,
+      "yPercent": -20
+    },
+    {
+      "type": "BIRD",
+      "imageId": "BIRD_BLUE",
+      "heightPercent": 4,
+      "sizeBase": "height",
+      "rotation": 0.0,
+      "xPercent": -48,
+      "yPercent": -20
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 8,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 13,
+      "yPercent": -10
+    }, 
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_BLOCK",
+      "groupId": "EarthBlock",
+      "widthPercent": 8.5,
+      "heightPercent": 8,
+      "collisionShape": "box",
+      "rotation": 0.0,
+      "xPercent": 19.7,
+      "yPercent": -10
+    }, 
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_BLOCK",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 8,
+      "collisionShape": "box",
+      "rotation": 0.0,
+      "xPercent": 26.4,
+      "yPercent": -10
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TRBL",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 8,
+      "collisionShape": "diagonal_trbl",
+      "rotation": 0.0,
+      "xPercent": 26.4,
+      "yPercent": -2
+    },
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_BLOCK",
+      "groupId": "EarthBlock",
+      "widthPercent": 8.5,
+      "heightPercent": 16,
+      "collisionShape": "box",
+      "rotation": 0.0,
+      "xPercent": 33.1,
+      "yPercent": -6
+    }, 
+    {
+      "type": "EARTH",
+      "imageId": "EARTH_TRI_TLBR",
+      "groupId": "EarthBlock",
+      "widthPercent": 5,
+      "heightPercent": 16,
+      "collisionShape": "diagonal_tlbr",
+      "rotation": 0.0,
+      "xPercent": 39.8,
+      "yPercent": -6
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 16,
+      "yPercent": 1
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 17.5,
+      "yPercent": 1
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 19.5,
+      "yPercent": 8.8
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 19.5,
+      "yPercent": 10.5
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_168x20_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 21.5,
+      "yPercent": 1
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_168x20_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 23,
+      "yPercent": 1
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 16.5,
+      "yPercent": 12.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 18.5,
+      "yPercent": 12.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 20.5,
+      "yPercent": 12.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 22.5,
+      "yPercent": 12.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 17.5,
+      "yPercent": 15.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 19.5,
+      "yPercent": 15.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 21.5,
+      "yPercent": 15.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 18.5,
+      "yPercent": 18.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 20.5,
+      "yPercent": 18.75
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 19.5,
+      "yPercent": 21.75
+    },
+    {
+        "type": "PIG",
+        "imageId": "PIG_MEDIUM",
+        "groupId": "Environment",
+        "widthPercent": 1.8,
+        "heightPercent": 2.8,
+        "rotation": 0.0,
+        "xPercent": 19.5,
+        "yPercent": -5
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 29.5,
+      "yPercent": 9.1
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 31,
+      "yPercent": 9.1
+    },
+
+
+
+
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 16.9
+    },
+    {
+      "type": "STONE",
+      "imageId": "STONE_168_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 18.6
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_168x20_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 35,
+      "yPercent": 9.1
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_168x20_1",
+      "groupId": "Environment",
+      "widthPercent": 8,
+      "heightPercent": 1.6,
+      "rotation": 1.57,
+      "xPercent": 36.5,
+      "yPercent": 9.1
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 30,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 32,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 34,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 36,
+      "yPercent": 20.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 31,
+      "yPercent": 23.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 23.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 35,
+      "yPercent": 23.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 32,
+      "yPercent": 26.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 34,
+      "yPercent": 26.85
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_056",
+      "groupId": "Environment",
+      "widthPercent": 2.0,
+      "heightPercent": 3.0,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 29.85
+    },
+    {
+        "type": "PIG",
+        "imageId": "PIG_MEDIUM",
+        "groupId": "Environment",
+        "widthPercent": 2.8,
+        "heightPercent": 3.8,
+        "rotation": 0.0,
+        "xPercent": 33,
+        "yPercent": 3.1
     }
-    
   ]
 }

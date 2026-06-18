@@ -28,6 +28,11 @@ public:
   void Init();
   void Update();
   void AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float ttl);
+  void SetDebugRenderEnabled(bool enabled) { m_DebugRenderEnabled = enabled; }
+  [[nodiscard]] bool IsDebugRenderEnabled() const { return m_DebugRenderEnabled; }
+  void SetPhysicsPaused(bool paused);
+  [[nodiscard]] bool IsPhysicsPaused() const { return m_PhysicsPaused; }
+  void RequestPhysicsSingleStep() { m_PhysicsSingleStepRequested = true; }
   // Stabilize environment objects on load by running short physics steps
   void StabilizeEnvironment(int steps = 30);
   void SetVisible(bool visible)
@@ -59,9 +64,21 @@ public:
     {
       return;
     }
-    m_Elements.push_back(element);
-    AddChild(element);
+    if (m_ElementsTraversalLock > 0)
+    {
+      m_PendingAddElements.push_back(element);
+    }
+    else
+    {
+      m_Elements.push_back(element);
+      AddChild(element);
+    }
   }
+
+  // Element traversal lock management
+  void ReleaseTraversalLock();
+  void FlushPendingElements();
+  int m_ElementsTraversalLock = 0;
 
   // Set a Character to be controlled by keyboard for testing.
   void SetControlledCharacter(const std::shared_ptr<Character> &ch) { m_Controlled = ch; }
@@ -98,7 +115,18 @@ protected:
   };
   std::vector<DebugEntity> m_DebugEntities;
   float m_DebugDrawCooldown = 0.0f;
-  float m_DebugDrawInterval = 0.05f;
+  float m_DebugDrawInterval = 0.08f;
+  bool m_DebugRenderEnabled = false;
+  bool m_PhysicsPaused = false;
+  bool m_PhysicsSingleStepRequested = false;
+
+  void StepPhysics(float dt);
+  void DrawPhysicsDebug();
+  void AddDebugLine(const glm::vec2 &start,
+                    const glm::vec2 &end,
+                    const glm::vec4 &color,
+                    float thickness,
+                    float ttl);
 
   // World floor Y coordinate. Can be set by caller (e.g. GameScene after loading level)
   float m_WorldFloorY = -294.0f;
@@ -111,6 +139,11 @@ protected:
   float m_DamageImmunityTimer = 2.0f;
   [[nodiscard]] bool IsDamageImmune() const { return m_DamageImmunityTimer > 0.0f; }
 
+  // Scaling factor for physics constants (like gravity) to maintain consistent feel across resolutions
+  float m_PhysicsScale = 1.0f;
+  void SetPhysicsScale(float scale) { m_PhysicsScale = scale; }
+  float GetPhysicsScale() const { return m_PhysicsScale; }
+
   // Persisted contact manifolds for warm-starting the SI solver.
   std::vector<ContactManifold> m_Contacts;
 
@@ -119,6 +152,7 @@ private:
   std::shared_ptr<BackgroundMusic> m_BGM;
   std::shared_ptr<Util::GameObject> m_Background;
   std::vector<std::shared_ptr<Util::GameObject>> m_Elements;
+  std::vector<std::shared_ptr<Util::GameObject>> m_PendingAddElements;
   std::shared_ptr<Character> m_Controlled = nullptr;
   int m_Score = 0;
 };

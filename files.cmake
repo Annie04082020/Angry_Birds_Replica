@@ -10,6 +10,7 @@ set(SRC_FILES
     scenes/Scene.cpp
     scenes/CollisionUtils.cpp
     scenes/CollisionResponse.cpp
+    scenes/ScoringSystem.cpp
     scenes/SleepSupport.cpp
     controllers/BirdLaunchController.cpp
     controllers/SceneInputController.cpp
@@ -41,6 +42,7 @@ set(INCLUDE_FILES
     scenes/CollisionUtils.hpp
     scenes/CollisionResponse.hpp
     scenes/ContactManifold.hpp
+    scenes/ScoringSystem.hpp
     scenes/SleepSupport.hpp
     scenes/DebugUtils.hpp
     controllers/BirdLaunchController.hpp

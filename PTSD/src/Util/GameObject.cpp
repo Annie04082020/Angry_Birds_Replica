@@ -11,8 +11,12 @@ void GameObject::Draw() {
 
     auto data = Util::ConvertToUniformBufferData(
         m_Transform, m_Drawable->GetSize(), m_ZIndex);
-    data.m_Model = glm::translate(
-        data.m_Model, glm::vec3{m_Pivot / m_Drawable->GetSize(), 0} * -1.0F);
+    // Adjust pivot translation to account for non-uniform scaling: use the
+    // drawable size after applying the object's scale so the pivot maps
+    // correctly in model space.
+    const glm::vec2 scaledSize = m_Drawable->GetSize() * m_Transform.scale;
+    data.m_Model = glm::translate(data.m_Model,
+                                  glm::vec3{m_Pivot / scaledSize, 0} * -1.0F);
 
     m_Drawable->Draw(data);
 }

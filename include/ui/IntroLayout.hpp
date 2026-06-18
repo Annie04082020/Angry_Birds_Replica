@@ -30,6 +30,7 @@ struct IntroLayout
     MenuConfig additionalMenuItems;
 
     UILayout::SectionLayout play;
+    UILayout::SectionLayout introWord;
     UILayout::SectionLayout exit;
     UILayout::CompositeSectionLayout settingButtonBase;
     UILayout::CompositeSectionLayout settingButtonOverlay;

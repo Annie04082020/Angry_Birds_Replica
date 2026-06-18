@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <unordered_set>
 
 #include "Character.hpp"
 #include "EntityTemplateDatabase.hpp"
@@ -30,6 +31,18 @@ namespace
     bool IsEarthKey(const std::string &value)
     {
         return StartsWith(value, "EARTH");
+    }
+
+    bool IsSpecialItemId(const std::string &imageId)
+    {
+        static const std::unordered_set<std::string> kSpecialItemIds = {
+            "SMILE",
+            "CAKE",
+            "TROPHY",
+            "PUMPKIN",
+            "GIFT",
+            "GIFT_BOX"};
+        return kSpecialItemIds.find(imageId) != kSpecialItemIds.end();
     }
 
     Character::EntityKind ClassifyEntityKind(const std::string &imageId)
@@ -154,6 +167,7 @@ namespace
         if (definition)
         {
             character.SetPhysicsState(definition->physicsState);
+            character.SetMaxHealth(definition->health);
             if (definition->entityKind != Character::EntityKind::Unknown)
             {
                 character.SetEntityKind(definition->entityKind);
@@ -175,6 +189,8 @@ namespace
         {
             character.SetMaterialType(ClassifyMaterialType(imageId));
         }
+
+        character.SetSpecialItem(IsSpecialItemId(imageId));
     }
 
     std::string PrepareResourcePath(const std::string &resourcePath)
@@ -311,8 +327,37 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         posY += groupIt->second.offsetY * groupIt->second.scaleMultiplier;
     }
 
-    posX *= runtimeScale;
-    posY *= runtimeScale;
+    // For percent-based positions, convert using actual viewport size directly
+    // to avoid double-scaling (percent -> design pixels -> runtimeScale).
+    // For absolute positions, apply runtimeScale as before.
+    if (objectDefinition.usesPercentX)
+    {
+        const glm::vec2 vpSize = Util::GetViewportSize();
+        posX = (objectDefinition.rawPercentX / 100.0f) * vpSize.x;
+        // Re-apply group offset scaled for viewport
+        if (groupIt != levelData.groupAdjustments.end())
+        {
+            posX += groupIt->second.offsetX * groupIt->second.scaleMultiplier * runtimeScale;
+        }
+    }
+    else
+    {
+        posX *= runtimeScale;
+    }
+    if (objectDefinition.usesPercentY)
+    {
+        const glm::vec2 vpSize = Util::GetViewportSize();
+        posY = (objectDefinition.rawPercentY / 100.0f) * vpSize.y;
+        // Re-apply group offset scaled for viewport
+        if (groupIt != levelData.groupAdjustments.end())
+        {
+            posY += groupIt->second.offsetY * groupIt->second.scaleMultiplier * runtimeScale;
+        }
+    }
+    else
+    {
+        posY *= runtimeScale;
+    }
 
     auto character = std::make_shared<Character>(PrepareResourcePath(resourcePath));
     const glm::vec2 textureSize = character->GetSize();
@@ -410,6 +455,14 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
 
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
 
+    if (character->IsSpecialItem())
+    {
+        character->SetEntityKind(Character::EntityKind::Environment);
+        character->SetMaterialType(Character::MaterialType::Flesh);
+        character->SetMaxHealth(150.0f);
+        character->SetHealth(150.0f);
+    }
+
     if (IsEarthKey(objectDefinition.typeStr) || StartsWith(objectDefinition.imageId, "EARTH"))
     {
         character->SetEntityKind(Character::EntityKind::Environment);
@@ -432,9 +485,15 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
         character->SetAngularVelocity(0.0f);
     }
 
-    if (!isDecor && character->GetEntityKind() == Character::EntityKind::Environment)
+    if (!isDecor && (character->GetEntityKind() == Character::EntityKind::Environment ||
+                     character->GetEntityKind() == Character::EntityKind::Pig))
     {
+        // Keep level structures rigid at spawn time. They become dynamic only
+        // after impact activation, which prevents stacked layouts from
+        // immediately exploding due to tiny initial overlaps.
+        character->SetStatic(true);
         character->SetSleeping(true);
+        character->SetImpactActivated(false);
         character->SetVelocity({0.0f, 0.0f});
         character->SetAngularVelocity(0.0f);
     }

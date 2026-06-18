@@ -45,6 +45,12 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_menuInitialOffset = layout.menuConfig.initialOffset;
     m_menuAnimationDistance = layout.menuConfig.animationDistance;
     m_menuAnimationSpeed = layout.menuConfig.animationSpeed;
+    m_introWord = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::Image>(Resource::INTRO_WORD), 49);
+    m_introWord->m_Transform.translation = UILayout::PercentToWorldPosition(
+        layout.introWord.xPercent, layout.introWord.yPercent, viewportSize);
+    m_introWord->m_Transform.scale = {layout.introWord.scale, layout.introWord.scale};
+    m_introWord->SetVisible(true);
     m_playbutton->SetZIndex(50);
     m_playbutton->SetPosition(UILayout::PercentToWorldPosition(
         layout.play.xPercent, layout.play.yPercent, viewportSize));
@@ -63,6 +69,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
         StopBGM();
 
         m_playbutton->SetVisible(false);
+        m_introWord->SetVisible(false);
         m_settingbutton->SetVisible(false);
         m_settingOverlay->SetVisible(false);
         m_additionalButton->SetVisible(false);
@@ -236,6 +243,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     m_exitDialog->m_Transform.scale = glm::vec2{layout.exitDialog.scale, layout.exitDialog.scale};
     m_exitDialog->SetVisible(false);
 
+    AddElements(m_introWord);
     AddElements(m_playbutton);
     AddElements(m_exitbutton);
     AddElements(m_settingbutton);
@@ -256,6 +264,10 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
 
 void IntroScene::SetMenuVisible(const bool visible)
 {
+    if (m_introWord)
+    {
+        m_introWord->SetVisible(visible);
+    }
     m_playbutton->SetVisible(visible);
     m_exitbutton->SetVisible(visible);
     m_settingbutton->SetVisible(visible);

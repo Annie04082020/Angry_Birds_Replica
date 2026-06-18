@@ -4,6 +4,8 @@
 #include "Resource.hpp"
 #include "Util/Color.hpp"
 #include "Util/Image.hpp"
+#include "Util/Input.hpp"
+#include "Util/Keycode.hpp"
 #include "Util/Text.hpp"
 
 #include <string>
@@ -121,6 +123,15 @@ void LevelSelectScene::BuildLevelSelectUI()
 
 void LevelSelectScene::Update()
 {
+    if (m_BlockInputUntilMouseRelease)
+    {
+        if (!Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
+        {
+            m_BlockInputUntilMouseRelease = false;
+            SetButtonsInputEnabled(true);
+        }
+    }
+
     const auto mousePos = Util::Input::GetCursorPosition();
 
     if (m_backButton && m_backLabel)
@@ -176,5 +187,31 @@ void LevelSelectScene::SetSceneVisible(const bool visible)
     for (const auto &label : m_levelLabels)
     {
         label->SetVisible(visible);
+    }
+
+    if (!visible)
+    {
+        m_BlockInputUntilMouseRelease = false;
+        SetButtonsInputEnabled(true);
+        return;
+    }
+
+    m_BlockInputUntilMouseRelease = Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
+    SetButtonsInputEnabled(!m_BlockInputUntilMouseRelease);
+}
+
+void LevelSelectScene::SetButtonsInputEnabled(const bool enabled)
+{
+    if (m_backButton)
+    {
+        m_backButton->SetInputEnabled(enabled);
+    }
+
+    for (const auto &button : m_levelButtons)
+    {
+        if (button)
+        {
+            button->SetInputEnabled(enabled);
+        }
     }
 }
