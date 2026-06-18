@@ -69,8 +69,8 @@
       "heightPercent": 4.0,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -21.666667,
-      "yPercent": -16.296296
+      "xPercent": -45,
+      "yPercent": -20
     },
     {
       "type": "BIRD",
@@ -78,8 +78,8 @@
       "heightPercent": 4.0,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -20.000000,
-      "yPercent": -16.111111
+      "xPercent": -47,
+      "yPercent": -20
     },
     {
       "type": "BIRD",
@@ -87,8 +87,8 @@
       "heightPercent": 4.0,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -24.166667,
-      "yPercent": -18.518519
+      "xPercent": -49,
+      "yPercent": -20
     },
     {
       "type": "STONE",
