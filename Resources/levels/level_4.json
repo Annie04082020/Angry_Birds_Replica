@@ -68,8 +68,8 @@
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -21,
-      "yPercent": -16
+      "xPercent": -42,
+      "yPercent": -20
     },
     {
       "type": "BIRD",
@@ -77,8 +77,8 @@
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -19,
-      "yPercent": -16
+      "xPercent": -44,
+      "yPercent": -20
     },
     {
       "type": "BIRD",
@@ -86,17 +86,8 @@
       "heightPercent": 4,
       "sizeBase": "height",
       "rotation": 0.0,
-      "xPercent": -17,
-      "yPercent": -16
-    },
-    {
-      "type": "BIRD",
-      "imageId": "BIRD_RED",
-      "heightPercent": 4,
-      "sizeBase": "height",
-      "rotation": 0.0,
-      "xPercent": -15,
-      "yPercent": -16
+      "xPercent": -46,
+      "yPercent": -20
     },
     {
       "type": "STONE",
@@ -236,7 +227,7 @@
       "heightPercent": 2.385185,
       "rotation": 0.0,
       "xPercent": 16.5,
-      "yPercent": -4
+      "yPercent": -8
     },
     {
       "type": "EARTH",

@@ -30,6 +30,7 @@ private:
     void ActivateBirdByIndex(size_t index);
 
     std::vector<std::shared_ptr<Character>> m_BirdQueue;
+    std::vector<std::shared_ptr<Character>> m_Slingshots;
     std::shared_ptr<Character> m_ActiveBird = nullptr;
     glm::vec2 m_BirdAnchorPosition{0.0f, 0.0f};
     glm::vec2 m_BirdVelocity{0.0f, 0.0f};

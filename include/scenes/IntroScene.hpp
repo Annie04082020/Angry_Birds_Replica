@@ -29,6 +29,7 @@ private:
 
     std::shared_ptr<DynamicBackground> m_movingBg;
     std::shared_ptr<Character> m_bird;
+    std::shared_ptr<Util::GameObject> m_introWord;
     std::shared_ptr<Button> m_playbutton;
     std::shared_ptr<Button> m_exitbutton;
     std::shared_ptr<Button> m_settingbutton;
