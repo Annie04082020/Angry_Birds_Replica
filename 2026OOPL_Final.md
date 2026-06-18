@@ -7,69 +7,71 @@
 
 ## 專案簡介
 ### 遊戲簡介
-- 
-- 
+- 我們剛開始沒有特別想復刻哪個遊戲的想法，於是就看了助教提供之前幾屆的紀錄，因為我們都有玩過、比較了解的遊戲比較少，當時考慮的是冰火姊弟、Angry Birds 和我想到的 psp 遊戲 Patapon 。
+- 而在與助教溝通之後，因為 Patapon 是音樂遊戲，在 C++ 和 PTSD 框架下會碰到更多問題 (音訊與鍵盤輸入同步問題、特效動畫等) 助教也不一定能協助解決，我們判斷綜合實力比較不足就放棄了，在剩下兩個選項中，因為比較想要試試看能不能用 C++ 去實作需要物理計算的遊戲，最後選擇了 Angry Birds 的初代作品。
+
+#### 更動 (與原作不同處)
+- **關卡**：這次製作的 Angry Birds 是第一個世界的前 10 關，其中沒有包含第一關的漫畫和後面世界關卡的 UI ，選擇方面改為只顯示了製作好的 10 關。
+- **場景**：原作的場景分為：背景圖、樹木、草地、和土地，但受限於 C++ 與 PTSD 的開發環境，若是全部分開同時讀取將會有嚴重卡頓的情況，因此更改為單純一張背景圖包含所有的場景，並在滑動時以同一張圖連續補上的方法作為替代。
+- **縮放**：延續場景的問題，縮放時不會根據螢幕大小去補上 y 軸上的空白，而只有 x 軸上的延伸。
 ### 
 
-### 組別分工
-- 
+### 組別分工 
+
+#### 概略分工內容
+|人員|工作|
+|----|----|
+|111310452 黃安華| 專案管理、系統架構設計、物理引擎 |
+|113590039 許兆雲| 關卡系統開發(建置、結算)、遊戲介面與視覺效果實作 |
+
+#### 看板
+為了避免專案後期出現進度失控的情況，團隊使用 GitHub Project Task Board 管理所有開發任務。每項工作都會依照目前進度放入不同欄位，例如開發中（In Progress）、審查中（Reviewing）或暫緩處理（Postponed），讓團隊能即時掌握開發狀況並調整排程。
+
+同時，我們透過 P0、P1、P2 優先級制度管理功能需求。當開發時間不足時，會優先確保 P0 核心功能完成，再逐步實作 P1 與 P2 功能，以降低專案風險。
+
+透過這套管理方式，團隊成功將遊戲物理模組與 Gameplay 模組分開開發，使各成員能平行作業，在提升開發效率的同時，也降低了程式碼耦合度與後續維護成本。
+
+細部協作內容可參考以下任務看板
+|看板分頁|功能|
+|----|----|
+| **[Task Board](https://github.com/users/Annie04082020/projects/3/views/1)**| Issue 狀態 |
+| **[Overview](https://github.com/users/Annie04082020/projects/3/views/2)** | Issue 分工 |
+| **[Timeline](https://github.com/users/Annie04082020/projects/3/views/6)** | 開發時間軸 (甘特圖) |
+| **[Current Progress](https://github.com/users/Annie04082020/projects/3/views/9)**| 列出各狀態 Issue |
+ 
 
 ## 遊戲介紹
 ### 遊戲規則
-- **攻略魔塔** - 按鍵
-  - Space - 確認
-  - 上下左右 - 操縱勇者移動
-  - R - 重新開始
-  - Q - 撤退（攻擊中使用）
-  - S - 加速攻擊過程（攻擊中使用）
-  - A - 讓勇者的攻擊力變為3571（再按一次回復原本的攻擊力）
-    - 切換成Debug模式中所讓攻擊力上升，也會加在原本的攻擊力上，不會加在3571上
-  - W - 查看功能列表（再按一次關閉功能列表）
+- **開發模式** - 按鍵
+  - F? - 顯示碰撞箱
+  - P - 暫停動畫
+  - L - 播放 15 ms 
+  - C - 直接完成遊戲結束此關卡
+  - Esc - 退出遊戲
+
 - **攻擊規則**
-  - 勇者攻擊1次，敵人攻擊1~3次（根據攻擊次數來定）
-  - 勇者攻擊敵人
+  - 鳥攻擊豬
     - 傷害 = 勇者攻擊力 - 敵人防禦力
     - 特殊條件
       - 如果傷害 == 0 - 傷害 = 1
       - 會有（敵人敏捷）%的機會被敵人迴避攻擊
-  - 敵人攻擊勇者
-    - 傷害 = 敵人攻擊力 - 勇者防禦力
-      - 如果敵人有無視防禦力的特殊能力，就不須扣掉勇者防禦力
-    - 特殊條件
-      - 如果傷害 <= 0 -> 傷害 = 1
-      - 會有（勇者敏捷）%的機會被勇者迴避攻擊
-      - 如果敵人有必殺攻擊的特殊能力，就有10%的機會直接被擊殺
-      - 如果敵人有衰弱的特殊能力，就有1%的機會受到衰弱攻擊
-      - 如果敵人有中毒的特殊能力，就有1%的機會受到中毒攻擊
-        - 但我們做的遊戲關卡內沒有中毒攻擊的敵人
-- **道具獎勵**
-  - 上下左右 - 觸碰道具，獲得道具
-- **NPC對話**
-  - 上下左右 - 觸碰NPC，和NPC對話
-- **開啟門**
-  - 上下左右 - 觸碰門，判斷是否有對應鑰匙，開啟門
-- **樓層上下**
-  - 上下左右 - 從其他走道踩上樓梯，觸發上樓梯機制
-- **商店購物**
-  - 上下左右 - 觸碰商店(如果是三個連著的大商店，需觸碰中間的商店)，開啟商店選擇介面
 
 ### 遊戲畫面
 |   階段   |                        遊戲畫面                        |
 |:------:|:--------------------------------------------------:|
 |  開始畫面  |  <img src="FinalProjectImg/開始畫面.jpg" width="400">  |
-|  故事畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
-|  攻略魔塔  |  <img src="FinalProjectImg/攻略魔塔.jpg" width="400">  |
-| NPC對話  | <img src="FinalProjectImg/NPC對話.jpg" width="400">  |
-|  敵人打架  |  <img src="FinalProjectImg/敵人打架.jpg" width="400">  |
-|  打贏獎勵  |  <img src="FinalProjectImg/打贏獎勵.jpg" width="400">  |
-|  領取道具  |  <img src="FinalProjectImg/領取道具.jpg" width="400">  |
-|  商店採買  |  <img src="FinalProjectImg/商店採買.jpg" width="400">  |
-| 查看敵人資料 | <img src="FinalProjectImg/查看敵人資料.jpg" width="400"> |
-|  樓層飛行  |  <img src="FinalProjectImg/樓層飛行.jpg" width="400">  |
-|  按鍵說明  |  <img src="FinalProjectImg/按鍵說明.jpg" width="400">  |
-|  巨大怪物  |  <img src="FinalProjectImg/巨大怪物.jpg" width="400">  |
-|  假公主   |  <img src="FinalProjectImg/假公主.jpg" width="400">   |
-|  真公主   |  <img src="FinalProjectImg/真公主.jpg" width="400">   |
+|  關卡選擇畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  關卡內設定畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第一關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第二關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第三關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第四關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第五關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第六關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第七關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第八關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第九關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
+|  第十關畫面  |  <img src="FinalProjectImg/故事畫面.jpg" width="400">  |
 | 失敗結束畫面 | <img src="FinalProjectImg/失敗結束畫面.jpg" width="400"> |
 | 勝利結束畫面 | <img src="FinalProjectImg/勝利結束畫面.jpg" width="400"> |
 
@@ -172,10 +174,7 @@ graph TD
 
 ## 結語
 ### 問題與解決方法
-- 亂數產生器感覺並不亂數
-  - 因為我產生亂數種子應該放在程式執行的一開始，而不是要用到亂數當下的函式
-- 假公主的繼承問題
-  - 我在設計假公主的時候，發現假公主會先需要跟他對話，對話後封住後路並觸發戰鬥功能，因此我原本的設計是讓`FakePrincess`同時繼承`Enemy`和`NPC`，但發現這樣會造成菱形繼承的問題，因為`Enemy`和`NPC`都繼承了`Thing`，因此經過助教的建議後我改讓`FakePrincess`僅繼承`Enemy`，但在內部會有一個`NPC`的物件再讓`FakePrincess`自行控制是要觸發`Enemy`的`Touch`或是`NPC`的`Touch`。
+
 
 
 ### 自評
@@ -234,8 +233,8 @@ graph TD
       <td>基於物理衝量之動態計分與空間 UI 系統</td>
     </tr>
     <tr>
-      <td>遊戲介面按鈕</td>
-      <td>遊戲狀態機與互動介面控制</td>
+      <td>遊戲介面</td>
+      <td>遊戲狀態機與互動介面控制、遊戲特效、遊戲音效</td>
     </tr>
   </tbody>
 </table>
