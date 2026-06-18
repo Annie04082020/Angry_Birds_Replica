@@ -19,8 +19,7 @@ std::string ResolveLevelPath(const int levelNumber) {
     return Resource::LEVEL_1_TEST_DATA;
     // return Resource::LEVEL_EARTH_TEST_DATA;
   case 2:
-    // return Resource::LEVEL_2_DATA;
-    return Resource::LEVEL_2_TEST_DATA;
+    return Resource::LEVEL_2_DATA;
   case 3:
     return Resource::LEVEL_3_DATA;
   case 4:

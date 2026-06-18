@@ -219,7 +219,6 @@ const std::string SETTING_SFX = RESOURCE_DIR "/Audio/SFX/menu_confirm.wav";
 const std::string LEVEL_1_DATA = RESOURCE_DIR "/levels/level_1.json";
 const std::string LEVEL_1_TEST_DATA = RESOURCE_DIR "/levels/level_1_test.json";
 const std::string LEVEL_2_DATA = RESOURCE_DIR "/levels/level_2.json";
-const std::string LEVEL_2_TEST_DATA = RESOURCE_DIR "/levels/level_2_test.json";
 const std::string LEVEL_3_DATA = RESOURCE_DIR "/levels/level_3.json";
 const std::string LEVEL_4_DATA = RESOURCE_DIR "/levels/level_4.json";
 const std::string LEVEL_5_DATA = RESOURCE_DIR "/levels/level_5.json";
@@ -228,7 +227,6 @@ const std::string LEVEL_7_DATA = RESOURCE_DIR "/levels/level_7.json";
 const std::string LEVEL_8_DATA = RESOURCE_DIR "/levels/level_8.json";
 const std::string LEVEL_9_DATA = RESOURCE_DIR "/levels/level_9.json";
 const std::string LEVEL_10_DATA = RESOURCE_DIR "/levels/level_10.json";
-const std::string DEFAULT_LEVEL_DATA = LEVEL_2_DATA;
 const std::string LEVEL_EARTH_TEST_DATA =
     RESOURCE_DIR "/levels/level_earth_test.json";
 const std::string INTRO_LAYOUT_DATA = RESOURCE_DIR "/levels/intro_layout.json";
