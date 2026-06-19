@@ -108,7 +108,7 @@
       "rotation": 0.0,
       "xPercent": 13,
       "yPercent": -10
-    }, 
+    },
     {
       "type": "EARTH",
       "imageId": "EARTH_BLOCK",
@@ -119,7 +119,7 @@
       "rotation": 0.0,
       "xPercent": 19.7,
       "yPercent": -10
-    }, 
+    },
     {
       "type": "EARTH",
       "imageId": "EARTH_BLOCK",
@@ -152,7 +152,7 @@
       "rotation": 0.0,
       "xPercent": 33.1,
       "yPercent": -6
-    }, 
+    },
     {
       "type": "EARTH",
       "imageId": "EARTH_TRI_TLBR",
@@ -325,14 +325,14 @@
       "yPercent": 21.75
     },
     {
-        "type": "PIG",
-        "imageId": "PIG_MEDIUM",
-        "groupId": "Environment",
-        "widthPercent": 1.8,
-        "heightPercent": 2.8,
-        "rotation": 0.0,
-        "xPercent": 19.5,
-        "yPercent": -5
+      "type": "PIG",
+      "imageId": "PIG_MEDIUM",
+      "groupId": "Environment",
+      "widthPercent": 1.8,
+      "heightPercent": 2.8,
+      "rotation": 0.0,
+      "xPercent": 19.5,
+      "yPercent": -4.5
     },
     {
       "type": "STONE",
@@ -354,10 +354,6 @@
       "xPercent": 31,
       "yPercent": 9.1
     },
-
-
-
-
     {
       "type": "STONE",
       "imageId": "STONE_168_1",
@@ -499,14 +495,14 @@
       "yPercent": 29.85
     },
     {
-        "type": "PIG",
-        "imageId": "PIG_MEDIUM",
-        "groupId": "Environment",
-        "widthPercent": 2.8,
-        "heightPercent": 3.8,
-        "rotation": 0.0,
-        "xPercent": 33,
-        "yPercent": 3.1
+      "type": "PIG",
+      "imageId": "PIG_MEDIUM",
+      "groupId": "Environment",
+      "widthPercent": 2.5,
+      "heightPercent": 3.8,
+      "rotation": 0.0,
+      "xPercent": 33,
+      "yPercent": 4
     }
   ]
 }

@@ -416,8 +416,8 @@
       "widthPercent": 2.5,
       "heightPercent": 3.9,
       "rotation": 0.0,
-      "xPercent": 20.2,
-      "yPercent": -9.2
+      "xPercent": 20,
+      "yPercent": -11.5
     },
     {
       "type": "PIG",
@@ -426,8 +426,8 @@
       "widthPercent": 2.5,
       "heightPercent": 3.9,
       "rotation": 0.0,
-      "xPercent": 19.5,
-      "yPercent": -6.7
+      "xPercent": 20,
+      "yPercent": -8
     },
     {
       "type": "PIG",
@@ -436,8 +436,8 @@
       "widthPercent": 1.4,
       "heightPercent": 2.4,
       "rotation": 0.0,
-      "xPercent": 19.5,
-      "yPercent": 0.0
+      "xPercent": 20,
+      "yPercent": 2
     },
     {
       "type": "PIG",
@@ -446,8 +446,8 @@
       "widthPercent": 1.4,
       "heightPercent": 2.4,
       "rotation": 0.0,
-      "xPercent": 18.5,
-      "yPercent": 3.5
+      "xPercent": 20,
+      "yPercent": 4.5
     },
     {
       "type": "PIG",
@@ -456,8 +456,8 @@
       "widthPercent": 1.4,
       "heightPercent": 2.4,
       "rotation": 0.0,
-      "xPercent": 19.5,
-      "yPercent": 7.0
+      "xPercent": 20,
+      "yPercent": 6.5
     },
     {
       "type": "EARTH",

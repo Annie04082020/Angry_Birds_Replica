@@ -118,7 +118,7 @@
       "heightPercent": 2.4,
       "rotation": 0.0,
       "xPercent": 13,
-      "yPercent": 0.8
+      "yPercent": 1.0
     },
     {
       "type": "STONE",
@@ -148,7 +148,7 @@
       "heightPercent": 2.4,
       "rotation": 0.0,
       "xPercent": 18,
-      "yPercent": 0.8
+      "yPercent": 1.0
     },
     {
       "type": "STONE",
@@ -178,7 +178,7 @@
       "heightPercent": 2.4,
       "rotation": 0.0,
       "xPercent": 23,
-      "yPercent": 0.8
+      "yPercent": 1.0
     },
     {
       "type": "STONE",
@@ -208,7 +208,7 @@
       "heightPercent": 2.4,
       "rotation": 0.0,
       "xPercent": 31.2,
-      "yPercent": 8.35
+      "yPercent": 8.6
     },
     {
       "type": "EARTH",

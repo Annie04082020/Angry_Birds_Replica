@@ -8,6 +8,7 @@
 #include "Character.hpp"
 #include "EntityTemplateDatabase.hpp"
 #include "Resource.hpp"
+#include "Util/Logger.hpp"
 #include "Util/TransformUtils.hpp"
 #include "Util/ViewportUtils.hpp"
 
@@ -315,7 +316,7 @@ namespace
             return;
         }
 
-        if (imageId == "PIG_MEDIUM")
+        if (imageId == "PIG_MEDIUM" || imageId == "PIG_MEDIUM_076")
         {
             std::vector<std::string> framePaths = {
                 std::string(RESOURCE_DIR) + "/Image/pigs/pig_medium/sprite_076.png",
@@ -354,8 +355,7 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     }
     if (usedId != objectDefinition.imageId)
     {
-        std::cout << "LevelObjectFactory: imageId fallback: '" << objectDefinition.imageId
-                  << "' -> using '" << usedId << "'" << std::endl;
+        LOG_DEBUG("LevelObjectFactory: imageId fallback: '{}' -> using '{}'", objectDefinition.imageId, usedId);
     }
 
     float posX = objectDefinition.posX;

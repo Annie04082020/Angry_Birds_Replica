@@ -8,6 +8,7 @@
 #include "Character.hpp"
 #include "LevelObjectFactory.hpp"
 #include "LevelParser.hpp"
+#include "Util/Logger.hpp"
 #include "Util/LoadTextFile.hpp"
 #include "Util/TransformUtils.hpp"
 #include "config.hpp"
@@ -35,8 +36,7 @@ namespace
             scale = 1.0f;
         }
 
-        std::cout << "LevelManager: runtime window=" << windowW << "x" << windowH
-                  << ", levelScale=" << scale << std::endl;
+        LOG_DEBUG("LevelManager: runtime window={}x{}, levelScale={}", windowW, windowH, scale);
         return scale;
     }
 }
@@ -76,9 +76,9 @@ bool LevelManager::ParseLevelJson(const std::string &jsonStr)
         m_gameObjects.push_back(character);
     }
 
-    std::cout << "Loaded level: " << m_levelName << std::endl;
-    std::cout << "Game objects loaded: " << m_gameObjects.size() << std::endl;
-    std::cout << "Available birds: " << m_birdCount << std::endl;
+    LOG_DEBUG("Loaded level: {}", m_levelName);
+    LOG_DEBUG("Game objects loaded: {}", m_gameObjects.size());
+    LOG_DEBUG("Available birds: {}", m_birdCount);
 
     return true;
 }
