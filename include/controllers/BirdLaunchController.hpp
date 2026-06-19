@@ -87,6 +87,7 @@ private:
     std::vector<std::shared_ptr<SoundEffect>> m_BirdIdleVocalSfx;
     std::vector<std::shared_ptr<SoundEffect>> m_PigIdleVocalSfx;
     float m_ActiveBirdVocalCooldown = 0.0f;
+    std::vector<std::shared_ptr<Character>> m_Slingshots;
     // stop detection now uses velocity/angle thresholds
 };
 

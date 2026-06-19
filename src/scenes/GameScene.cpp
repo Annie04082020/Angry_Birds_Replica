@@ -787,7 +787,7 @@ void GameScene::BuildLevelHud()
     AddElements(m_LeftTopButton031);
 
     m_PauseMenuBackdrop = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.58f}, 1.0f), 90.0f);
+        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.58f}, 1.0f), 95.0f);
     m_PauseMenuBackdrop->SetVisible(false);
     AddElements(m_PauseMenuBackdrop);
 
@@ -857,7 +857,7 @@ void GameScene::BuildLevelHud()
 
     // Build Level Clear Screen UI
     m_LevelClearBackdrop = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.75f}, 1.0f), 90.0f);
+        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.75f}, 1.0f), 95.0f);
     m_LevelClearBackdrop->SetVisible(false);
     AddElements(m_LevelClearBackdrop);
 
@@ -974,7 +974,7 @@ void GameScene::BuildLevelHud()
     AddElements(m_LevelClearNextButton);
     
     m_LevelFailedBackdrop = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.75f}, 1.0f), 90.0f);
+        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.75f}, 1.0f), 95.0f);
     m_LevelFailedBackdrop->SetVisible(false);
     AddElements(m_LevelFailedBackdrop);
 
@@ -1897,7 +1897,7 @@ void GameScene::SpawnOutlinedFloatingScore(const glm::vec2 &position,
             position + offset,
             velocity,
             outlineColor,
-            98.0f,
+            92.0f,
             lifeTime);
         AddDebugEntity(shadowObject, lifeTime);
     }
@@ -1908,7 +1908,7 @@ void GameScene::SpawnOutlinedFloatingScore(const glm::vec2 &position,
         position,
         velocity + glm::vec2{0.0f, 6.0f},
         frontColor,
-        99.0f,
+        93.0f,
         lifeTime);
     AddDebugEntity(frontObject, lifeTime);
 }
@@ -1936,6 +1936,11 @@ void GameScene::SpawnFloatingScore(const glm::vec2 &position,
 void GameScene::FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition)
 {
     if (!character)
+    {
+        return;
+    }
+
+    if (m_IsLevelClearScreenVisible || m_IsLevelFailedScreenVisible)
     {
         return;
     }
