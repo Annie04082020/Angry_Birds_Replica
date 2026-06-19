@@ -117,6 +117,30 @@ namespace
         if (penetration < kMinSupportPenetration)
             return;
 
+        // For elongated objects, don't allow sleep at unstable angles.
+        // A rectangle is stable lying flat (0°) or upright (90°).
+        // Sleeping at an intermediate angle causes the "stuck diagonal" artifact.
+        {
+            const glm::vec2 size = c->GetSize();
+            const float longer  = std::max(size.x, size.y);
+            const float shorter = std::min(size.x, size.y);
+            const float aspect  = longer / std::max(0.01f, shorter);
+            if (aspect > 1.4f)
+            {
+                constexpr float kHalfPi = 1.5707963f;
+                constexpr float kPi     = 3.1415927f;
+                float rot = std::fmod(c->m_Transform.rotation, kPi);
+                if (rot >  kHalfPi) rot -= kPi;
+                if (rot < -kHalfPi) rot += kPi;
+                // Distance to nearest stable angle (0 or ±π/2)
+                float nearest  = std::round(rot / kHalfPi) * kHalfPi;
+                float angleOff = std::fabs(rot - nearest);
+                // ~5° threshold — must be close to flat or upright to sleep
+                if (angleOff > 0.09f)
+                    return;
+            }
+        }
+
         if (glm::length(c->GetVelocity()) < kSleepV &&
             std::fabs(c->GetAngularVelocity()) < kSleepW)
         {
@@ -303,16 +327,16 @@ void CollisionResponse::ApplyAccumulatedDamage(ContactManifold &cm, float physic
             return;
         }
 
-        float damageThreshold = 150.0f;
-        float damageFactor = 0.05f;
+        float damageThreshold = 220.0f; // was 350.0f
+        float damageFactor = 0.04f; // was 0.025f
 
         if (c->GetEntityKind() == Character::EntityKind::Pig || c->IsSpecialItem())
         {
             // Pigs and the level 3 smile target should reliably die from
             // meaningful impacts, even when the collision only topples them
             // instead of producing a huge structure-on-structure impulse.
-            damageThreshold = 70.0f;
-            damageFactor = 0.11f;
+            damageThreshold = 100.0f; // was 180.0f
+            damageFactor = 0.09f; // was 0.05f
         }
 
         if (absJn <= damageThreshold)

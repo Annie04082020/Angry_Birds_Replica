@@ -27,6 +27,9 @@ public:
     void SetOnSpawnCharacter(std::function<void(std::shared_ptr<Character>)> callback) {
         m_OnSpawnCharacter = callback;
     }
+    void SetOnRemoveCharacter(std::function<void(std::shared_ptr<Character>)> callback) {
+        m_OnRemoveCharacter = callback;
+    }
     void SetPhysicsScale(float scale) { m_PhysicsScale = scale; }
 
     [[nodiscard]] bool IsHoldingBird() const { return m_IsHoldingBird; }
@@ -61,6 +64,8 @@ private:
     glm::vec2 GetMouseWorldPosition() const;
     void ActivateBirdByIndex(size_t index);
     void UpdateQueuedBirdIdleAnimations(float deltaTimeSeconds);
+    void UpdateSettledBirdRemoval(float deltaTimeSeconds);
+    void ScheduleSettledBirdRemoval(const std::shared_ptr<Character> &bird);
     void ResetQueuedBirdIdleAnimation(const std::shared_ptr<Character> &bird, bool snapToBasePosition);
     void PlayRandomBirdVocal();
     void UpdatePigIdleVocals(float deltaTimeSeconds);
@@ -78,11 +83,14 @@ private:
     float m_WorldFloorY = -294.0f;
     std::vector<std::shared_ptr<Character>> m_ActiveBirdsInFlight;
     std::function<void(std::shared_ptr<Character>)> m_OnSpawnCharacter = nullptr;
+    std::function<void(std::shared_ptr<Character>)> m_OnRemoveCharacter = nullptr;
     bool m_HasSplit = false;
     float m_PhysicsScale = 1.0f;
     int m_LaunchSequence = 0;
     float m_ActiveBirdBaseRotation = 0.0f;
     std::unordered_map<const Character *, IdleAnimationState> m_QueuedBirdIdleStates;
+    std::unordered_map<const Character *, float> m_SettledBirdRemovalTimers;
+    std::vector<std::shared_ptr<Character>> m_SettledBirdsPendingRemoval;
     std::unordered_map<const Character *, float> m_PigVocalCooldowns;
     std::vector<std::shared_ptr<SoundEffect>> m_BirdIdleVocalSfx;
     std::vector<std::shared_ptr<SoundEffect>> m_PigIdleVocalSfx;

@@ -57,9 +57,24 @@
             "health": 150.0
         },
         {
+            "id": "PIG_DEFAULT",
+            "matchPrefix": "PIG_",
+            "kind": "Pig",
+            "material": "Flesh",
+            "mass": 2.0,
+            "inertia": 1.5,
+            "velocityX": 0.0,
+            "velocityY": 0.0,
+            "angularVelocity": 0.0,
+            "centerOfMassOffsetX": 0.0,
+            "centerOfMassOffsetY": 0.0,
+            "isStatic": false,
+            "health": 200.0
+        },
+        {
             "id": "WOOD_stage",
             "kind": "Environment",
-            "material": "Wood",
+            "material": "Earth",
             "mass": 999999.0,
             "inertia": 999999.0,
             "velocityX": 0.0,

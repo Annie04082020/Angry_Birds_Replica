@@ -161,6 +161,10 @@ bool GameScene::LoadLevel(const std::string &levelPath) {
         [this](const std::shared_ptr<Character> &charPtr) {
           this->AddElements(charPtr);
         });
+    m_BirdLaunchController->SetOnRemoveCharacter(
+        [this](const std::shared_ptr<Character> &charPtr) {
+          this->RemoveElement(charPtr);
+        });
     m_BirdLaunchController->LoadLevelObjects(objects);
   }
 
@@ -442,6 +446,8 @@ void GameScene::UpdateScoreHud() {
 void GameScene::ResetScoreState() {
   m_ScoringSystem.Reset();
   m_RemainingPigCount = 0;
+  m_LevelThreeRequiresSmileLanding = false;
+  m_LevelThreeSmileLanded = false;
   m_LevelCleared = false;
   m_LevelFailed = false;
   m_LeftoverBirdsAwarded = false;
@@ -468,9 +474,12 @@ void GameScene::ResetScoreState() {
       object->SetParticipatesInPhysics(true);
     }
 
-    if (object->GetEntityKind() == Character::EntityKind::Pig ||
-        IsLevelThreeSmileTarget(m_LevelManager.get(), object)) {
+    if (object->GetEntityKind() == Character::EntityKind::Pig) {
       ++m_RemainingPigCount;
+    }
+
+    if (IsLevelThreeSmileTarget(m_LevelManager.get(), object)) {
+      m_LevelThreeRequiresSmileLanding = true;
     }
 
     if (object->GetEntityKind() == Character::EntityKind::Environment &&
@@ -513,8 +522,7 @@ void GameScene::RefreshRemainingPigCount() {
       continue;
     }
 
-    if (object->GetEntityKind() != Character::EntityKind::Pig &&
-        !IsLevelThreeSmileTarget(m_LevelManager.get(), object)) {
+    if (object->GetEntityKind() != Character::EntityKind::Pig) {
       continue;
     }
 
@@ -524,7 +532,16 @@ void GameScene::RefreshRemainingPigCount() {
   }
 
   m_RemainingPigCount = alivePigCount;
-  if (m_RemainingPigCount == 0) {
+  UpdateClearObjectiveState();
+}
+
+bool GameScene::IsClearObjectiveComplete() const {
+  return m_RemainingPigCount == 0 &&
+         (!m_LevelThreeRequiresSmileLanding || m_LevelThreeSmileLanded);
+}
+
+void GameScene::UpdateClearObjectiveState() {
+  if (IsClearObjectiveComplete()) {
     m_LevelCleared = true;
     m_LevelFailed = false;
   }
@@ -615,7 +632,7 @@ void GameScene::UpdateFailState()
         const bool hasFailedByExhaustingBirds =
             m_BirdLaunchController &&
             !m_LevelCleared &&
-            m_RemainingPigCount > 0 &&
+            !IsClearObjectiveComplete() &&
             m_BirdLaunchController->IsOutOfBirds();
 
         if (!hasFailedByExhaustingBirds)
@@ -687,15 +704,7 @@ void GameScene::FinalizeScoreForCharacter(
       --m_RemainingPigCount;
     }
     if (m_RemainingPigCount == 0) {
-      m_LevelCleared = true;
-    }
-  } else if (IsLevelThreeSmileTarget(m_LevelManager.get(), character)) {
-    awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
-    if (m_RemainingPigCount > 0) {
-      --m_RemainingPigCount;
-    }
-    if (m_RemainingPigCount == 0) {
-      m_LevelCleared = true;
+      UpdateClearObjectiveState();
     }
   } else if (character->IsSpecialItem()) {
     awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
@@ -714,6 +723,14 @@ void GameScene::FinalizeScoreForCharacter(
 void GameScene::OnCharacterDeath(const std::shared_ptr<Character> &character) {
   FinalizeScoreForCharacter(character, character ? character->GetPosition()
                                                  : glm::vec2{0.0f, 0.0f});
+}
+
+void GameScene::OnCharacterHitFloor(const std::shared_ptr<Character> &character) {
+  if (!m_LevelThreeSmileLanded &&
+      IsLevelThreeSmileTarget(m_LevelManager.get(), character)) {
+    m_LevelThreeSmileLanded = true;
+    UpdateClearObjectiveState();
+  }
 }
 
 void GameScene::TogglePauseMenu() {

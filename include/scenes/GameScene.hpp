@@ -55,6 +55,8 @@ private:
     void UpdateScoreHud();
     void ResetScoreState();
     void RefreshRemainingPigCount();
+    bool IsClearObjectiveComplete() const;
+    void UpdateClearObjectiveState();
     void UpdateWinState();
     void UpdateFailState();
     void SpawnFloatingScore(const glm::vec2 &position, int points, const Util::Color &frontColor);
@@ -66,6 +68,7 @@ private:
                                     const glm::vec2 &velocity);
     void FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition);
     void OnCharacterDeath(const std::shared_ptr<Character> &character) override;
+    void OnCharacterHitFloor(const std::shared_ptr<Character> &character) override;
     void SetPauseMenuVisible(bool visible);
     void TogglePauseMenu();
     void ToggleMusicMute();
@@ -94,6 +97,8 @@ private:
     ScoringSystem m_ScoringSystem;
     int m_HudHighScore = 0;
     int m_RemainingPigCount = 0;
+    bool m_LevelThreeRequiresSmileLanding = false;
+    bool m_LevelThreeSmileLanded = false;
     bool m_LevelCleared = false;
     bool m_LevelFailed = false;
     bool m_LeftoverBirdsAwarded = false;

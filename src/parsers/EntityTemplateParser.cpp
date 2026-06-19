@@ -47,6 +47,10 @@ namespace
         {
             return Character::MaterialType::Ice;
         }
+        if (material == "Earth")
+        {
+            return Character::MaterialType::Earth;
+        }
         return Character::MaterialType::None;
     }
 }

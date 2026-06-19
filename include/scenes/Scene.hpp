@@ -75,6 +75,7 @@ public:
       AddChild(element);
     }
   }
+  void RemoveElement(const std::shared_ptr<Util::GameObject> &element);
 
   // Element traversal lock management
   void ReleaseTraversalLock();
@@ -92,6 +93,7 @@ public:
 
   // Called when a character dies (can be overridden by subclasses)
   virtual void OnCharacterDeath(const std::shared_ptr<Character> &) {}
+  virtual void OnCharacterHitFloor(const std::shared_ptr<Character> &) {}
 
 protected:
   // Runs a generic collision detection pass for children of this Scene.

@@ -163,18 +163,18 @@ namespace CollisionUtils
         switch (mat)
         {
         case Character::MaterialType::Flesh:
-            return 0.2f;
+            return 0.10f; // was 0.2f
         case Character::MaterialType::Wood:
-            return 0.12f;
+            return 0.06f; // was 0.12f
         case Character::MaterialType::Stone:
-            return 0.06f;
+            return 0.02f; // was 0.06f
         case Character::MaterialType::Earth:
-            return 0.04f;
+            return 0.02f; // was 0.04f
         case Character::MaterialType::Glass:
         case Character::MaterialType::Ice:
-            return 0.18f;
+            return 0.08f; // was 0.18f
         default:
-            return 0.1f;
+            return 0.05f; // was 0.1f
         }
     }
 
