@@ -6,7 +6,8 @@
 
 void App::Update()
 {
-  if (Util::Input::IsKeyPressed(Util::Keycode::F10))
+  if (m_CurrentState != State::GAME &&
+      Util::Input::IsKeyDown(Util::Keycode::F10))
   {
     ToggleLevelSelectCheatMode();
   }
