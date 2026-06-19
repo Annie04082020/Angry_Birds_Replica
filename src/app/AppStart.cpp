@@ -2,6 +2,7 @@
 #include "GameScene.hpp"
 #include "IntroScene.hpp"
 #include "LevelSelectScene.hpp"
+#include "JsonParseUtils.hpp"
 #include "Resource.hpp"
 #include "SDL.h"
 #include "SDL_image.h"
@@ -11,9 +12,16 @@
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 #include "config.hpp"
+#include <fstream>
 #include <memory>
+#include <sstream>
 
 namespace {
+constexpr const char *kHighScoreFilePath = RESOURCE_DIR "/high_scores.json";
+constexpr const char *kUnlockProgressFilePath =
+    RESOURCE_DIR "/unlock_progress.json";
+constexpr int kTotalLevels = 10;
+
 std::string ResolveLevelPath(const int levelNumber) {
   switch (levelNumber) {
   case 1:
@@ -56,6 +64,20 @@ void ApplyStartupHandCursor() {
     SDL_ShowCursor(SDL_ENABLE);
   }
 }
+
+int LoadHighestSequentialClearedLevelFromFile() {
+  std::ifstream file(kUnlockProgressFilePath);
+  if (!file.is_open()) {
+    return 0;
+  }
+
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  const std::string jsonContent = buffer.str();
+  return std::clamp(
+      JsonParseUtils::ExtractInt(jsonContent, "highest_sequential_cleared_level", 0),
+      0, kTotalLevels);
+}
 } // namespace
 
 void App::Start() {
@@ -79,6 +101,9 @@ void App::Start() {
   m_levelSelectScene->SetOnLevelSelectCallback([this](const int levelNumber) {
     return this->TransitionToGame(levelNumber);
   });
+
+  RefreshLevelSelectProgress();
+  ApplyLevelSelectProgress();
 
   // 紀錄啟動時間
   m_startTime = Util::Time::GetElapsedTimeMs();
@@ -106,6 +131,9 @@ void App::ShowIntroScene() {
 }
 
 void App::ShowLevelSelectScene() {
+  RefreshLevelSelectProgress();
+  ApplyLevelSelectProgress();
+
   if (m_introScene) {
     m_introScene->SetVisible(false);
     m_introScene->SetMenuVisible(false);
@@ -118,8 +146,63 @@ void App::ShowLevelSelectScene() {
   Util::SetCameraPosition({0.0f, 0.0f});
 }
 
+void App::RefreshLevelSelectProgress() {
+  m_highestSequentialClearedLevel = LoadHighestSequentialClearedLevelFromFile();
+}
+
+void App::ApplyLevelSelectProgress() {
+  if (m_levelSelectScene) {
+    m_levelSelectScene->SetLevelProgress(m_highestSequentialClearedLevel,
+                                         m_isLevelSelectCheatMode);
+  }
+}
+
+void App::ToggleLevelSelectCheatMode() {
+  m_isLevelSelectCheatMode = !m_isLevelSelectCheatMode;
+  ApplyLevelSelectProgress();
+  LOG_INFO("Level select cheat mode {}", m_isLevelSelectCheatMode ? "enabled"
+                                                                  : "disabled");
+}
+
+void App::SaveUnlockedProgress(const int clearedLevel) const {
+  if (clearedLevel <= 0 || clearedLevel > kTotalLevels) {
+    return;
+  }
+
+  int existingHighest = 0;
+  std::ifstream inputFile(kUnlockProgressFilePath);
+  if (inputFile.is_open()) {
+    std::stringstream buffer;
+    buffer << inputFile.rdbuf();
+    existingHighest = JsonParseUtils::ExtractInt(
+        buffer.str(), "highest_sequential_cleared_level", 0);
+  }
+
+  const int newHighest = std::max(existingHighest, clearedLevel);
+
+  std::ofstream outputFile(kUnlockProgressFilePath, std::ios::trunc);
+  if (!outputFile.is_open()) {
+    LOG_WARN("Failed to save unlock progress file: {}", kUnlockProgressFilePath);
+    return;
+  }
+
+  outputFile << "{\n";
+  outputFile << "  \"highest_sequential_cleared_level\": " << newHighest << "\n";
+  outputFile << "}\n";
+}
+
 bool App::TransitionToGame(const int levelNumber) {
   LOG_DEBUG("Transitioning to GAME state");
+
+  RefreshLevelSelectProgress();
+  const int highestUnlockedLevel =
+      std::clamp(m_highestSequentialClearedLevel + 1, 1, kTotalLevels);
+  if (!m_isLevelSelectCheatMode && levelNumber > highestUnlockedLevel) {
+    LOG_WARN("Level {} is locked. Highest unlocked level is {}", levelNumber,
+             highestUnlockedLevel);
+    ApplyLevelSelectProgress();
+    return false;
+  }
 
   const std::string levelPath = ResolveLevelPath(levelNumber);
   if (levelPath.empty()) {
@@ -152,6 +235,8 @@ bool App::LoadLevel(const std::string &levelPath) {
       [this]() { m_pendingGameAction = PendingGameAction::OpenLevelSelect; });
   m_gameScene->SetOnNextLevelCallback(
       [this]() { m_pendingGameAction = PendingGameAction::OpenNextLevel; });
+  m_gameScene->SetOnLevelClearedCallback(
+      [this](const int clearedLevel) { SaveUnlockedProgress(clearedLevel); });
 
   if (m_gameScene && m_gameScene->LoadLevel(levelPath)) {
     LOG_DEBUG("Level loaded successfully: {}", levelPath);

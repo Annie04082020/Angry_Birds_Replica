@@ -106,6 +106,14 @@ bool IsLevelThreeSmileTarget(const LevelManager *levelManager,
   return levelManager && levelManager->GetLevel() == 3 && character &&
          character->IsSpecialItem() && character->GetBaseImageId() == "SMILE";
 }
+
+Util::Color GetLeftoverBirdAwardColor(const LevelManager *levelManager) {
+  if (levelManager && levelManager->GetLevel() == 10) {
+    return Util::Color::FromRGB(72, 156, 255);
+  }
+
+  return Util::Color::FromRGB(214, 54, 54);
+}
 } // namespace
 
 bool GameScene::LoadLevel(const std::string &levelPath) {
@@ -585,7 +593,7 @@ void GameScene::UpdateWinState()
                 const glm::vec2 popupOffset = glm::vec2{34.0f, 18.0f};
                 SpawnOutlinedFloatingScore(popupPosition + popupOffset,
                                            FormatScore(awarded),
-                                           Util::Color::FromRGB(214, 54, 54),
+                                           GetLeftoverBirdAwardColor(m_LevelManager.get()),
                                            42,
                                            1.65f,
                                            glm::vec2{0.0f, 34.0f});
@@ -598,6 +606,9 @@ void GameScene::UpdateWinState()
         m_ScoringSystem.CommitCurrentScoreToHighScore();
         m_HudHighScore = m_ScoringSystem.GetHighScore();
         PersistLevelHighScore();
+        if (m_OnLevelCleared && m_LevelManager) {
+          m_OnLevelCleared(m_LevelManager->GetLevel());
+        }
         m_IsLevelClearScreenVisible = true;
         m_LevelClearAnimationTime = 0.0f;
         SetPauseMenuVisible(false);

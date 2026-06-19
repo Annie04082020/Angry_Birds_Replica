@@ -22,14 +22,20 @@ namespace
     constexpr int kLevelSelectSubtitleSize = static_cast<int>(22 * kLevelSelectScale);
     constexpr int kLevelSelectNumberSize = static_cast<int>(34 * kLevelSelectScale);
     constexpr int kLevelSelectBackLabelSize = static_cast<int>(24 * kLevelSelectScale);
+    const glm::vec3 kUnlockedButtonTint = {1.0f, 1.0f, 1.0f};
 
     std::shared_ptr<Util::GameObject> CreateTextObject(const std::string &text,
                                                        const int fontSize,
                                                        const glm::vec2 &position,
                                                        const float zIndex,
-                                                       const Util::Color &color)
+                                                       const Util::Color &color,
+                                                       std::shared_ptr<Util::Text> *outDrawable = nullptr)
     {
         auto drawable = std::make_shared<Util::Text>(kUIFont, fontSize, text, color);
+        if (outDrawable)
+        {
+            *outDrawable = drawable;
+        }
         auto object = std::make_shared<Util::GameObject>(drawable, zIndex);
         object->m_Transform.translation = position;
         return object;
@@ -66,6 +72,11 @@ void LevelSelectScene::BuildLevelSelectUI()
     m_title = CreateTextObject(
         "SELECT LEVEL", kLevelSelectTitleSize, {10.0f, 230.0f}, 90, Util::Color::FromRGB(255, 255, 255));
     AddElements(m_title);
+
+    m_subtitle = CreateTextObject(
+        "NORMAL MODE  -  F10: CHEAT", kLevelSelectSubtitleSize, {10.0f, 188.0f}, 90,
+        Util::Color::FromRGB(220, 220, 220), &m_subtitleDrawable);
+    AddElements(m_subtitle);
 
     m_backButton = std::make_shared<Button>(Resource::Additional_Button_Base);
     m_backButton->SetZIndex(88);
@@ -112,13 +123,17 @@ void LevelSelectScene::BuildLevelSelectUI()
         const std::string labelText = std::to_string(levelNumber);
         const int labelSize = kLevelSelectNumberSize;
 
+        m_levelLabelDrawables.push_back(nullptr);
         auto label = CreateTextObject(
-            labelText, labelSize, buttonPosition + glm::vec2{7.0f, 10.0f}, 89, Util::Color::FromRGB(255, 255, 255));
+            labelText, labelSize, buttonPosition + glm::vec2{7.0f, 10.0f}, 89,
+            Util::Color::FromRGB(255, 255, 255), &m_levelLabelDrawables.back());
         label->m_Transform.scale = {1.0f, 1.0f};
         AddElements(label);
         m_levelLabels.push_back(label);
         m_levelLabelBaseScales.push_back({1.0f, 1.0f});
     }
+
+    RefreshLevelButtonStates();
 }
 
 void LevelSelectScene::Update()
@@ -147,6 +162,7 @@ void LevelSelectScene::Update()
     {
         const bool isHovered = m_levelButtons[i] &&
                                m_levelButtons[i]->GetVisibility() &&
+                               m_levelButtons[i]->IsInputEnabled() &&
                                m_levelButtons[i]->IsHovering(mousePos);
         m_levelLabels[i]->m_Transform.scale = isHovered
                                                   ? m_levelLabelBaseScales[i] * kLabelHoverScaleMultiplier
@@ -197,7 +213,7 @@ void LevelSelectScene::SetSceneVisible(const bool visible)
     }
 
     m_BlockInputUntilMouseRelease = Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB);
-    SetButtonsInputEnabled(!m_BlockInputUntilMouseRelease);
+    RefreshLevelButtonStates();
 }
 
 void LevelSelectScene::SetButtonsInputEnabled(const bool enabled)
@@ -213,5 +229,45 @@ void LevelSelectScene::SetButtonsInputEnabled(const bool enabled)
         {
             button->SetInputEnabled(enabled);
         }
+    }
+
+    if (enabled)
+    {
+        RefreshLevelButtonStates();
+    }
+}
+
+void LevelSelectScene::SetLevelProgress(const int highestSequentialClearedLevel, const bool cheatMode)
+{
+    m_HighestSequentialClearedLevel = glm::clamp(highestSequentialClearedLevel, 0, kTotalLevels);
+    m_CheatModeEnabled = cheatMode;
+    RefreshLevelButtonStates();
+}
+
+void LevelSelectScene::RefreshLevelButtonStates()
+{
+    const int highestUnlockedLevel = glm::clamp(m_HighestSequentialClearedLevel + 1, 1, kTotalLevels);
+
+    for (size_t i = 0; i < m_levelButtons.size() && i < m_levelLabels.size(); ++i)
+    {
+        const int levelNumber = static_cast<int>(i) + 1;
+        const bool isUnlocked = m_CheatModeEnabled || levelNumber <= highestUnlockedLevel;
+
+        if (m_levelButtons[i])
+        {
+            m_levelButtons[i]->SetInputEnabled(isUnlocked && !m_BlockInputUntilMouseRelease);
+            m_levelButtons[i]->SetOpacity(1.0f);
+            m_levelButtons[i]->SetTint(kUnlockedButtonTint);
+            m_levelButtons[i]->SetGrayscaleAmount(isUnlocked ? 0.0f : 1.0f);
+        }
+    }
+
+    if (m_subtitleDrawable)
+    {
+        m_subtitleDrawable->SetText(m_CheatModeEnabled ? "CHEAT MODE  -  F10: NORMAL"
+                                                       : "NORMAL MODE  -  F10: CHEAT");
+        m_subtitleDrawable->SetColor(m_CheatModeEnabled
+                                         ? Util::Color::FromRGB(72, 156, 255)
+                                         : Util::Color::FromRGB(220, 220, 220));
     }
 }

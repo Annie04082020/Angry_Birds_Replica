@@ -64,3 +64,12 @@ target_link_libraries(${PROJECT_NAME}
     SDL2::SDL2main
     PTSD
 )
+
+add_custom_target(reset_unlock_progress ALL
+    COMMAND ${CMAKE_COMMAND}
+            -DOUTPUT_PATH=${CMAKE_CURRENT_SOURCE_DIR}/Resources/unlock_progress.json
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/reset_unlock_progress.cmake
+    COMMENT "Resetting level unlock progress for this build"
+)
+
+add_dependencies(reset_unlock_progress ${PROJECT_NAME})

@@ -6,6 +6,12 @@
 
 void App::Update()
 {
+  if (m_CurrentState != State::GAME &&
+      Util::Input::IsKeyDown(Util::Keycode::F10))
+  {
+    ToggleLevelSelectCheatMode();
+  }
+
   if (!m_isSplashDone)
   {
     if (Util::Time::GetElapsedTimeMs() - m_startTime >= 2000.0f)

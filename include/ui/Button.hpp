@@ -6,6 +6,7 @@
 #include <string>
 
 #include "SoundEffect.hpp"
+#include "Util/Image.hpp"
 #include "Util/GameObject.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
@@ -82,6 +83,35 @@ public:
     m_InputEnabled = enabled;
   }
 
+  [[nodiscard]] bool IsInputEnabled() const
+  {
+    return m_InputEnabled;
+  }
+
+  void SetOpacity(float opacity)
+  {
+    if (const auto image = std::dynamic_pointer_cast<Util::Image>(m_Drawable))
+    {
+      image->SetOpacity(opacity);
+    }
+  }
+
+  void SetTint(const glm::vec3 &tint)
+  {
+    if (const auto image = std::dynamic_pointer_cast<Util::Image>(m_Drawable))
+    {
+      image->SetTint(tint);
+    }
+  }
+
+  void SetGrayscaleAmount(float amount)
+  {
+    if (const auto image = std::dynamic_pointer_cast<Util::Image>(m_Drawable))
+    {
+      image->SetGrayscaleAmount(amount);
+    }
+  }
+
   void Update() override
   {
     if (!m_Visible)
@@ -92,7 +122,7 @@ public:
 
     auto mousePos = Util::Input::GetCursorPosition();
 
-    if (IsHovering(mousePos))
+    if (m_InputEnabled && IsHovering(mousePos))
     {
       m_Transform.scale = m_baseScale * m_hoverMultiplier;
     }

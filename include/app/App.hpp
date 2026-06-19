@@ -50,6 +50,10 @@ public:
   void UnloadCurrentGameScene();
 
 private:
+  void RefreshLevelSelectProgress();
+  void ApplyLevelSelectProgress();
+  void ToggleLevelSelectCheatMode();
+  void SaveUnlockedProgress(int clearedLevel) const;
   void ValidTask();
 
 private:
@@ -64,6 +68,8 @@ private:
   PendingGameAction m_pendingGameAction = PendingGameAction::None;
   float m_startTime = 0.0f;
   bool m_isSplashDone = false;
+  int m_highestSequentialClearedLevel = 0;
+  bool m_isLevelSelectCheatMode = false;
   Util::Renderer m_Root;
 };
 
