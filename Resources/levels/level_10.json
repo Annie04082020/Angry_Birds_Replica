@@ -503,6 +503,16 @@
       "rotation": 0.0,
       "xPercent": 33,
       "yPercent": 4
+    },
+    {
+      "type": "ICE",
+      "imageId": "ICE_83x20",
+      "groupId": "Environment",
+      "widthPercent": 3,
+      "heightPercent": 1.8,
+      "rotation": 2.6,
+      "xPercent": 25,
+      "yPercent": -1
     }
   ]
 }
