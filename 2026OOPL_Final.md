@@ -71,6 +71,7 @@
 |:------:|:--------------------------------------------------:|
 |  過場畫面  |  <img src="final_img/LoadingScene.png" width="400">  |
 |  開始畫面  |  <img src="final_img/IntroScene.png" width="400">  |
+|  退出對話框介面  |  <img src="final_img/QuitDialog.png" width="400">  |
 |  關卡選擇畫面  |  <img src="final_img/LevelSelect.png" width="400">  |
 |  關卡內選單  |  <img src="final_img/InLevelMenu.png" width="400">  |
 |  第一關畫面  |  <img src="final_img/level1.png" width="400">  |
@@ -83,8 +84,8 @@
 |  第八關畫面  |  <img src="final_img/level8.png" width="400">  |
 |  第九關畫面  |  <img src="final_img/level9.png" width="400">  |
 |  第十關畫面  |  <img src="final_img/level10.png" width="400">  |
-| 失敗結束畫面 | <img src="final_img/失敗結算畫面.png" width="400"> |
-| 勝利結束畫面 | <img src="final_img/勝利結算畫面.png" width="400"> |
+| 失敗結束畫面 | <img src="final_img/fail_end.png" width="400"> |
+| 勝利結束畫面 | <img src="final_img/win_end.png" width="400"> |
 
 ## 程式設計
 ### 程式架構
