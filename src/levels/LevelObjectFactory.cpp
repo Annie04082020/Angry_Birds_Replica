@@ -316,7 +316,7 @@ namespace
             return;
         }
 
-        if (imageId == "PIG_MEDIUM")
+        if (imageId == "PIG_MEDIUM" || imageId == "PIG_MEDIUM_076")
         {
             std::vector<std::string> framePaths = {
                 std::string(RESOURCE_DIR) + "/Image/pigs/pig_medium/sprite_076.png",
