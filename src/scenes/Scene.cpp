@@ -427,8 +427,8 @@ void Scene::StepPhysics(float dt)
           ch->GetEntityKind() != Character::EntityKind::Bird &&
           ch->GetMaterialType() != Character::MaterialType::Earth)
       {
-        constexpr float kFloorDamageImpulseThreshold = 350.0f;
-        constexpr float kFloorDamageFactor = 0.025f;
+        constexpr float kFloorDamageImpulseThreshold = 220.0f;
+        constexpr float kFloorDamageFactor = 0.04f;
         
         // Un-scale the impulse to make damage resolution-independent
         const float estimatedImpulse = Jn / (m_PhysicsScale > 0.0f ? m_PhysicsScale : 1.0f);

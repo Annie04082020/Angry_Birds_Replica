@@ -101,11 +101,6 @@ std::string FormatScore(const int score) {
   return stream.str();
 }
 
-bool IsLevelThreeSmileTarget(const LevelManager *levelManager,
-                             const std::shared_ptr<Character> &character) {
-  return levelManager && levelManager->GetLevel() == 3 && character &&
-         character->IsSpecialItem() && character->GetBaseImageId() == "SMILE";
-}
 } // namespace
 
 bool GameScene::LoadLevel(const std::string &levelPath) {
@@ -468,8 +463,7 @@ void GameScene::ResetScoreState() {
       object->SetParticipatesInPhysics(true);
     }
 
-    if (object->GetEntityKind() == Character::EntityKind::Pig ||
-        IsLevelThreeSmileTarget(m_LevelManager.get(), object)) {
+    if (object->GetEntityKind() == Character::EntityKind::Pig) {
       ++m_RemainingPigCount;
     }
 
@@ -513,8 +507,7 @@ void GameScene::RefreshRemainingPigCount() {
       continue;
     }
 
-    if (object->GetEntityKind() != Character::EntityKind::Pig &&
-        !IsLevelThreeSmileTarget(m_LevelManager.get(), object)) {
+    if (object->GetEntityKind() != Character::EntityKind::Pig) {
       continue;
     }
 
@@ -683,14 +676,6 @@ void GameScene::FinalizeScoreForCharacter(
   int awarded = 0;
   if (character->GetEntityKind() == Character::EntityKind::Pig) {
     awarded = m_ScoringSystem.AwardPigDestroyed();
-    if (m_RemainingPigCount > 0) {
-      --m_RemainingPigCount;
-    }
-    if (m_RemainingPigCount == 0) {
-      m_LevelCleared = true;
-    }
-  } else if (IsLevelThreeSmileTarget(m_LevelManager.get(), character)) {
-    awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
     if (m_RemainingPigCount > 0) {
       --m_RemainingPigCount;
     }
