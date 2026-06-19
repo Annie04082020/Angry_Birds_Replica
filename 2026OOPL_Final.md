@@ -109,21 +109,23 @@ graph TD
     Button --> m_PauseMenu073
     Button --> m_PauseMenu005
     Button --> m_PauseMenu063
-    
-    App
-    LevelManager
-    BirdLaunchController
-    SceneInputController
-    EntityTemplateDatabase
-    LevelObjectFactory
-    CollisionUtils
-    CollisionResponse
-    ContactManifold
-    ScoringSystem
-    JsonParseUtils
-    BGM
-    SoundEffect
-    Resource
+
+    subgraph Independent["獨立系統類別（非繼承關係，透過組合或函式呼叫協作）"]
+        App
+        LevelManager
+        BirdLaunchController
+        SceneInputController
+        EntityTemplateDatabase
+        LevelObjectFactory
+        CollisionUtils
+        CollisionResponse
+        ContactManifold
+        ScoringSystem
+        JsonParseUtils
+        BGM
+        SoundEffect
+        Resource
+    end
 ```
 
 以下的點代表繼承、數字代表詳細解釋
