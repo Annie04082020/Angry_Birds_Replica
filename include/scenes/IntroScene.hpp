@@ -39,6 +39,7 @@ private:
     std::shared_ptr<Util::GameObject> m_additionalButtonOverlay;
     std::shared_ptr<AnimatedButton> m_additionalAnimated;
     std::shared_ptr<Util::GameObject> m_menuItem017;
+    std::shared_ptr<Util::GameObject> m_muteOverlay;
     std::shared_ptr<Util::GameObject> m_menuItem032;
     std::shared_ptr<Util::GameObject> m_menuItem043;
     std::shared_ptr<Util::GameObject> m_additionalMenuItem108;

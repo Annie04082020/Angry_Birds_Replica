@@ -290,6 +290,49 @@ namespace
             return 1;
         return count;
     }
+
+    void ConfigureBirdAnimation(Character &character, const std::string &imageId)
+    {
+        if (imageId == "BIRD_RED")
+        {
+            std::vector<std::string> framePaths = {
+                std::string(RESOURCE_DIR) + "/Image/birds/red_birds/sprite_003.png",
+                std::string(RESOURCE_DIR) + "/Image/birds/red_birds/sprite_012.png",
+                std::string(RESOURCE_DIR) + "/Image/birds/red_birds/sprite_025.png",
+                std::string(RESOURCE_DIR) + "/Image/birds/red_birds/sprite_026.png"};
+            character.ConfigureLoopingAnimation(std::move(framePaths), 0.3f);
+            return;
+        }
+
+        if (imageId == "BIRD_BLUE")
+        {
+            std::vector<std::string> framePaths = {
+                std::string(RESOURCE_DIR) + "/Image/birds/blue_birds/sprite_070.png",
+                std::string(RESOURCE_DIR) + "/Image/birds/blue_birds/sprite_078.png",
+                std::string(RESOURCE_DIR) + "/Image/birds/blue_birds/sprite_093.png",
+                std::string(RESOURCE_DIR) + "/Image/birds/blue_birds/sprite_095.png"};
+            character.ConfigureLoopingAnimation(std::move(framePaths), 0.3f);
+            return;
+        }
+
+        if (imageId == "PIG_MEDIUM")
+        {
+            std::vector<std::string> framePaths = {
+                std::string(RESOURCE_DIR) + "/Image/pigs/pig_medium/sprite_076.png",
+                std::string(RESOURCE_DIR) + "/Image/pigs/pig_medium/sprite_084.png"};
+            character.ConfigureLoopingAnimation(std::move(framePaths), 0.5f);
+            return;
+        }
+
+        if (imageId == "PIG_SMALL")
+        {
+            std::vector<std::string> framePaths = {
+                std::string(RESOURCE_DIR) + "/Image/pigs/pig_small/sprite_001.png",
+                std::string(RESOURCE_DIR) + "/Image/pigs/pig_small/sprite_021.png"};
+            character.ConfigureLoopingAnimation(std::move(framePaths), 0.5f);
+            return;
+        }
+    }
 } // namespace
 
 std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObjectDefinition &objectDefinition,
@@ -454,6 +497,7 @@ std::shared_ptr<Character> LevelObjectFactory::CreateCharacter(const LevelObject
     character->SetNumDamageStates(numDamageStates);
 
     ApplyTemplateDefaults(*character, objectDefinition.imageId);
+    ConfigureBirdAnimation(*character, objectDefinition.imageId);
 
     if (character->IsSpecialItem())
     {

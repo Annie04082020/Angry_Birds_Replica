@@ -12,6 +12,8 @@
 #include "ui/Button.hpp"
 #include <array>
 #include <functional>
+#include <deque>
+#include <unordered_map>
 
 class GameScene : public Scene
 {
@@ -49,6 +51,9 @@ private:
     void LoadLevelHighScore();
     void PersistLevelHighScore() const;
     void BuildLevelHud();
+    void BuildBirdTrail();
+    void UpdateBirdTrail();
+    void ResetBirdTrail();
     void UpdateHudPositions();
     void UpdateScoreHud();
     void ResetScoreState();
@@ -56,7 +61,12 @@ private:
     void UpdateWinState();
     void UpdateFailState();
     void SpawnFloatingScore(const glm::vec2 &position, int points, const Util::Color &frontColor);
-    void SpawnOutlinedFloatingScore(const glm::vec2 &position, const std::string &text, const Util::Color &frontColor);
+    void SpawnOutlinedFloatingScore(const glm::vec2 &position,
+                                    const std::string &text,
+                                    const Util::Color &frontColor,
+                                    int fontSize,
+                                    float lifeTime,
+                                    const glm::vec2 &velocity);
     void FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition);
     void OnCharacterDeath(const std::shared_ptr<Character> &character) override;
     void SetPauseMenuVisible(bool visible);
@@ -68,6 +78,10 @@ private:
     std::shared_ptr<BirdLaunchController> m_BirdLaunchController = std::make_shared<BirdLaunchController>();
     std::shared_ptr<SceneInputController> m_SceneInputController = nullptr;
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
+    std::vector<std::shared_ptr<Util::GameObject>> m_BirdTrailDots;
+    std::unordered_map<const Character *, glm::vec2> m_BirdTrailLastEmitPositions;
+    size_t m_BirdTrailActiveDotCount = 0;
+    int m_LastBirdTrailLaunchSequence = 0;
     std::array<std::shared_ptr<Util::GameObject>, 4> m_ScoreLabelOutline{};
     std::shared_ptr<Util::GameObject> m_ScoreLabel = nullptr;
     std::array<std::shared_ptr<Util::GameObject>, 4> m_ScoreValueOutline{};
@@ -123,7 +137,7 @@ private:
     std::function<void()> m_OnNextLevel = nullptr;
     bool m_IsPauseMenuVisible = false;
     bool m_PauseMenuInputBlockedUntilRelease = false;
-    bool m_IsMusicMuted = false;
+    bool m_IsMusicMuted = SoundEffect::IsMuted();
     float m_ZoomScrollAccumulator = 0.0f;
     float m_DamageOutputTimer = 0.0f;
     bool m_ShowDamageHud = false;
@@ -133,6 +147,9 @@ private:
     bool m_LevelCleared = false;
     bool m_LevelFailed = false;
     bool m_LeftoverBirdsAwarded = false;
+    int m_PendingLeftoverBirdAwards = 0;
+    std::deque<glm::vec2> m_PendingLeftoverBirdAwardPositions;
+    float m_LeftoverBirdAwardTimer = 0.0f;
     float m_LevelClearAnimationTime = 0.0f;
 };
 

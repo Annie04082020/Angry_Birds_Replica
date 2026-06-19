@@ -50,6 +50,7 @@ public:
     }
   }
   void SetBGM(std::shared_ptr<BackgroundMusic> bgm) { m_BGM = bgm; }
+  std::shared_ptr<BackgroundMusic> GetBGM() const { return m_BGM; }
   void StopBGM()
   {
     if (m_BGM)

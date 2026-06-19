@@ -8,8 +8,11 @@ class SoundEffect : public Util::GameObject {
 public:
   SoundEffect(const std::string &sfxPath);
   void Play_SFX();
+  static void SetMuted(bool muted);
+  static bool IsMuted();
 
 private:
+  static bool s_IsMuted;
   Util::SFX m_SFX;
 };
 

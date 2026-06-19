@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <random>
 #include <glm/glm.hpp>
 
+#include "SoundEffect.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
 #include "Util/Time.hpp"
@@ -14,6 +16,77 @@
 namespace
 {
     constexpr float kBirdReadyDistanceThreshold = 6.0f;
+    constexpr float kIdleHopHeight = 32.0f;
+    constexpr float kIdleHopDuration = 0.42f;
+    constexpr float kIdleFlipDuration = 0.58f;
+    constexpr float kFullRotation = 6.2831853f;
+
+    std::mt19937 &GetIdleAnimationRng()
+    {
+        static std::mt19937 rng{std::random_device{}()};
+        return rng;
+    }
+
+    float NextIdleActionCooldown()
+    {
+        static std::uniform_real_distribution<float> cooldownDist(0.85f, 1.9f);
+        return cooldownDist(GetIdleAnimationRng());
+    }
+
+    float NextBirdVocalCooldown()
+    {
+        static std::uniform_real_distribution<float> cooldownDist(1.0f, 2.4f);
+        return cooldownDist(GetIdleAnimationRng());
+    }
+
+    float NextPigVocalCooldown()
+    {
+        static std::uniform_real_distribution<float> cooldownDist(1.6f, 2.4f);
+        return cooldownDist(GetIdleAnimationRng());
+    }
+
+    bool ShouldPlayBirdVocal()
+    {
+        static std::bernoulli_distribution playDist(0.75);
+        return playDist(GetIdleAnimationRng());
+    }
+
+    bool ShouldPlayPigVocal()
+    {
+        static std::bernoulli_distribution playDist(0.65);
+        return playDist(GetIdleAnimationRng());
+    }
+
+    size_t NextBirdVocalIndex(const size_t vocalCount)
+    {
+        if (vocalCount <= 1)
+        {
+            return 0;
+        }
+
+        std::uniform_int_distribution<size_t> indexDist(0, vocalCount - 1);
+        return indexDist(GetIdleAnimationRng());
+    }
+
+    BirdLaunchController::IdleActionType NextIdleActionType()
+    {
+        static std::uniform_int_distribution<int> actionDist(0, 2);
+        switch (actionDist(GetIdleAnimationRng()))
+        {
+        case 0:
+            return BirdLaunchController::IdleActionType::Hop;
+        case 1:
+            return BirdLaunchController::IdleActionType::ForwardFlip;
+        default:
+            return BirdLaunchController::IdleActionType::BackwardFlip;
+        }
+    }
+
+    float EvaluateHopYOffset(const float normalizedTime)
+    {
+        const float clamped = std::clamp(normalizedTime, 0.0f, 1.0f);
+        return std::sin(clamped * 3.1415926f) * kIdleHopHeight;
+    }
 
     std::string ToLowerCopy(std::string value)
     {
@@ -27,6 +100,7 @@ namespace
 bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Character>> &objects)
 {
     m_BirdQueue.clear();
+    m_IdlePigs.clear();
     m_ActiveBird = nullptr;
     m_CurrentBirdIndex = 0;
     m_IsHoldingBird = false;
@@ -35,6 +109,20 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
     m_BirdVelocity = {0.0f, 0.0f};
     m_ActiveBirdsInFlight.clear();
     m_HasSplit = false;
+    m_LaunchSequence = 0;
+    m_ActiveBirdBaseRotation = 0.0f;
+    m_QueuedBirdIdleStates.clear();
+    m_PigVocalCooldowns.clear();
+    m_BirdIdleVocalSfx.clear();
+    m_PigIdleVocalSfx.clear();
+    for (int i = 1; i <= 12; ++i)
+    {
+        m_BirdIdleVocalSfx.push_back(std::make_shared<SoundEffect>(
+            std::string(RESOURCE_DIR) + "/Audio/SFX/bird misc a" + std::to_string(i) + ".wav"));
+        m_PigIdleVocalSfx.push_back(std::make_shared<SoundEffect>(
+            std::string(RESOURCE_DIR) + "/Audio/SFX/piglette oink a" + std::to_string(i) + ".wav"));
+    }
+    m_ActiveBirdVocalCooldown = NextBirdVocalCooldown();
 
     m_Slingshots.clear();
 
@@ -49,6 +137,13 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
         if (pathLower.find("/image/birds/") != std::string::npos)
         {
             m_BirdQueue.push_back(obj);
+            continue;
+        }
+
+        if (pathLower.find("/image/pigs/") != std::string::npos)
+        {
+            m_IdlePigs.push_back(obj);
+            m_PigVocalCooldowns[obj.get()] = NextPigVocalCooldown();
             continue;
         }
 
@@ -92,22 +187,10 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
 
 bool BirdLaunchController::Update()
 {
-    if (!m_Slingshots.empty())
-    {
-        glm::vec2 center{0.0f, 0.0f};
-        for (const auto &sling : m_Slingshots)
-        {
-            center += sling->GetPosition();
-        }
-        center /= static_cast<float>(m_Slingshots.size());
-        m_BirdAnchorPosition = center + glm::vec2(0.0f, 90.0f * m_PhysicsScale);
-        
-        if (m_ActiveBird && !m_IsHoldingBird && !m_HasLaunchedBird)
-        {
-            m_ActiveBird->SetPosition(m_BirdAnchorPosition);
-        }
-    }
-
+    const float dt = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
+    m_ActiveBirdVocalCooldown = std::max(0.0f, m_ActiveBirdVocalCooldown - dt);
+    UpdateQueuedBirdIdleAnimations(dt);
+    UpdatePigIdleVocals(dt);
     return HandleBirdLaunchPhysics();
 }
 
@@ -136,6 +219,36 @@ int BirdLaunchController::GetRemainingBirdCountForBonus() const
     }
 
     return remaining;
+}
+
+std::vector<glm::vec2> BirdLaunchController::GetRemainingBirdPositionsForBonus() const
+{
+    std::vector<glm::vec2> positions;
+    if (m_BirdQueue.empty())
+    {
+        return positions;
+    }
+
+    const bool activeBirdReadyToLaunch =
+        m_ActiveBird &&
+        !m_HasLaunchedBird &&
+        m_CurrentBirdIndex < m_BirdQueue.size() &&
+        glm::distance(m_ActiveBird->GetPosition(), m_BirdAnchorPosition) <= kBirdReadyDistanceThreshold;
+
+    if (activeBirdReadyToLaunch)
+    {
+        positions.push_back(m_ActiveBird->GetPosition());
+    }
+
+    for (size_t i = m_CurrentBirdIndex + 1; i < m_BirdQueue.size(); ++i)
+    {
+        if (m_BirdQueue[i])
+        {
+            positions.push_back(m_BirdQueue[i]->GetPosition());
+        }
+    }
+
+    return positions;
 }
 
 bool BirdLaunchController::IsOutOfBirds() const
@@ -169,6 +282,12 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
     const float launchPower = 9.0f; // Do not scale launchPower, as pull distance is already scaled!
     if (!m_HasLaunchedBird)
     {
+        if (!m_IsHoldingBird && m_ActiveBird && m_ActiveBirdVocalCooldown <= 0.0f && ShouldPlayBirdVocal())
+        {
+            PlayRandomBirdVocal();
+            m_ActiveBirdVocalCooldown = NextBirdVocalCooldown();
+        }
+
         if (mousePressed)
         {
             if (!m_IsHoldingBird && m_ActiveBird->IsHovering(mouseWorldPos))
@@ -198,12 +317,14 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             const float birdMass = std::max(0.0001f, m_ActiveBird->GetMass());
             const float massScale = std::sqrt(1.0f / birdMass); // keep kinetic energy roughly similar
             m_BirdVelocity = -pullVector * launchPower * massScale;
+            m_ActiveBird->SetRotation(m_ActiveBirdBaseRotation);
             m_ActiveBird->SetStatic(false);
             m_ActiveBird->SetParticipatesInPhysics(true);
             m_ActiveBird->SetVelocity(m_BirdVelocity);
             m_IsHoldingBird = false;
             m_HasLaunchedBird = true;
             m_HasAnyBirdBeenLaunched = true;
+            ++m_LaunchSequence;
             m_ActiveBirdsInFlight.clear();
             m_ActiveBirdsInFlight.push_back(m_ActiveBird);
             m_HasSplit = false;
@@ -355,4 +476,183 @@ void BirdLaunchController::ActivateBirdByIndex(size_t index)
     m_ActiveBird->SetZIndex(0.0f);
     m_ActiveBirdsInFlight.clear();
     m_HasSplit = false;
+    m_ActiveBirdBaseRotation = m_ActiveBird->GetTransform().rotation;
+    m_ActiveBird->SetRotation(m_ActiveBirdBaseRotation);
+    m_ActiveBirdVocalCooldown = NextBirdVocalCooldown();
+}
+
+void BirdLaunchController::UpdateQueuedBirdIdleAnimations(float deltaTimeSeconds)
+{
+    if (m_BirdQueue.empty())
+    {
+        return;
+    }
+
+    const float dt = std::max(0.0f, deltaTimeSeconds);
+
+    for (size_t i = m_CurrentBirdIndex + 1; i < m_BirdQueue.size(); ++i)
+    {
+        const auto &bird = m_BirdQueue[i];
+        if (!bird)
+        {
+            continue;
+        }
+
+        IdleAnimationState &state = m_QueuedBirdIdleStates[bird.get()];
+        if (state.actionCooldown <= 0.0f && state.actionDuration <= 0.0f)
+        {
+            state.basePosition = bird->GetPosition();
+            state.baseRotation = bird->GetTransform().rotation;
+            state.actionCooldown = NextIdleActionCooldown();
+            state.vocalCooldown = NextBirdVocalCooldown();
+        }
+
+        state.actionTimer += dt;
+        state.vocalCooldown = std::max(0.0f, state.vocalCooldown - dt);
+
+        if (state.actionType == IdleActionType::None)
+        {
+            if (state.actionTimer >= state.actionCooldown)
+            {
+                state.actionType = NextIdleActionType();
+                state.actionTimer = 0.0f;
+                state.actionDuration =
+                    (state.actionType == IdleActionType::Hop) ? kIdleHopDuration : kIdleFlipDuration;
+                if (state.vocalCooldown <= 0.0f && ShouldPlayBirdVocal())
+                {
+                    PlayRandomBirdVocal();
+                    state.vocalCooldown = NextBirdVocalCooldown();
+                }
+            }
+
+            bird->SetPosition(state.basePosition);
+            bird->SetRotation(state.baseRotation);
+            bird->SetVelocity({0.0f, 0.0f});
+            bird->SetAngularVelocity(0.0f);
+            continue;
+        }
+
+        const float actionDuration = std::max(0.0001f, state.actionDuration);
+        const float progress = std::clamp(state.actionTimer / actionDuration, 0.0f, 1.0f);
+        const float hopYOffset = EvaluateHopYOffset(progress) * m_PhysicsScale;
+
+        float rotationOffset = 0.0f;
+        if (state.actionType == IdleActionType::ForwardFlip)
+        {
+            rotationOffset = progress * kFullRotation;
+        }
+        else if (state.actionType == IdleActionType::BackwardFlip)
+        {
+            rotationOffset = -progress * kFullRotation;
+        }
+
+        bird->SetPosition(state.basePosition + glm::vec2{0.0f, hopYOffset});
+        bird->SetRotation(state.baseRotation + rotationOffset);
+        bird->SetVelocity({0.0f, 0.0f});
+        bird->SetAngularVelocity(0.0f);
+
+        if (progress >= 1.0f)
+        {
+            state.actionType = IdleActionType::None;
+            state.actionTimer = 0.0f;
+            state.actionDuration = 0.0f;
+            state.actionCooldown = NextIdleActionCooldown();
+            bird->SetPosition(state.basePosition);
+            bird->SetRotation(state.baseRotation);
+        }
+    }
+}
+
+void BirdLaunchController::ResetQueuedBirdIdleAnimation(const std::shared_ptr<Character> &bird, bool snapToBasePosition)
+{
+    if (!bird)
+    {
+        return;
+    }
+
+    auto it = m_QueuedBirdIdleStates.find(bird.get());
+    if (it == m_QueuedBirdIdleStates.end())
+    {
+        return;
+    }
+
+    it->second.actionTimer = 0.0f;
+    it->second.actionCooldown = NextIdleActionCooldown();
+    it->second.actionDuration = 0.0f;
+    it->second.actionType = IdleActionType::None;
+    it->second.vocalCooldown = NextBirdVocalCooldown();
+
+    if (snapToBasePosition)
+    {
+        bird->SetPosition(it->second.basePosition);
+    }
+    bird->SetRotation(it->second.baseRotation);
+}
+
+void BirdLaunchController::PlayRandomBirdVocal()
+{
+    if (m_BirdIdleVocalSfx.empty())
+    {
+        return;
+    }
+
+    const size_t index = NextBirdVocalIndex(m_BirdIdleVocalSfx.size());
+    const auto &sfx = m_BirdIdleVocalSfx[index];
+    if (sfx)
+    {
+        sfx->Play_SFX();
+    }
+}
+
+void BirdLaunchController::UpdatePigIdleVocals(float deltaTimeSeconds)
+{
+    if (m_IdlePigs.empty())
+    {
+        return;
+    }
+
+    m_IdlePigs.erase(
+        std::remove_if(m_IdlePigs.begin(), m_IdlePigs.end(), [](const std::shared_ptr<Character>& pig) {
+            return !pig || pig->IsDestroyed() || pig->GetHealth() <= 0.0f;
+        }),
+        m_IdlePigs.end()
+    );
+
+    if (m_IdlePigs.empty())
+    {
+        return;
+    }
+
+    const float dt = std::max(0.0f, deltaTimeSeconds);
+    for (const auto &pig : m_IdlePigs)
+    {
+
+        float &cooldown = m_PigVocalCooldowns[pig.get()];
+        if (cooldown <= 0.0f)
+        {
+            cooldown = NextPigVocalCooldown();
+        }
+
+        cooldown = std::max(0.0f, cooldown - dt);
+        if (cooldown <= 0.0f && ShouldPlayPigVocal())
+        {
+            PlayRandomPigVocal();
+            cooldown = NextPigVocalCooldown();
+        }
+    }
+}
+
+void BirdLaunchController::PlayRandomPigVocal()
+{
+    if (m_PigIdleVocalSfx.empty())
+    {
+        return;
+    }
+
+    const size_t index = NextBirdVocalIndex(m_PigIdleVocalSfx.size());
+    const auto &sfx = m_PigIdleVocalSfx[index];
+    if (sfx)
+    {
+        sfx->Play_SFX();
+    }
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <algorithm>
+#include <vector>
 
 #include "Util/GameObject.hpp"
 #include "Util/Input.hpp"
@@ -187,6 +188,11 @@ public:
   void SetScale(const glm::vec2 &Scale) { m_Transform.scale = Scale; }
 
   void SetRotation(float Rotation) { m_Transform.rotation = Rotation; }
+  void Update() override;
+
+  void ConfigureLoopingAnimation(std::vector<std::string> framePaths, float frameDurationSeconds);
+  void ClearAnimation();
+  [[nodiscard]] bool HasAnimation() const { return !m_AnimationFramePaths.empty(); }
 
   // Apply one Euler integration step and write the result to transform.
   void IntegratePhysics(float deltaTimeSeconds);
@@ -357,6 +363,10 @@ private:
   bool m_IsSpecialItem = false;
   int m_ScoreBudgetRemaining = 0;
   std::function<void(Character *, float)> m_OnDamageCallback = nullptr;
+  std::vector<std::string> m_AnimationFramePaths;
+  float m_AnimationFrameDuration = 0.0f;
+  float m_AnimationElapsed = 0.0f;
+  size_t m_CurrentAnimationFrameIndex = 0;
 };
 
 #endif // CHARACTER_HPP

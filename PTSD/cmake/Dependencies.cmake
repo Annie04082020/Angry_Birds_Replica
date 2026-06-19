@@ -97,6 +97,11 @@ set(SDL2MIXER_VOC OFF)
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
+# Newer CMake drops compatibility with policy versions older than 3.5.
+# Some vendored dependency CMakeLists still declare 3.0, so raise the floor
+# before FetchContent configures them.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 FetchContent_MakeAvailable(sdl2 sdl2_image sdl2_ttf sdl2_mixer spdlog glm googletest)
 
 add_compile_definitions(GLEW_NO_GLU)
