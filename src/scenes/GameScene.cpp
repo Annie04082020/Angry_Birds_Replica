@@ -1162,11 +1162,13 @@ void GameScene::UpdateHudPositions()
     if (m_LeftTopButton093)
     {
         m_LeftTopButton093->SetPosition(topLeftAnchor);
+        m_LeftTopButton093->SetScale({kGameHudButtonScale * hudScale / zoom, kGameHudButtonScale * hudScale / zoom});
     }
 
     if (m_LeftTopButton031)
     {
         m_LeftTopButton031->SetPosition(topLeftAnchor + glm::vec2{(kGameHudButtonSpacing * hudScale) / zoom, 0.0f});
+        m_LeftTopButton031->SetScale({kGameHudButtonScale * hudScale / zoom, kGameHudButtonScale * hudScale / zoom});
     }
 
     // High score positioned at top right
@@ -1180,20 +1182,30 @@ void GameScene::UpdateHudPositions()
                                 m_ScoreLabelOutline,
                                 m_ScoreLabel,
                                 zoom);
+    if (m_ScoreLabel) { m_ScoreLabel->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
+    for (auto &o : m_ScoreLabelOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
+
     PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, (kGameHudScoreValueOffsetY * hudScale) / zoom},
                                 m_ScoreValueOutline,
                                 m_ScoreValue,
                                 zoom);
+    if (m_ScoreValue) { m_ScoreValue->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
+    for (auto &o : m_ScoreValueOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
 
     const glm::vec2 highScoreAnchor = topRightAnchor + glm::vec2{(kGameHudHighScoreOffsetX * hudScale) / zoom, 0.0f};
     PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, (kGameHudHighScoreLabelOffsetY * hudScale) / zoom},
                                 m_HighScoreLabelOutline,
                                 m_HighScoreLabel,
                                 zoom);
+    if (m_HighScoreLabel) { m_HighScoreLabel->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
+    for (auto &o : m_HighScoreLabelOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
+
     PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, (kGameHudHighScoreValueOffsetY * hudScale) / zoom},
                                 m_HighScoreValueOutline,
                                 m_HighScoreValue,
                                 zoom);
+    if (m_HighScoreValue) { m_HighScoreValue->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
+    for (auto &o : m_HighScoreValueOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
 
     if (m_PauseMenu069)
     {
@@ -1201,6 +1213,7 @@ void GameScene::UpdateHudPositions()
                                     glm::vec2{
                                         (kGamePauseMenu069OffsetX * hudScale) / zoom,
                                         -(kGamePauseMenu069OffsetY * hudScale) / zoom});
+        m_PauseMenu069->SetScale({kGamePauseMenu069Scale * hudScale / zoom, kGamePauseMenu069Scale * hudScale / zoom});
     }
 
     if (m_PauseMenu082)
@@ -1209,6 +1222,7 @@ void GameScene::UpdateHudPositions()
                                     glm::vec2{
                                         (kGamePauseMenu082OffsetX * hudScale) / zoom,
                                         -(kGamePauseMenu082OffsetY * hudScale) / zoom});
+        m_PauseMenu082->SetScale({kGamePauseMenu082Scale * hudScale / zoom, kGamePauseMenu082Scale * hudScale / zoom});
     }
 
     if (m_PauseMenu073)
@@ -1217,6 +1231,7 @@ void GameScene::UpdateHudPositions()
                                     glm::vec2{
                                         (kGamePauseMenu073OffsetX * hudScale) / zoom,
                                         -(kGamePauseMenu073OffsetY * hudScale) / zoom});
+        m_PauseMenu073->SetScale({kGamePauseMenu073Scale * hudScale / zoom, kGamePauseMenu073Scale * hudScale / zoom});
     }
 
     if (m_PauseMenu005)
@@ -1225,6 +1240,7 @@ void GameScene::UpdateHudPositions()
                                     glm::vec2{
                                         (kGamePauseMenu005OffsetX * hudScale) / zoom,
                                         -(kGamePauseMenu005OffsetY * hudScale) / zoom});
+        m_PauseMenu005->SetScale({kGamePauseMenu005Scale * hudScale / zoom, kGamePauseMenu005Scale * hudScale / zoom});
     }
 
     if (m_PauseMenu040Overlay)
@@ -1234,8 +1250,8 @@ void GameScene::UpdateHudPositions()
                                                              (kGamePauseMenu040OffsetX * hudScale) / zoom,
                                                              -(kGamePauseMenu040OffsetY * hudScale) / zoom};
         m_PauseMenu040Overlay->m_Transform.scale = {
-            kGamePauseMenu040Scale * hudScale,
-            kGamePauseMenu040Scale * hudScale};
+            kGamePauseMenu040Scale * hudScale / zoom,
+            kGamePauseMenu040Scale * hudScale / zoom};
     }
 
     if (m_PauseMenu063)
@@ -1244,6 +1260,7 @@ void GameScene::UpdateHudPositions()
                                     glm::vec2{
                                         (kGamePauseMenu063OffsetX * hudScale) / zoom,
                                         -(kGamePauseMenu063OffsetY * hudScale) / zoom});
+        m_PauseMenu063->SetScale({kGamePauseMenu063Scale * hudScale / zoom, kGamePauseMenu063Scale * hudScale / zoom});
     }
 
     if (m_PauseMenuBackdrop)
@@ -1263,7 +1280,7 @@ void GameScene::UpdateHudPositions()
                                                          glm::vec2{
                                                              -viewportSize.x * 0.5f / zoom + (kGamePauseMenuLevelTitleOffsetX * hudScale) / zoom,
                                                              (kGamePauseMenuLevelTitleOffsetY * hudScale) / zoom};
-        m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale * hudScale, kGamePauseMenuLevelTitleScale * hudScale};
+        m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale * hudScale / zoom, kGamePauseMenuLevelTitleScale * hudScale / zoom};
     }
 }
 
@@ -1771,6 +1788,7 @@ void GameScene::UpdateWinState()
         m_LevelClearMenuButton->SetPosition(cameraPos + glm::vec2{
             -(kLevelClearButtonSpacing * hudScale) / zoom,
             (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
+        m_LevelClearMenuButton->SetScale({kLevelClearButtonScale * hudScale / zoom, kLevelClearButtonScale * hudScale / zoom});
     }
     if (m_LevelClearRestartButton)
     {
@@ -1778,6 +1796,7 @@ void GameScene::UpdateWinState()
         m_LevelClearRestartButton->SetPosition(cameraPos + glm::vec2{
             0.0f,
             (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
+        m_LevelClearRestartButton->SetScale({kLevelClearButtonScale * hudScale / zoom, kLevelClearButtonScale * hudScale / zoom});
     }
     if (m_LevelClearNextButton)
     {
@@ -1785,6 +1804,7 @@ void GameScene::UpdateWinState()
         m_LevelClearNextButton->SetPosition(cameraPos + glm::vec2{
             (kLevelClearButtonSpacing * hudScale) / zoom,
             (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
+        m_LevelClearNextButton->SetScale({kLevelClearButtonScale * hudScale / zoom, kLevelClearButtonScale * hudScale / zoom});
     }
 }
 
@@ -1856,6 +1876,7 @@ void GameScene::UpdateFailState()
         m_LevelFailedMenuButton->SetPosition(cameraPos + glm::vec2{
             -(kLevelFailedButtonSpacing * hudScale) / zoom,
             (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
+        m_LevelFailedMenuButton->SetScale({kLevelFailedButtonScale * hudScale / zoom, kLevelFailedButtonScale * hudScale / zoom});
     }
 
     if (m_LevelFailedRestartButton)
@@ -1864,6 +1885,7 @@ void GameScene::UpdateFailState()
         m_LevelFailedRestartButton->SetPosition(cameraPos + glm::vec2{
             0.0f,
             (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
+        m_LevelFailedRestartButton->SetScale({kLevelFailedButtonScale * hudScale / zoom, kLevelFailedButtonScale * hudScale / zoom});
     }
 
     if (m_LevelFailedNextButton)
@@ -1872,6 +1894,7 @@ void GameScene::UpdateFailState()
         m_LevelFailedNextButton->SetPosition(cameraPos + glm::vec2{
             (kLevelFailedButtonSpacing * hudScale) / zoom,
             (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
+        m_LevelFailedNextButton->SetScale({kLevelFailedButtonScale * hudScale / zoom, kLevelFailedButtonScale * hudScale / zoom});
     }
 }
 
