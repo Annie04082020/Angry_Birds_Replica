@@ -360,6 +360,55 @@ void Scene::StepPhysics(float dt)
 
       ch->SetVelocity(vel);
 
+      // ── Floor contact torque ────────────────────────────────────
+      // The floor pushes upward at the lowest corner(s) of the OBB,
+      // not at the center.  This offset creates a torque that makes
+      // tilted blocks tip toward a stable orientation (flat or upright).
+      {
+          const float cosR = std::cos(rot);
+          const float sinR = std::sin(rot);
+
+          // Rotated OBB corner offsets (relative to center)
+          const glm::vec2 corners[4] = {
+              {-halfW * cosR + halfH * sinR, -halfW * sinR - halfH * cosR},
+              { halfW * cosR + halfH * sinR,  halfW * sinR - halfH * cosR},
+              { halfW * cosR - halfH * sinR,  halfW * sinR + halfH * cosR},
+              {-halfW * cosR - halfH * sinR, -halfW * sinR + halfH * cosR},
+          };
+
+          // Find lowest Y among corners
+          float lowestY = corners[0].y;
+          for (int ci = 1; ci < 4; ++ci)
+              lowestY = std::min(lowestY, corners[ci].y);
+
+          // Average X of all corners near the lowest Y.
+          // When the bottom edge is flat (two corners at same Y),
+          // their X values cancel out → zero torque (correct for stable rest).
+          constexpr float kContactTol = 2.0f;
+          float sumX = 0.0f;
+          int contactCount = 0;
+          for (int ci = 0; ci < 4; ++ci)
+          {
+              if (corners[ci].y <= lowestY + kContactTol)
+              {
+                  sumX += corners[ci].x;
+                  ++contactCount;
+              }
+          }
+
+          if (contactCount > 0)
+          {
+              const float leverArm = sumX / static_cast<float>(contactCount);
+              const float floorImpulse = ch->GetMass() * impactSpeed;
+              const float angularImpulse = leverArm * floorImpulse;
+
+              float I = ch->GetMass() * (size.x * size.x + size.y * size.y) / 12.0f;
+              I = std::max(ch->GetInertia(), I);
+
+              ch->SetAngularVelocity(ch->GetAngularVelocity() + angularImpulse / I);
+          }
+      }
+
       if (!IsDamageImmune() &&
           ch->GetEntityKind() != Character::EntityKind::Bird &&
           ch->GetMaterialType() != Character::MaterialType::Earth)
@@ -377,8 +426,9 @@ void Scene::StepPhysics(float dt)
         }
       }
 
-      // Add a slight angular damping when rolling on the global floor
-      ch->SetAngularVelocity(ch->GetAngularVelocity() * 0.95f);
+      // Mild angular damping on the global floor — enough to dissipate
+      // energy while still allowing tilted blocks to complete their tipping.
+      ch->SetAngularVelocity(ch->GetAngularVelocity() * 0.98f);
     }
   }
 
