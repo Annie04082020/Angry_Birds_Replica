@@ -2007,18 +2007,6 @@ void GameScene::ToggleMusicMute()
     m_IsMusicMuted = !m_IsMusicMuted;
     SoundEffect::SetMuted(m_IsMusicMuted);
 
-    if (m_IsMusicMuted)
-    {
-        Mix_PauseMusic();
-    }
-    else
-    {
-        if (Mix_PausedMusic() == 1)
-        {
-            Mix_ResumeMusic();
-        }
-    }
-
     if (m_PauseMenu040Overlay)
     {
         m_PauseMenu040Overlay->SetVisible(m_IsPauseMenuVisible && m_IsMusicMuted);

@@ -3,6 +3,7 @@
 #include "BGM.hpp"
 #include "IntroLayout.hpp"
 #include "Resource.hpp"
+#include "SoundEffect.hpp"
 #include "UILayout.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
@@ -200,6 +201,12 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     Util::LayoutUtils::ApplyMenuItemLayout(m_menuItem017, layout.settingMenuItems.items, "017", m_settingButtonPosition, layout);
     m_menuItem017->SetVisible(false);
 
+    m_muteOverlay = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::Image>(Resource::Game_Menu_Item_040), 23);
+    m_muteOverlay->m_Transform.scale = m_menuItem032->m_Transform.scale;
+    m_muteOverlay->m_Transform.translation = m_menuItem032->m_Transform.translation;
+    m_muteOverlay->SetVisible(false);
+
     m_additionalMenuItem108 = std::make_shared<Util::GameObject>(
         std::make_shared<Util::Image>(Resource::Additional_Menu_Item_108), 20);
     Util::LayoutUtils::ApplyMenuItemLayout(m_additionalMenuItem108, layout.additionalMenuItems.items, "108", m_additionalButtonPosition, layout);
@@ -253,6 +260,7 @@ IntroScene::IntroScene(std::shared_ptr<DynamicBackground> bg)
     AddElements(m_menuItem043);
     AddElements(m_menuItem032);
     AddElements(m_menuItem017);
+    AddElements(m_muteOverlay);
     AddElements(m_additionalMenuItem108);
     AddElements(m_additionalMenuItem006);
     AddElements(m_additionalMenuItem041);
@@ -287,6 +295,7 @@ void IntroScene::SetMenuVisible(const bool visible)
     m_menuItem043->SetVisible(visible && m_settingMenuOpen);
     m_menuItem032->SetVisible(visible && m_settingMenuOpen);
     m_menuItem017->SetVisible(visible && m_settingMenuOpen);
+    m_muteOverlay->SetVisible(visible && m_settingMenuOpen && SoundEffect::IsMuted());
     m_additionalMenuItem108->SetVisible(visible && m_additionalMenuOpen);
     m_additionalMenuItem006->SetVisible(visible && m_additionalMenuOpen);
     m_additionalMenuItem041->SetVisible(visible && m_additionalMenuOpen);
@@ -323,6 +332,8 @@ void IntroScene::Update()
     {
         std::vector<std::shared_ptr<Util::GameObject>> settingItems = {m_menuItem043, m_menuItem032, m_menuItem017};
         AnimateMenuItems(settingItems, m_settingButtonPosition, m_settingMenuOpen, m_menuItemsAnimating);
+        m_muteOverlay->m_Transform.translation = m_menuItem032->m_Transform.translation;
+        m_muteOverlay->SetVisible((m_menuItem032->m_Transform.translation.y > m_settingButtonPosition.y) && SoundEffect::IsMuted());
     }
 
     // Animate additional menu items opening/closing
@@ -333,13 +344,23 @@ void IntroScene::Update()
     }
     auto mousePos = Util::Input::GetCursorPosition();
 
+    if (m_settingMenuOpen && !m_menuItemsAnimating && Util::MouseUtils::IsClickedOver(mousePos, m_menuItem032, Util::Keycode::MOUSE_LB))
+    {
+        bool newMuteState = !SoundEffect::IsMuted();
+        SoundEffect::SetMuted(newMuteState);
+        if (newMuteState)
+        {
+            if (GetBGM()) GetBGM()->Stop_BGM();
+        }
+        else
+        {
+            if (GetBGM()) GetBGM()->Play_BGM();
+        }
+        m_muteOverlay->SetVisible(newMuteState);
+    }
+
     if (m_exitPanelVisible && m_exitButton95 && m_exitButton105)
     {
-        const auto exitButton95Size = m_exitButton95->GetScaledSize();
-        const auto exitButton105Size = m_exitButton105->GetScaledSize();
-        const auto pos95 = m_exitButton95->m_Transform.translation;
-        const auto pos105 = m_exitButton105->m_Transform.translation;
-
         // Check if 095 (right button) is clicked - exit game
         if (Util::MouseUtils::IsClickedOver(mousePos, m_exitButton95, Util::Keycode::MOUSE_LB))
         {

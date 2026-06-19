@@ -611,13 +611,21 @@ void BirdLaunchController::UpdatePigIdleVocals(float deltaTimeSeconds)
         return;
     }
 
+    m_IdlePigs.erase(
+        std::remove_if(m_IdlePigs.begin(), m_IdlePigs.end(), [](const std::shared_ptr<Character>& pig) {
+            return !pig || pig->IsDestroyed() || pig->GetHealth() <= 0.0f;
+        }),
+        m_IdlePigs.end()
+    );
+
+    if (m_IdlePigs.empty())
+    {
+        return;
+    }
+
     const float dt = std::max(0.0f, deltaTimeSeconds);
     for (const auto &pig : m_IdlePigs)
     {
-        if (!pig)
-        {
-            continue;
-        }
 
         float &cooldown = m_PigVocalCooldowns[pig.get()];
         if (cooldown <= 0.0f)
