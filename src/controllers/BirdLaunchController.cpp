@@ -20,6 +20,7 @@ namespace
     constexpr float kIdleHopDuration = 0.42f;
     constexpr float kIdleFlipDuration = 0.58f;
     constexpr float kFullRotation = 6.2831853f;
+    constexpr float kSettledBirdRemovalDelay = 2.0f;
 
     std::mt19937 &GetIdleAnimationRng()
     {
@@ -112,6 +113,8 @@ bool BirdLaunchController::LoadLevelObjects(const std::vector<std::shared_ptr<Ch
     m_LaunchSequence = 0;
     m_ActiveBirdBaseRotation = 0.0f;
     m_QueuedBirdIdleStates.clear();
+    m_SettledBirdRemovalTimers.clear();
+    m_SettledBirdsPendingRemoval.clear();
     m_PigVocalCooldowns.clear();
     m_BirdIdleVocalSfx.clear();
     m_PigIdleVocalSfx.clear();
@@ -189,6 +192,7 @@ bool BirdLaunchController::Update()
 {
     const float dt = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
     m_ActiveBirdVocalCooldown = std::max(0.0f, m_ActiveBirdVocalCooldown - dt);
+    UpdateSettledBirdRemoval(dt);
     UpdateQueuedBirdIdleAnimations(dt);
     UpdatePigIdleVocals(dt);
     return HandleBirdLaunchPhysics();
@@ -406,6 +410,7 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         
         if (bird->IsStatic() || bird->IsSleeping())
         {
+            ScheduleSettledBirdRemoval(bird);
             continue;
         }
 
@@ -421,6 +426,8 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             bird->SetVelocity({0.0f, 0.0f});
             bird->SetAngularVelocity(0.0f);
             bird->SetSleeping(true);
+            bird->SetParticipatesInPhysics(false);
+            ScheduleSettledBirdRemoval(bird);
             continue;
         }
 
@@ -430,6 +437,8 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
             bird->SetSleeping(true);
             bird->SetVelocity({0.0f, 0.0f});
             bird->SetAngularVelocity(0.0f);
+            bird->SetParticipatesInPhysics(false);
+            ScheduleSettledBirdRemoval(bird);
             continue;
         }
 
@@ -445,6 +454,10 @@ bool BirdLaunchController::HandleBirdLaunchPhysics()
         if (m_CurrentBirdIndex + 1 < m_BirdQueue.size())
         {
             ActivateBirdByIndex(m_CurrentBirdIndex + 1);
+        }
+        else
+        {
+            m_ActiveBird = nullptr;
         }
     }
 
@@ -479,6 +492,72 @@ void BirdLaunchController::ActivateBirdByIndex(size_t index)
     m_ActiveBirdBaseRotation = m_ActiveBird->GetTransform().rotation;
     m_ActiveBird->SetRotation(m_ActiveBirdBaseRotation);
     m_ActiveBirdVocalCooldown = NextBirdVocalCooldown();
+}
+
+void BirdLaunchController::UpdateSettledBirdRemoval(float deltaTimeSeconds)
+{
+    if (m_SettledBirdsPendingRemoval.empty())
+    {
+        return;
+    }
+
+    const float dt = std::max(0.0f, deltaTimeSeconds);
+    for (const auto &bird : m_SettledBirdsPendingRemoval)
+    {
+        if (!bird)
+        {
+            continue;
+        }
+
+        float &timer = m_SettledBirdRemovalTimers[bird.get()];
+        timer += dt;
+    }
+
+    m_SettledBirdsPendingRemoval.erase(
+        std::remove_if(m_SettledBirdsPendingRemoval.begin(),
+                       m_SettledBirdsPendingRemoval.end(),
+                       [this](const std::shared_ptr<Character> &bird)
+                       {
+                           if (!bird)
+                           {
+                               return true;
+                           }
+
+                           const auto timerIt = m_SettledBirdRemovalTimers.find(bird.get());
+                           if (timerIt == m_SettledBirdRemovalTimers.end() ||
+                               timerIt->second < kSettledBirdRemovalDelay)
+                           {
+                               return false;
+                           }
+
+                           if (m_OnRemoveCharacter)
+                           {
+                               m_OnRemoveCharacter(bird);
+                           }
+                           m_SettledBirdRemovalTimers.erase(timerIt);
+                           return true;
+                       }),
+        m_SettledBirdsPendingRemoval.end());
+}
+
+void BirdLaunchController::ScheduleSettledBirdRemoval(const std::shared_ptr<Character> &bird)
+{
+    if (!bird)
+    {
+        return;
+    }
+
+    if (m_SettledBirdRemovalTimers.find(bird.get()) != m_SettledBirdRemovalTimers.end())
+    {
+        return;
+    }
+
+    bird->SetVelocity({0.0f, 0.0f});
+    bird->SetAngularVelocity(0.0f);
+    bird->SetSleeping(true);
+    bird->SetParticipatesInPhysics(false);
+    m_SettledBirdRemovalTimers[bird.get()] = 0.0f;
+    m_SettledBirdsPendingRemoval.push_back(bird);
 }
 
 void BirdLaunchController::UpdateQueuedBirdIdleAnimations(float deltaTimeSeconds)

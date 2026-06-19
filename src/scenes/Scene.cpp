@@ -111,6 +111,30 @@ void Scene::AddDebugEntity(const std::shared_ptr<Util::GameObject> &obj, float t
   m_DebugEntities.push_back({obj, ttl});
 }
 
+void Scene::RemoveElement(const std::shared_ptr<Util::GameObject> &element)
+{
+  if (!element)
+  {
+    return;
+  }
+
+  RemoveChild(element);
+  if (const auto character = std::dynamic_pointer_cast<Character>(element))
+  {
+    m_Contacts.erase(
+        std::remove_if(m_Contacts.begin(), m_Contacts.end(),
+                       [rawChar = character.get()](const ContactManifold &cm)
+                       { return cm.a == rawChar || cm.b == rawChar; }),
+        m_Contacts.end());
+  }
+
+  auto found = std::find(m_Elements.begin(), m_Elements.end(), element);
+  if (found != m_Elements.end())
+  {
+    m_Elements.erase(found);
+  }
+}
+
 void Scene::SetPhysicsPaused(bool paused)
 {
   m_PhysicsPaused = paused;
@@ -345,6 +369,8 @@ void Scene::StepPhysics(float dt)
 
     if (ch->GetPosition().y - worldHalfY < this->m_WorldFloorY)
     {
+      OnCharacterHitFloor(ch);
+
       glm::vec2 pos = ch->GetPosition();
       pos.y = this->m_WorldFloorY + worldHalfY;
       ch->SetPosition(pos);
