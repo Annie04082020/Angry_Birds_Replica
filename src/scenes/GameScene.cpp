@@ -589,6 +589,9 @@ void GameScene::UpdateWinState()
         m_ScoringSystem.CommitCurrentScoreToHighScore();
         m_HudHighScore = m_ScoringSystem.GetHighScore();
         PersistLevelHighScore();
+        if (m_OnLevelCleared && m_LevelManager) {
+          m_OnLevelCleared(m_LevelManager->GetLevel());
+        }
         m_IsLevelClearScreenVisible = true;
         m_LevelClearAnimationTime = 0.0f;
         SetPauseMenuVisible(false);

@@ -4,6 +4,7 @@
 #include "Button.hpp"
 #include "DynamicBackground.hpp"
 #include "Scene.hpp"
+#include "Util/Text.hpp"
 #include <functional>
 #include <memory>
 #include <vector>
@@ -14,6 +15,7 @@ public:
     static std::shared_ptr<LevelSelectScene> Create();
     void Update() override;
     void SetSceneVisible(bool visible);
+    void SetLevelProgress(int highestSequentialClearedLevel, bool cheatMode);
 
     void SetOnLevelSelectCallback(std::function<bool(int)> callback)
     {
@@ -31,19 +33,24 @@ protected:
 private:
     void BuildLevelSelectUI();
     void SetButtonsInputEnabled(bool enabled);
+    void RefreshLevelButtonStates();
 
     std::shared_ptr<DynamicBackground> m_movingBg;
     std::shared_ptr<Util::GameObject> m_title;
     std::shared_ptr<Util::GameObject> m_subtitle;
+    std::shared_ptr<Util::Text> m_subtitleDrawable;
     std::shared_ptr<Button> m_backButton;
     std::shared_ptr<Util::GameObject> m_backLabel;
     std::vector<std::shared_ptr<Button>> m_levelButtons;
     std::vector<std::shared_ptr<Util::GameObject>> m_levelLabels;
+    std::vector<std::shared_ptr<Util::Text>> m_levelLabelDrawables;
     glm::vec2 m_backLabelBaseScale = {1.0f, 1.0f};
     std::vector<glm::vec2> m_levelLabelBaseScales;
     std::function<bool(int)> m_onLevelSelect = nullptr;
     std::function<void()> m_onBackClick = nullptr;
     bool m_BlockInputUntilMouseRelease = false;
+    int m_HighestSequentialClearedLevel = 0;
+    bool m_CheatModeEnabled = false;
 };
 
 #endif

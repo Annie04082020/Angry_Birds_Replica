@@ -51,6 +51,10 @@ public:
     void SetImage(const std::string &filepath);
     void SetOpacity(float opacity) { m_Opacity = std::clamp(opacity, 0.0f, 1.0f); }
     [[nodiscard]] float GetOpacity() const { return m_Opacity; }
+    void SetTint(const glm::vec3 &tint) { m_Tint = tint; }
+    [[nodiscard]] const glm::vec3 &GetTint() const { return m_Tint; }
+    void SetGrayscaleAmount(float amount) { m_GrayscaleAmount = std::clamp(amount, 0.0f, 1.0f); }
+    [[nodiscard]] float GetGrayscaleAmount() const { return m_GrayscaleAmount; }
 
     /**
      * @brief Draws the image with a given transform and z-index.
@@ -82,6 +86,8 @@ private:
     std::string m_Path;
     glm::vec2 m_Size;
     float m_Opacity = 1.0f;
+    glm::vec3 m_Tint = {1.0f, 1.0f, 1.0f};
+    float m_GrayscaleAmount = 0.0f;
 };
 } // namespace Util
 

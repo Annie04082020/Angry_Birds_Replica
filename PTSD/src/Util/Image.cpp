@@ -63,6 +63,14 @@ void Image::Draw(const Core::Matrices &data) {
     if (opacityLocation >= 0) {
         glUniform1f(opacityLocation, m_Opacity);
     }
+    const GLint tintLocation = glGetUniformLocation(s_Program->GetId(), "colorTint");
+    if (tintLocation >= 0) {
+        glUniform3f(tintLocation, m_Tint.r, m_Tint.g, m_Tint.b);
+    }
+    const GLint grayscaleLocation = glGetUniformLocation(s_Program->GetId(), "grayscaleAmount");
+    if (grayscaleLocation >= 0) {
+        glUniform1f(grayscaleLocation, m_GrayscaleAmount);
+    }
     s_Program->Validate();
 
     s_VertexArray->Bind();
@@ -90,6 +98,22 @@ void Image::InitProgram() {
             glUniform1f(location, 1.0f);
         } else {
             LOG_ERROR("Uniform 'opacity' not found in program {}",
+                      s_Program->GetId());
+        }
+
+        location = glGetUniformLocation(s_Program->GetId(), "colorTint");
+        if (location >= 0) {
+            glUniform3f(location, 1.0f, 1.0f, 1.0f);
+        } else {
+            LOG_ERROR("Uniform 'colorTint' not found in program {}",
+                      s_Program->GetId());
+        }
+
+        location = glGetUniformLocation(s_Program->GetId(), "grayscaleAmount");
+        if (location >= 0) {
+            glUniform1f(location, 0.0f);
+        } else {
+            LOG_ERROR("Uniform 'grayscaleAmount' not found in program {}",
                       s_Program->GetId());
         }
     } else {

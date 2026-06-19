@@ -6,6 +6,8 @@ layout(location = 0) out vec4 fragColor;
 
 uniform sampler2D surface;
 uniform float opacity;
+uniform vec3 colorTint;
+uniform float grayscaleAmount;
 
 void main() {
     vec4 texColor = texture(surface, uv);
@@ -13,5 +15,8 @@ void main() {
     if (texColor.a < 0.01)
         discard;
 
-    fragColor = vec4(texColor.rgb, texColor.a * opacity);
+    vec3 tintedColor = texColor.rgb * colorTint;
+    float luminance = dot(tintedColor, vec3(0.299, 0.587, 0.114));
+    vec3 finalColor = mix(tintedColor, vec3(luminance), grayscaleAmount);
+    fragColor = vec4(finalColor, texColor.a * opacity);
 }

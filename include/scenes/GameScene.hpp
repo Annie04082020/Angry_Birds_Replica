@@ -46,6 +46,10 @@ public:
     {
         m_OnNextLevel = std::move(callback);
     }
+    void SetOnLevelClearedCallback(std::function<void(int)> callback)
+    {
+        m_OnLevelCleared = std::move(callback);
+    }
 
 private:
     void LoadLevelHighScore();
@@ -85,6 +89,7 @@ private:
     std::function<void()> m_OnRestartLevel = nullptr;
     std::function<void()> m_OnOpenLevelSelect = nullptr;
     std::function<void()> m_OnNextLevel = nullptr;
+    std::function<void(int)> m_OnLevelCleared = nullptr;
     bool m_IsPauseMenuVisible = false;
     bool m_PauseMenuInputBlockedUntilRelease = false;
     bool m_IsMusicMuted = SoundEffect::IsMuted();
