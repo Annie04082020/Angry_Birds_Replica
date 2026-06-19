@@ -570,6 +570,13 @@ void Scene::Update()
       auto character = std::dynamic_pointer_cast<Character>(element);
       if (character && character->GetHealth() <= 0.0f && !character->IsDestroyed())
       {
+        if (character->GetEntityKind() == Character::EntityKind::Environment &&
+            character->GetMaterialType() == Character::MaterialType::Earth)
+        {
+          character->SetHealth(character->GetMaxHealth());
+          continue;
+        }
+
         // Mark as destroyed once so we do not re-score every frame.
         character->SetDestroyed(true);
 
