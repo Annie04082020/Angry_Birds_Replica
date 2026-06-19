@@ -12,8 +12,8 @@ namespace
     constexpr float kBackdropHeightRatio = 1.15f;
     constexpr float kBackdropCenterOffsetX = 100.0f;
     constexpr float kBackdropCenterOffsetY = 10.0f;
-    constexpr float kCloseOffsetX = 5.0f;
-    constexpr float kCloseOffsetY = 5.0f;
+    constexpr float kCloseOffsetX = 125.0f;
+    constexpr float kCloseOffsetY = 95.0f;
     constexpr float kCloseScale = 1.2f;
     constexpr float kRestartOffsetX = 125.0f;
     constexpr float kRestartOffsetY = 250.0f;

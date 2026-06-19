@@ -7,7 +7,11 @@ set(SRC_FILES
     graphics/DynamicBackground.cpp
     ui/Button.cpp
     ui/AnimatedButton.cpp
+    ui/GameHud.cpp
+    ui/LevelResultPanel.cpp
     ui/PauseMenu.cpp
+    effects/BirdTrail.cpp
+    effects/FloatingScoreManager.cpp
     scenes/Scene.cpp
     scenes/CollisionUtils.cpp
     scenes/CollisionResponse.cpp
@@ -39,7 +43,11 @@ set(INCLUDE_FILES
     graphics/DynamicBackground.hpp
     ui/Button.hpp
     ui/AnimatedButton.hpp
+    ui/GameHud.hpp
+    ui/LevelResultPanel.hpp
     ui/PauseMenu.hpp
+    effects/BirdTrail.hpp
+    effects/FloatingScoreManager.hpp
     scenes/Scene.hpp
     scenes/CollisionUtils.hpp
     scenes/CollisionResponse.hpp

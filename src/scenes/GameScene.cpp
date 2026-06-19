@@ -19,1335 +19,515 @@
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 
-namespace
-{
-    constexpr const char *kUIFont = RESOURCE_DIR "/font/angrybirds-regular.ttf";
-    constexpr const char *kHighScoreFilePath = RESOURCE_DIR "/high_scores.json";
-    constexpr const char *kBirdTrailDotImage = RESOURCE_DIR "/Image/assets/sprite_022.png";
-    constexpr const char *kBirdTrailHeadImage = RESOURCE_DIR "/Image/assets/sprite_032.png";
-    constexpr float kGrassTopRatio = 404.0f / 563.0f;
-    constexpr int kBirdTrailDotPoolSize = 140;
-    constexpr float kBirdTrailDotScale = 0.82f;
-    constexpr float kBirdTrailDotLifetime = 0.85f;
-    constexpr float kBirdTrailEmitDistance = 18.0f;
-    constexpr float kBirdTrailMinSpeed = 120.0f;
-    constexpr float kLeftoverBirdAwardInterval = 0.62f;
-    std::string GetHudLabel(const std::shared_ptr<Character> &object)
-    {
-        if (!object)
-        {
-            return "OBJECT";
-        }
+namespace {
+constexpr const char *kUIFont = RESOURCE_DIR "/font/angrybirds-regular.ttf";
+constexpr const char *kHighScoreFilePath = RESOURCE_DIR "/high_scores.json";
+constexpr const char *kBirdTrailDotImage =
+    RESOURCE_DIR "/Image/assets/sprite_022.png";
+constexpr const char *kBirdTrailHeadImage =
+    RESOURCE_DIR "/Image/assets/sprite_032.png";
+constexpr float kGrassTopRatio = 404.0f / 563.0f;
+constexpr int kBirdTrailDotPoolSize = 140;
+constexpr float kBirdTrailDotScale = 0.82f;
+constexpr float kBirdTrailDotLifetime = 0.85f;
+constexpr float kBirdTrailEmitDistance = 18.0f;
+constexpr float kBirdTrailMinSpeed = 120.0f;
+constexpr float kLeftoverBirdAwardInterval = 0.62f;
+std::string GetHudLabel(const std::shared_ptr<Character> &object) {
+  if (!object) {
+    return "OBJECT";
+  }
 
-        std::string label = object->GetBaseImageId().empty() ? object->GetImagePath() : object->GetBaseImageId();
-        const std::size_t slashPos = label.find_last_of("/\\");
-        if (slashPos != std::string::npos)
-        {
-            label = label.substr(slashPos + 1);
-        }
+  std::string label = object->GetBaseImageId().empty()
+                          ? object->GetImagePath()
+                          : object->GetBaseImageId();
+  const std::size_t slashPos = label.find_last_of("/\\");
+  if (slashPos != std::string::npos) {
+    label = label.substr(slashPos + 1);
+  }
 
-        const std::size_t dotPos = label.find_last_of('.');
-        if (dotPos != std::string::npos)
-        {
-            label = label.substr(0, dotPos);
-        }
+  const std::size_t dotPos = label.find_last_of('.');
+  if (dotPos != std::string::npos) {
+    label = label.substr(0, dotPos);
+  }
 
-        return label.empty() ? "OBJECT" : label;
-    }
-
-    std::string BuildDamageHudText(const std::vector<std::shared_ptr<Character>> &objects)
-    {
-        std::ostringstream out;
-        out << "Damage test\n";
-
-        std::unordered_map<std::string, int> occurrenceCount;
-        for (const auto &object : objects)
-        {
-            if (!object)
-            {
-                continue;
-            }
-
-            const std::string baseId = GetHudLabel(object);
-            const int currentIndex = ++occurrenceCount[baseId];
-            const float maxHealth = object->GetMaxHealth();
-            const float health = object->GetHealth();
-            const float damagePercent = maxHealth > 0.0f ? std::max(0.0f, (maxHealth - health) / maxHealth * 100.0f) : 0.0f;
-
-            out << currentIndex << ". " << baseId << "  dmg: " << static_cast<int>(std::round(damagePercent)) << "%\n";
-        }
-
-        return out.str();
-    }
-
-    // Design resolution: all HUD constants below are authored for this resolution.
-    constexpr float kDesignWidth = 2400.0f;
-    constexpr float kDesignHeight = 1350.0f;
-
-    // Returns the scale factor to adapt design-resolution HUD values to the actual viewport.
-    float GetHudScale()
-    {
-        const glm::vec2 viewportSize = Util::GetViewportSize();
-        if (viewportSize.x <= 0.0f || viewportSize.y <= 0.0f)
-            return 1.0f;
-        return std::min(viewportSize.x / kDesignWidth, viewportSize.y / kDesignHeight);
-    }
-
-    constexpr float kGameHudButtonScale = 0.85f;
-    constexpr float kGameHudLeftPadding = 50.0f;
-    constexpr float kGameHudTopPadding = 50.0f;
-    constexpr float kGameHudButtonSpacing = 92.0f;
-    constexpr float kGameHudScoreOffsetX = -50.0f;
-    constexpr float kGameHudScoreLabelOffsetY = 1.0f;
-    constexpr float kGameHudScoreValueOffsetY = -52.0f;
-    constexpr int kGameHudScoreLabelSize = 57;
-    constexpr int kGameHudScoreValueSize = 57;
-    constexpr float kGameHudHighScoreOffsetX = -50.0f;
-    constexpr float kGameHudHighScoreLabelOffsetY = -116.0f;
-    constexpr float kGameHudHighScoreValueOffsetY = -164.0f;
-    constexpr int kGameHudHighScoreLabelSize = 37;
-    constexpr int kGameHudHighScoreValueSize = 57;
-    const Util::Color kGameHudTextFillColor = Util::Color::FromRGB(245, 245, 245);
-    const Util::Color kGameHudTextOutlineColor = Util::Color::FromRGB(24, 24, 24);
-    constexpr std::array<glm::vec2, 4> kGameHudOutlineOffsets = {
-        glm::vec2{-2.5f, 0.0f},
-        glm::vec2{2.5f, 0.0f},
-        glm::vec2{0.0f, -2.5f},
-        glm::vec2{0.0f, 2.5f}};
-    // Level Clear Screen Constants
-    constexpr int kLevelClearTitleSize = 80;
-    constexpr int kLevelClearScoreValueSize = 64;
-    constexpr int kLevelClearHighScoreValueSize = 34;
-    constexpr float kLevelClearPanelWidth = 540.0f;
-    constexpr float kLevelClearPanelHeightRatio = 0.98f;
-    constexpr float kLevelClearStarScale = 0.7f;
-    constexpr float kLevelClearEmptyStarOpacity = 0.1f;
-    constexpr float kLevelClearBestStarScale = 0.1f;
-    constexpr float kLevelClearStarSpacing = 145.0f;
-    constexpr float kLevelClearBestStarSpacing = 24.0f;
-    constexpr float kLevelClearTitleOffsetY = 205.0f;
-    constexpr float kLevelClearStarsOffsetY = 72.0f;
-    constexpr float kLevelClearScoreOffsetY = -55.0f;
-    constexpr float kLevelClearHighScoreOffsetY = -130.0f;
-    constexpr float kLevelClearBestStarsOffsetX = 92.0f;
-    constexpr float kLevelClearButtonScale = 0.9f;
-    constexpr float kLevelClearButtonSpacing = 185.0f;
-    constexpr float kLevelClearButtonBaseOffsetY = -315.0f;
-    constexpr float kLevelClearStarPopDelay = 0.34f;
-    constexpr float kLevelClearStarPopDuration = 0.5f;
-    constexpr float kLevelClearStarPopYOffset = 30.0f;
-    
-    constexpr int kLevelFailedTitleSize = 82;
-    constexpr float kLevelFailedTitleOffsetY = 200.0f;
-    constexpr float kLevelFailedPigScale = 2.6f;
-    constexpr float kLevelFailedPigOffsetY = 0.0f;
-    constexpr float kLevelFailedButtonScale = 0.9f;
-    constexpr float kLevelFailedButtonSpacing = 185.0f;
-    constexpr float kLevelFailedButtonBaseOffsetY = -315.0f;
-    const Util::Color kLevelClearScoreFillColor = Util::Color::FromRGB(255, 216, 82);
-    const Util::Color kLevelClearScoreOutlineColor = Util::Color::FromRGB(184, 102, 21);
-
-    std::string FormatScore(const int score)
-    {
-        std::ostringstream stream;
-        stream << score;
-        return stream.str();
-    }
-
-
-
-    float ComputeStarPopScale(const float elapsedTime)
-    {
-        if (elapsedTime <= 0.0f)
-        {
-            return 0.0f;
-        }
-
-        const float progress = std::clamp(elapsedTime / kLevelClearStarPopDuration, 0.0f, 1.0f);
-        const float overshoot = 1.0f + std::sin(progress * 3.1415926f) * 0.42f;
-        return overshoot * progress;
-    }
-
-    class FloatingTextObject : public Util::GameObject
-    {
-    public:
-        FloatingTextObject(const std::shared_ptr<Util::Text> &drawable,
-                           const glm::vec2 &position,
-                           const glm::vec2 &velocity,
-                           const Util::Color &baseColor,
-                           const float zIndex,
-                           const float lifeTime)
-            : Util::GameObject(drawable, zIndex),
-              m_DrawableText(drawable),
-              m_Velocity(velocity),
-              m_BaseColor(baseColor),
-              m_LifeTime(lifeTime),
-              m_RemainingLife(lifeTime),
-              m_BaseScale(1.0f, 1.0f)
-        {
-            m_Transform.translation = position;
-        }
-
-        void Update() override
-        {
-            if (!m_DrawableText || m_RemainingLife <= 0.0f)
-            {
-                return;
-            }
-
-            const float deltaSec = std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
-            m_RemainingLife = std::max(0.0f, m_RemainingLife - deltaSec);
-            m_Transform.translation += m_Velocity * deltaSec;
-            m_Velocity *= std::pow(0.92f, deltaSec * 60.0f);
-
-            m_Transform.scale = m_BaseScale;
-
-            Util::Color fadedColor = m_BaseColor;
-            fadedColor.a = 255.0f;
-            m_DrawableText->SetColor(fadedColor);
-
-            if (m_RemainingLife <= 0.0f)
-            {
-                SetVisible(false);
-            }
-        }
-
-    private:
-        std::shared_ptr<Util::Text> m_DrawableText = nullptr;
-        glm::vec2 m_Velocity{0.0f, 45.0f};
-        Util::Color m_BaseColor = Util::Color::FromRGB(255, 255, 255);
-        float m_LifeTime = 0.8f;
-        float m_RemainingLife = 0.8f;
-        glm::vec2 m_BaseScale{1.0f, 1.0f};
-    };
-
-    class BirdTrailDotObject : public Util::GameObject
-    {
-    public:
-        BirdTrailDotObject(const std::shared_ptr<Util::Image> &drawable,
-                           const float zIndex,
-                           const float lifeTime)
-            : Util::GameObject(drawable, zIndex),
-              m_DrawableImage(drawable),
-              m_LifeTime(lifeTime),
-              m_RemainingLife(0.0f)
-        {
-            SetVisible(false);
-        }
-
-        void Activate(const glm::vec2 &position, const glm::vec2 &scale, const float opacity)
-        {
-            m_Transform.translation = position;
-            m_Transform.scale = scale;
-            SetVisible(true);
-            if (m_DrawableImage)
-            {
-                m_DrawableImage->SetOpacity(opacity);
-            }
-        }
-
-        void Deactivate()
-        {
-            SetVisible(false);
-            if (m_DrawableImage)
-            {
-                m_DrawableImage->SetOpacity(0.0f);
-            }
-        }
-
-        void Update() override
-        {
-            if (!m_DrawableImage)
-            {
-                if (m_Visible)
-                {
-                    SetVisible(false);
-                }
-                return;
-            }
-        }
-
-    private:
-        std::shared_ptr<Util::Image> m_DrawableImage = nullptr;
-        float m_LifeTime = 0.8f;
-        float m_RemainingLife = 0.0f;
-    };
-
-    std::shared_ptr<Util::GameObject> CreateTextObject(const std::string &text,
-                                                       const int fontSize,
-                                                       const glm::vec2 &position,
-                                                       const float zIndex,
-                                                       const Util::Color &color,
-                                                       std::shared_ptr<Util::Text> *outDrawable = nullptr)
-    {
-        auto drawable = std::make_shared<Util::Text>(kUIFont, fontSize, text, color);
-        if (outDrawable)
-        {
-            *outDrawable = drawable;
-        }
-
-        auto object = std::make_shared<Util::GameObject>(drawable, zIndex);
-        object->m_Transform.translation = position;
-        return object;
-    }
-
-    void CreateOutlinedTextObjects(
-        const std::string &text,
-        const int fontSize,
-        const glm::vec2 &position,
-        const float zIndex,
-        const Util::Color &fillColor,
-        const Util::Color &outlineColor,
-        std::array<std::shared_ptr<Util::GameObject>, 4> &outlineObjects,
-        std::shared_ptr<Util::GameObject> &frontObject,
-        std::shared_ptr<Util::Text> *frontDrawable = nullptr,
-        std::array<std::shared_ptr<Util::Text>, 4> *outlineDrawables = nullptr)
-    {
-        for (size_t i = 0; i < outlineObjects.size(); ++i)
-        {
-            std::shared_ptr<Util::Text> drawable = nullptr;
-            outlineObjects[i] = CreateTextObject(
-                text,
-                fontSize,
-                position + kGameHudOutlineOffsets[i],
-                zIndex - 0.1f,
-                outlineColor,
-                &drawable);
-
-            if (outlineDrawables)
-            {
-                (*outlineDrawables)[i] = drawable;
-            }
-        }
-
-        frontObject = CreateTextObject(text, fontSize, position, zIndex, fillColor, frontDrawable);
-    }
-
-    void PositionOutlinedTextObjects(const glm::vec2 &position,
-                                     std::array<std::shared_ptr<Util::GameObject>, 4> &outlineObjects,
-                                     const std::shared_ptr<Util::GameObject> &frontObject,
-                                     const float zoom)
-    {
-        for (size_t i = 0; i < outlineObjects.size(); ++i)
-        {
-            if (outlineObjects[i])
-            {
-                outlineObjects[i]->m_Transform.translation = position + kGameHudOutlineOffsets[i] / zoom;
-            }
-        }
-
-        if (frontObject)
-        {
-            frontObject->m_Transform.translation = position;
-        }
-    }
-
-    void UpdateOutlineDrawables(std::shared_ptr<Util::Text> *frontDrawable,
-                                std::array<std::shared_ptr<Util::Text>, 4> *outlineDrawables,
-                                const std::string &text)
-    {
-        if (frontDrawable && *frontDrawable && outlineDrawables)
-        {
-            (*frontDrawable)->SetText(text);
-            for (size_t i = 0; i < outlineDrawables->size(); ++i)
-            {
-                if ((*outlineDrawables)[i])
-                {
-                    (*outlineDrawables)[i]->SetText(text);
-                }
-            }
-        }
-    }
-
-    bool IsLevelThreeSmileTarget(const LevelManager *levelManager,
-                                 const std::shared_ptr<Character> &character)
-    {
-        return levelManager &&
-               levelManager->GetLevel() == 3 &&
-               character &&
-               character->IsSpecialItem() &&
-               character->GetBaseImageId() == "SMILE";
-    }
+  return label.empty() ? "OBJECT" : label;
 }
 
-bool GameScene::LoadLevel(const std::string &levelPath)
-{
-    m_ZoomScrollAccumulator = 0.0f;
-    m_DamageOutputTimer = 0.0f;
-    m_ShowDamageHud = false;
-    m_DamageImmunityTimer = 2.0f;
+std::string
+BuildDamageHudText(const std::vector<std::shared_ptr<Character>> &objects) {
+  std::ostringstream out;
+  out << "Damage test\n";
 
-    m_IsIntroAnimating = true;
-    m_IntroTimer = 0.0f;
-    m_IntroCameraTargetX = 0.0f;
-    m_IntroWaitDuration = 1.0f;
-    m_IntroDuration = 2.0f;
-
-    Util::SetCameraZoom(1.0f);
-    Util::SetCameraPosition({0.0f, 0.0f});
-
-    const float physicsScale = GetHudScale();
-    SetPhysicsScale(physicsScale);
-    if (m_BirdLaunchController)
-    {
-        m_BirdLaunchController->SetPhysicsScale(physicsScale);
+  std::unordered_map<std::string, int> occurrenceCount;
+  for (const auto &object : objects) {
+    if (!object) {
+      continue;
     }
 
-    if (!m_LevelManager || !m_LevelManager->LoadLevel(levelPath))
-    {
-        return false;
+    const std::string baseId = GetHudLabel(object);
+    const int currentIndex = ++occurrenceCount[baseId];
+    const float maxHealth = object->GetMaxHealth();
+    const float health = object->GetHealth();
+    const float damagePercent =
+        maxHealth > 0.0f
+            ? std::max(0.0f, (maxHealth - health) / maxHealth * 100.0f)
+            : 0.0f;
+
+    out << currentIndex << ". " << baseId
+        << "  dmg: " << static_cast<int>(std::round(damagePercent)) << "%\n";
+  }
+
+  return out.str();
+}
+
+// Design resolution: all HUD constants below are authored for this resolution.
+constexpr float kDesignWidth = 2400.0f;
+constexpr float kDesignHeight = 1350.0f;
+
+// Returns the scale factor to adapt design-resolution HUD values to the actual
+// viewport.
+float GetHudScale() {
+  const glm::vec2 viewportSize = Util::GetViewportSize();
+  if (viewportSize.x <= 0.0f || viewportSize.y <= 0.0f)
+    return 1.0f;
+  return std::min(viewportSize.x / kDesignWidth,
+                  viewportSize.y / kDesignHeight);
+}
+
+std::string FormatScore(const int score) {
+  std::ostringstream stream;
+  stream << score;
+  return stream.str();
+}
+
+bool IsLevelThreeSmileTarget(const LevelManager *levelManager,
+                             const std::shared_ptr<Character> &character) {
+  return levelManager && levelManager->GetLevel() == 3 && character &&
+         character->IsSpecialItem() && character->GetBaseImageId() == "SMILE";
+}
+} // namespace
+
+bool GameScene::LoadLevel(const std::string &levelPath) {
+  m_ZoomScrollAccumulator = 0.0f;
+  m_DamageOutputTimer = 0.0f;
+  m_ShowDamageHud = false;
+  m_DamageImmunityTimer = 2.0f;
+
+  m_IsIntroAnimating = true;
+  m_IntroTimer = 0.0f;
+  m_IntroCameraTargetX = 0.0f;
+  m_IntroWaitDuration = 1.0f;
+  m_IntroDuration = 2.0f;
+
+  Util::SetCameraZoom(1.0f);
+  Util::SetCameraPosition({0.0f, 0.0f});
+
+  const float physicsScale = GetHudScale();
+  SetPhysicsScale(physicsScale);
+  if (m_BirdLaunchController) {
+    m_BirdLaunchController->SetPhysicsScale(physicsScale);
+  }
+
+  if (!m_LevelManager || !m_LevelManager->LoadLevel(levelPath)) {
+    return false;
+  }
+
+  const auto &objects = m_LevelManager->GetGameObjects();
+
+  m_IntroCameraTargetX = 0.0f;
+  for (const auto &obj : objects) {
+    if (obj && (obj->GetEntityKind() == Character::EntityKind::Pig ||
+                obj->GetEntityKind() == Character::EntityKind::Environment)) {
+      float x = obj->GetTransform().translation.x;
+      if (x > m_IntroCameraTargetX) {
+        m_IntroCameraTargetX = x;
+      }
     }
+    AddElements(obj);
+  }
 
-    const auto &objects = m_LevelManager->GetGameObjects();
+  // Set initial camera to look at the pigs on the right
+  float initialCameraX = std::max(0.0f, m_IntroCameraTargetX - 600.0f);
+  Util::SetCameraPosition({initialCameraX, 0.0f});
 
-    m_IntroCameraTargetX = 0.0f;
-    for (const auto &obj : objects)
-    {
-        if (obj && (obj->GetEntityKind() == Character::EntityKind::Pig || obj->GetEntityKind() == Character::EntityKind::Environment)) {
-            float x = obj->GetTransform().translation.x;
-            if (x > m_IntroCameraTargetX) {
-                m_IntroCameraTargetX = x;
-            }
-        }
-        AddElements(obj);
-    }
+  const glm::vec2 viewportSize = Util::GetViewportSize();
+  const float floorCandidate = (0.5f - kGrassTopRatio) * viewportSize.y;
+  this->SetWorldFloorY(floorCandidate);
 
-    // Set initial camera to look at the pigs on the right
-    float initialCameraX = std::max(0.0f, m_IntroCameraTargetX - 600.0f);
-    Util::SetCameraPosition({initialCameraX, 0.0f});
-
-    const glm::vec2 viewportSize = Util::GetViewportSize();
-    const float floorCandidate = (0.5f - kGrassTopRatio) * viewportSize.y;
-    this->SetWorldFloorY(floorCandidate);
-
-    if (m_BirdLaunchController)
-    {
-        m_BirdLaunchController->SetWorldFloorY(floorCandidate);
-        m_BirdLaunchController->SetOnSpawnCharacter([this](const std::shared_ptr<Character>& charPtr) {
-            this->AddElements(charPtr);
+  if (m_BirdLaunchController) {
+    m_BirdLaunchController->SetWorldFloorY(floorCandidate);
+    m_BirdLaunchController->SetOnSpawnCharacter(
+        [this](const std::shared_ptr<Character> &charPtr) {
+          this->AddElements(charPtr);
         });
-        m_BirdLaunchController->LoadLevelObjects(objects);
-    }
+    m_BirdLaunchController->LoadLevelObjects(objects);
+  }
 
-    const bool isDamageTestLevel = levelPath.find("_test") != std::string::npos ||
-                                   m_LevelManager->GetLevelName().find("Test") != std::string::npos;
-    if (isDamageTestLevel)
-    {
-        m_ShowDamageHud = true;
-        LOG_DEBUG("Test Level Loaded: {}\n{}", m_LevelManager->GetLevelName(), BuildDamageHudText(objects));
-    }
+  const bool isDamageTestLevel =
+      levelPath.find("_test") != std::string::npos ||
+      m_LevelManager->GetLevelName().find("Test") != std::string::npos;
+  if (isDamageTestLevel) {
+    m_ShowDamageHud = true;
+    LOG_DEBUG("Test Level Loaded: {}\n{}", m_LevelManager->GetLevelName(),
+              BuildDamageHudText(objects));
+  }
 
-    m_ScoringSystem.LoadConfig(RESOURCE_DIR "/scoring_config.json");
-    LoadLevelHighScore();
+  m_ScoringSystem.LoadConfig(RESOURCE_DIR "/scoring_config.json");
+  LoadLevelHighScore();
 
-    ResetScoreState();
-    BuildLevelHud();
-    BuildBirdTrail();
-    ResetBirdTrail();
-    UpdateHudPositions();
-    UpdateScoreHud();
+  ResetScoreState();
+  BuildLevelHud();
+  m_BirdTrail.Build([this](const std::shared_ptr<Util::GameObject> &element) {
+    AddElements(element);
+  });
+  m_BirdTrail.Reset();
+  UpdateHudPositions();
+  UpdateScoreHud();
 
-    m_SceneInputController = std::make_shared<SceneInputController>(m_DynamicBackground, m_LevelManager);
+  m_SceneInputController = std::make_shared<SceneInputController>(
+      m_DynamicBackground, m_LevelManager);
 
-    return true;
+  return true;
 }
 
-void GameScene::LoadLevelHighScore()
-{
-    if (!m_LevelManager)
-    {
-        m_ScoringSystem.SetHighScore(0);
-        m_HudHighScore = 0;
-        return;
-    }
+void GameScene::LoadLevelHighScore() {
+  if (!m_LevelManager) {
+    m_ScoringSystem.SetHighScore(0);
+    m_HudHighScore = 0;
+    return;
+  }
 
-    m_ScoringSystem.LoadHighScoreFromFile(kHighScoreFilePath, m_LevelManager->GetLevel());
-    m_HudHighScore = m_ScoringSystem.GetHighScore();
+  m_ScoringSystem.LoadHighScoreFromFile(kHighScoreFilePath,
+                                        m_LevelManager->GetLevel());
+  m_HudHighScore = m_ScoringSystem.GetHighScore();
 }
 
-void GameScene::PersistLevelHighScore() const
-{
-    if (!m_LevelManager)
-    {
-        return;
-    }
+void GameScene::PersistLevelHighScore() const {
+  if (!m_LevelManager) {
+    return;
+  }
 
-    m_ScoringSystem.SaveHighScoreToFile(kHighScoreFilePath, m_LevelManager->GetLevel());
+  m_ScoringSystem.SaveHighScoreToFile(kHighScoreFilePath,
+                                      m_LevelManager->GetLevel());
 }
 
-void GameScene::Update()
-{
-    if (Util::Input::IsKeyUp(Util::Keycode::C))
-    {
-        m_LevelCleared = true;
-        m_LevelFailed = false;
-    }
-
-    const bool isBirdHolding = m_BirdLaunchController && m_BirdLaunchController->IsHoldingBird();
-
-    if (Util::Input::IsKeyPressed(Util::Keycode::F1))
-    {
-        SetDebugRenderEnabled(!IsDebugRenderEnabled());
-        LOG_DEBUG("Physics render {}", IsDebugRenderEnabled() ? "enabled" : "disabled");
-    }
-
-    if (Util::Input::IsKeyPressed(Util::Keycode::P))
-    {
-        SetPhysicsPaused(!IsPhysicsPaused());
-        LOG_DEBUG("Physics {}", IsPhysicsPaused() ? "paused" : "resumed");
-    }
-
-    if (IsPhysicsPaused() && Util::Input::IsKeyPressed(Util::Keycode::L))
-    {
-        RequestPhysicsSingleStep();
-        LOG_DEBUG("Physics single step dt=0.016");
-    }
-
-    // Output damage stats to console periodically during test level
-    if (m_ShowDamageHud && m_LevelManager)
-    {
-        m_DamageOutputTimer += Util::Time::GetDeltaTimeMs() / 1000.0f;
-        if (m_DamageOutputTimer >= 2.0f) // Output every 2 seconds
-        {
-            m_DamageOutputTimer = 0.0f;
-            LOG_DEBUG("Damage Status:\n{}", BuildDamageHudText(m_LevelManager->GetGameObjects()));
-        }
-    }
-
-    if (m_IsIntroAnimating)
-    {
-        float deltaTime = Util::Time::GetDeltaTimeMs() / 1000.0f;
-        m_IntroTimer += deltaTime;
-
-        if (m_IntroTimer > m_IntroWaitDuration)
-        {
-            float progress = (m_IntroTimer - m_IntroWaitDuration) / m_IntroDuration;
-            if (progress >= 1.0f)
-            {
-                progress = 1.0f;
-                m_IsIntroAnimating = false;
-            }
-
-            // Smoothstep easing
-            float t = progress;
-            float smoothProgress = t * t * (3.0f - 2.0f * t);
-
-            float startX = std::max(0.0f, m_IntroCameraTargetX - 600.0f);
-            float currentX = startX * (1.0f - smoothProgress);
-            Util::SetCameraPosition({currentX, 0.0f});
-        }
-    }
-
-    if (m_BirdLaunchController && !IsPhysicsPaused() && !m_IsIntroAnimating)
-    {
-        m_BirdLaunchController->Update();
-
-        // Keep structures immune to self-inflicted collision damage until the
-        // player actually fires the first bird. This prevents stacked levels
-        // from breaking during initial settling.
-        if (!m_BirdLaunchController->HasAnyBirdBeenLaunched())
-        {
-            m_DamageImmunityTimer = std::max(m_DamageImmunityTimer, 0.1f);
-        }
-        else
-        {
-            m_DamageImmunityTimer = 0.0f;
-        }
-    }
-    UpdateBirdTrail();
-
-    if (m_SceneInputController && !m_IsIntroAnimating)
-    {
-        m_SceneInputController->Update(isBirdHolding);
-    }
-
-    if (m_PauseMenuInputBlockedUntilRelease &&
-        !Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
-    {
-        m_PauseMenuInputBlockedUntilRelease = false;
-        if (m_PauseMenu)
-        {
-            m_PauseMenu->SetButtonsInputEnabled(true);
-        }
-    }
-
-    // Handle mouse wheel zoom with mouse position as pivot
-    if (Util::Input::IfScroll() && !m_IsIntroAnimating)
-    {
-        const glm::vec2 mousePos = Util::Input::GetCursorPosition();
-        const float oldZoom = Util::GetCameraZoom();
-        const glm::vec2 oldCameraPos = Util::GetCameraPosition();
-        const glm::vec2 scrollDist = Util::Input::GetScrollDistance();
-        const float normalizedScroll = std::clamp(scrollDist.y, -1.0f, 1.0f);
-        m_ZoomScrollAccumulator += normalizedScroll;
-
-        const int zoomSteps = static_cast<int>(m_ZoomScrollAccumulator);
-        if (zoomSteps != 0)
-        {
-            m_ZoomScrollAccumulator -= static_cast<float>(zoomSteps);
-
-            // Calculate world position of mouse before zoom
-            const glm::vec2 worldMousePos = mousePos / oldZoom + oldCameraPos;
-
-            constexpr float zoomStep = 0.01f;
-            const float stepScale = zoomSteps > 0 ? (1.0f + zoomStep)
-                                                  : (1.0f - zoomStep);
-            const float newZoom = oldZoom * std::pow(stepScale, std::abs(zoomSteps));
-            Util::SetCameraZoom(newZoom);
-
-            // Get actual zoom after clamp
-            const float actualZoom = Util::GetCameraZoom();
-
-            // Only adjust camera position if zoom actually changed (not clamped)
-            if (actualZoom != oldZoom)
-            {
-                const glm::vec2 newCameraPos = worldMousePos - mousePos / actualZoom;
-                glm::vec2 clampedCameraPos = newCameraPos;
-                // Keep background bottom aligned with viewport bottom.
-                clampedCameraPos.y = 0.0f;
-                Util::SetCameraPosition(clampedCameraPos);
-            }
-        }
-    }
-
-    UpdateHudPositions();
-    Scene::Update();
-    RefreshRemainingPigCount();
-    UpdateWinState();
-    UpdateFailState();
-}
-
-void GameScene::BuildLevelHud()
-{
-    if (!m_ScoreLabel)
-    {
-        CreateOutlinedTextObjects("SCORE",
-                                  static_cast<int>(kGameHudScoreLabelSize * GetHudScale()),
-                                  {0.0f, 0.0f},
-                                  95.0f,
-                                  kGameHudTextFillColor,
-                                  kGameHudTextOutlineColor,
-                                  m_ScoreLabelOutline,
-                                  m_ScoreLabel);
-        for (const auto &outline : m_ScoreLabelOutline)
-        {
-            AddElements(outline);
-        }
-        AddElements(m_ScoreLabel);
-    }
-
-    if (!m_ScoreValue)
-    {
-        CreateOutlinedTextObjects("0",
-                                  static_cast<int>(kGameHudScoreValueSize * GetHudScale()),
-                                  {0.0f, 0.0f},
-                                  95.0f,
-                                  kGameHudTextFillColor,
-                                  kGameHudTextOutlineColor,
-                                  m_ScoreValueOutline,
-                                  m_ScoreValue,
-                                  &m_ScoreValueDrawable,
-                                  &m_ScoreValueOutlineDrawables);
-        for (const auto &outline : m_ScoreValueOutline)
-        {
-            AddElements(outline);
-        }
-        AddElements(m_ScoreValue);
-    }
-
-    if (!m_HighScoreLabel)
-    {
-        CreateOutlinedTextObjects("HIGHSCORE",
-                                  static_cast<int>(kGameHudHighScoreLabelSize * GetHudScale()),
-                                  {0.0f, 0.0f},
-                                  95.0f,
-                                  kGameHudTextFillColor,
-                                  kGameHudTextOutlineColor,
-                                  m_HighScoreLabelOutline,
-                                  m_HighScoreLabel);
-        for (const auto &outline : m_HighScoreLabelOutline)
-        {
-            AddElements(outline);
-        }
-        AddElements(m_HighScoreLabel);
-    }
-
-    if (!m_HighScoreValue)
-    {
-        CreateOutlinedTextObjects("0",
-                                  static_cast<int>(kGameHudHighScoreValueSize * GetHudScale()),
-                                  {0.0f, 0.0f},
-                                  95.0f,
-                                  kGameHudTextFillColor,
-                                  kGameHudTextOutlineColor,
-                                  m_HighScoreValueOutline,
-                                  m_HighScoreValue,
-                                  &m_HighScoreValueDrawable,
-                                  &m_HighScoreValueOutlineDrawables);
-        for (const auto &outline : m_HighScoreValueOutline)
-        {
-            AddElements(outline);
-        }
-        AddElements(m_HighScoreValue);
-    }
-
-    m_LeftTopButton093 = std::make_shared<Button>(Resource::Game_Button_093);
-    m_LeftTopButton093->SetZIndex(95.0f);
-    m_LeftTopButton093->SetScale({kGameHudButtonScale * GetHudScale(), kGameHudButtonScale * GetHudScale()});
-    m_LeftTopButton093->SetVisible(true);
-    m_LeftTopButton093->SetSFX(Resource::SETTING_SFX);
-    m_LeftTopButton093->SetOnClickFunction([this]()
-                                           { TogglePauseMenu(); });
-    AddElements(m_LeftTopButton093);
-
-    m_LeftTopButton031 = std::make_shared<Button>(Resource::Game_Button_031);
-    m_LeftTopButton031->SetZIndex(95.0f);
-    m_LeftTopButton031->SetScale({kGameHudButtonScale * GetHudScale(), kGameHudButtonScale * GetHudScale()});
-    m_LeftTopButton031->SetVisible(true);
-    m_LeftTopButton031->SetOnClickFunction([this]()
-                                           {
-                                               SetPauseMenuVisible(false);
-                                               if (m_OnRestartLevel)
-                                               {
-                                                   m_OnRestartLevel();
-                                               } });
-    AddElements(m_LeftTopButton031);
-
-    m_PauseMenu = std::make_shared<PauseMenu>();
-    m_PauseMenu->SetOnClose([this]()
-                            { SetPauseMenuVisible(false); });
-    m_PauseMenu->SetOnRestart([this]()
-                              {
-                                  SetPauseMenuVisible(false);
-                                  if (m_OnRestartLevel)
-                                  {
-                                      m_OnRestartLevel();
-                                  }
-                              });
-    m_PauseMenu->SetOnOpenLevelSelect([this]()
-                                      {
-                                          SetPauseMenuVisible(false);
-                                          if (m_OnOpenLevelSelect)
-                                          {
-                                              m_OnOpenLevelSelect();
-                                          }
-                                      });
-    m_PauseMenu->SetOnToggleMute([this]()
-                                { ToggleMusicMute(); });
-    m_PauseMenu->Build([this](const std::shared_ptr<Util::GameObject> &element)
-                       { AddElements(element); },
-                       GetHudScale());
-
-    // Build Level Clear Screen UI
-    m_LevelClearBackdrop = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.75f}, 1.0f), 95.0f);
-    m_LevelClearBackdrop->SetVisible(false);
-    AddElements(m_LevelClearBackdrop);
-
-    m_LevelClearTitle = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Text>(kUIFont, static_cast<int>(kLevelClearTitleSize * GetHudScale()), "LEVEL CLEARED!", kGameHudTextFillColor), 98.0f);
-    m_LevelClearTitle->SetVisible(false);
-    AddElements(m_LevelClearTitle);
-
-    // Create star rating display
-    for (int i = 0; i < 3; ++i)
-    {
-        auto emptyStarDrawable = std::make_shared<Util::Image>(Resource::Star_Empty);
-        emptyStarDrawable->SetOpacity(kLevelClearEmptyStarOpacity);
-        m_LevelClearStars[i] = std::make_shared<Util::GameObject>(
-            emptyStarDrawable, 97.0f);
-        m_LevelClearStars[i]->m_Transform.scale = {kLevelClearStarScale * GetHudScale(), kLevelClearStarScale * GetHudScale()};
-        m_LevelClearStars[i]->SetVisible(false);
-        AddElements(m_LevelClearStars[i]);
-
-        m_LevelClearEarnedStars[i] = std::make_shared<Util::GameObject>(
-            std::make_shared<Util::Image>(Resource::Star_Filled), 97.2f);
-        m_LevelClearEarnedStars[i]->m_Transform.scale = {kLevelClearStarScale * GetHudScale(), kLevelClearStarScale * GetHudScale()};
-        m_LevelClearEarnedStars[i]->SetVisible(false);
-        AddElements(m_LevelClearEarnedStars[i]);
-    }
-
-    // Level Clear Score
-    CreateOutlinedTextObjects(FormatScore(0),
-                              static_cast<int>(kLevelClearScoreValueSize * GetHudScale()),
-                              {0.0f, 0.0f},
-                              97.0f,
-                              kLevelClearScoreFillColor,
-                              kLevelClearScoreOutlineColor,
-                              m_LevelClearScoreOutline,
-                              m_LevelClearScore,
-                              &m_LevelClearScoreDrawable,
-                              &m_LevelClearScoreOutlineDrawables);
-    for (const auto &outline : m_LevelClearScoreOutline)
-    {
-        outline->SetVisible(false);
-        AddElements(outline);
-    }
-    m_LevelClearScore->SetVisible(false);
-    AddElements(m_LevelClearScore);
-
-    // Level Clear High Score
-    CreateOutlinedTextObjects("BEST " + FormatScore(0),
-                              static_cast<int>(kLevelClearHighScoreValueSize * GetHudScale()),
-                              {0.0f, 0.0f},
-                              97.0f,
-                              kGameHudTextFillColor,
-                              kGameHudTextOutlineColor,
-                              m_LevelClearHighScoreOutline,
-                              m_LevelClearHighScore,
-                              &m_LevelClearHighScoreDrawable,
-                              &m_LevelClearHighScoreOutlineDrawables);
-    for (const auto &outline : m_LevelClearHighScoreOutline)
-    {
-        outline->SetVisible(false);
-        AddElements(outline);
-    }
-    m_LevelClearHighScore->SetVisible(false);
-    AddElements(m_LevelClearHighScore);
-
-    for (int i = 0; i < 3; ++i)
-    {
-        m_LevelClearBestStars[i] = std::make_shared<Util::GameObject>(
-            std::make_shared<Util::Image>(Resource::Star_Empty), 97.5f);
-        m_LevelClearBestStars[i]->SetVisible(false);
-        AddElements(m_LevelClearBestStars[i]);
-    }
-
-    // Level Clear Buttons
-    m_LevelClearMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
-    m_LevelClearMenuButton->SetZIndex(98.0f);
-    m_LevelClearMenuButton->SetScale({kLevelClearButtonScale * GetHudScale(), kLevelClearButtonScale * GetHudScale()});
-    m_LevelClearMenuButton->SetVisible(false);
-    m_LevelClearMenuButton->SetSFX(Resource::SETTING_SFX);
-    m_LevelClearMenuButton->SetOnClickFunction([this]()
-                                               {
-                                                   if (m_OnOpenLevelSelect)
-                                                   {
-                                                       m_OnOpenLevelSelect();
-                                                   }
-                                               });
-    AddElements(m_LevelClearMenuButton);
-
-    m_LevelClearRestartButton = std::make_shared<Button>(Resource::Game_Menu_Item_082);
-    m_LevelClearRestartButton->SetZIndex(98.0f);
-    m_LevelClearRestartButton->SetScale({kLevelClearButtonScale * GetHudScale(), kLevelClearButtonScale * GetHudScale()});
-    m_LevelClearRestartButton->SetVisible(false);
-    m_LevelClearRestartButton->SetSFX(Resource::SETTING_SFX);
-    m_LevelClearRestartButton->SetOnClickFunction([this]()
-                                                  {
-                                                      if (m_OnRestartLevel)
-                                                      {
-                                                          m_OnRestartLevel();
-                                                      }
-                                                  });
-    AddElements(m_LevelClearRestartButton);
-
-    m_LevelClearNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_078);
-    m_LevelClearNextButton->SetZIndex(98.0f);
-    m_LevelClearNextButton->SetScale({kLevelClearButtonScale * GetHudScale(), kLevelClearButtonScale * GetHudScale()});
-    m_LevelClearNextButton->SetVisible(false);
-    m_LevelClearNextButton->SetSFX(Resource::SETTING_SFX);
-    m_LevelClearNextButton->SetOnClickFunction([this]()
-                                               {
-                                                   if (m_OnNextLevel)
-                                                   {
-                                                       m_OnNextLevel();
-                                                   }
-                                               });
-    AddElements(m_LevelClearNextButton);
-    
-    m_LevelFailedBackdrop = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.75f}, 1.0f), 95.0f);
-    m_LevelFailedBackdrop->SetVisible(false);
-    AddElements(m_LevelFailedBackdrop);
-
-    m_LevelFailedTitle = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Text>(kUIFont, static_cast<int>(kLevelFailedTitleSize * GetHudScale()), "LEVEL FAILED!", kGameHudTextFillColor), 98.0f);
-    m_LevelFailedTitle->SetVisible(false);
-    AddElements(m_LevelFailedTitle);
-
-    m_LevelFailedPig = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Image>(Resource::PIG_SMALL), 98.0f);
-    m_LevelFailedPig->m_Transform.scale = {kLevelFailedPigScale * GetHudScale(), kLevelFailedPigScale * GetHudScale()};
-    m_LevelFailedPig->SetVisible(false);
-    AddElements(m_LevelFailedPig);
-
-    m_LevelFailedMenuButton = std::make_shared<Button>(Resource::Game_Menu_Item_073);
-    m_LevelFailedMenuButton->SetZIndex(98.0f);
-    m_LevelFailedMenuButton->SetScale({kLevelFailedButtonScale * GetHudScale(), kLevelFailedButtonScale * GetHudScale()});
-    m_LevelFailedMenuButton->SetVisible(false);
-    m_LevelFailedMenuButton->SetSFX(Resource::SETTING_SFX);
-    m_LevelFailedMenuButton->SetOnClickFunction([this]()
-                                                {
-                                                    if (m_OnOpenLevelSelect)
-                                                    {
-                                                        m_OnOpenLevelSelect();
-                                                    }
-                                                });
-    AddElements(m_LevelFailedMenuButton);
-
-    m_LevelFailedRestartButton = std::make_shared<Button>(Resource::Game_Menu_Item_082);
-    m_LevelFailedRestartButton->SetZIndex(98.0f);
-    m_LevelFailedRestartButton->SetScale({kLevelFailedButtonScale * GetHudScale(), kLevelFailedButtonScale * GetHudScale()});
-    m_LevelFailedRestartButton->SetVisible(false);
-    m_LevelFailedRestartButton->SetSFX(Resource::SETTING_SFX);
-    m_LevelFailedRestartButton->SetOnClickFunction([this]()
-                                                   {
-                                                       if (m_OnRestartLevel)
-                                                       {
-                                                           m_OnRestartLevel();
-                                                       }
-                                                   });
-    AddElements(m_LevelFailedRestartButton);
-
-    m_LevelFailedNextButton = std::make_shared<Button>(Resource::Game_Menu_Item_078);
-    m_LevelFailedNextButton->SetZIndex(98.0f);
-    m_LevelFailedNextButton->SetScale({kLevelFailedButtonScale * GetHudScale(), kLevelFailedButtonScale * GetHudScale()});
-    m_LevelFailedNextButton->SetVisible(false);
-    m_LevelFailedNextButton->SetSFX(Resource::SETTING_SFX);
-    m_LevelFailedNextButton->SetOnClickFunction([this]()
-                                                {
-                                                    if (m_OnNextLevel)
-                                                    {
-                                                        m_OnNextLevel();
-                                                    }
-                                                });
-    AddElements(m_LevelFailedNextButton);
-
-    SetPauseMenuVisible(false);
-}
-
-void GameScene::BuildBirdTrail()
-{
-    if (!m_BirdTrailDots.empty())
-    {
-        return;
-    }
-
-    const float scale = kBirdTrailDotScale;
-    for (int i = 0; i < kBirdTrailDotPoolSize; ++i)
-    {
-        const char *imagePath = (i % 5 == 0) ? kBirdTrailHeadImage : kBirdTrailDotImage;
-        auto drawable = std::make_shared<Util::Image>(imagePath);
-        drawable->SetOpacity(0.0f);
-        auto dot = std::make_shared<BirdTrailDotObject>(drawable, 94.0f, kBirdTrailDotLifetime);
-        dot->m_Transform.scale = {scale, scale};
-        AddElements(dot);
-        m_BirdTrailDots.push_back(dot);
-    }
-}
-
-void GameScene::ResetBirdTrail()
-{
-    m_BirdTrailLastEmitPositions.clear();
-    m_BirdTrailActiveDotCount = 0;
-    m_LastBirdTrailLaunchSequence = 0;
-    for (const auto &dot : m_BirdTrailDots)
-    {
-        if (!dot)
-        {
-            continue;
-        }
-        dot->SetVisible(false);
-        if (auto trailDot = std::dynamic_pointer_cast<BirdTrailDotObject>(dot))
-        {
-            trailDot->Deactivate();
-        }
-    }
-}
-
-void GameScene::UpdateBirdTrail()
-{
-    if (!m_BirdLaunchController || m_BirdTrailDots.empty())
-    {
-        return;
-    }
-
-    const int launchSequence = m_BirdLaunchController->GetLaunchSequence();
-    if (launchSequence != m_LastBirdTrailLaunchSequence)
-    {
-        m_LastBirdTrailLaunchSequence = launchSequence;
-        m_BirdTrailLastEmitPositions.clear();
-        m_BirdTrailActiveDotCount = 0;
-        for (const auto &dot : m_BirdTrailDots)
-        {
-            if (auto trailDot = std::dynamic_pointer_cast<BirdTrailDotObject>(dot))
-            {
-                trailDot->Deactivate();
-            }
-        }
-    }
-
-    if (!m_BirdLaunchController->HasBirdInFlight())
-    {
-        m_BirdTrailLastEmitPositions.clear();
-        return;
-    }
-
-    const float dotScale = kBirdTrailDotScale;
-    const glm::vec2 dotScaleVec{dotScale, dotScale};
-    const auto &birds = m_BirdLaunchController->GetActiveBirdsInFlight();
-    for (const auto &bird : birds)
-    {
-        if (!bird || bird->IsSleeping() || bird->IsStatic())
-        {
-            continue;
-        }
-
-        const glm::vec2 velocity = bird->GetVelocity();
-        if (glm::length(velocity) < kBirdTrailMinSpeed)
-        {
-            continue;
-        }
-
-        const glm::vec2 position = bird->GetPosition();
-        const Character *key = bird.get();
-        const auto it = m_BirdTrailLastEmitPositions.find(key);
-        if (it != m_BirdTrailLastEmitPositions.end() &&
-            glm::distance(it->second, position) < kBirdTrailEmitDistance)
-        {
-            continue;
-        }
-
-        m_BirdTrailLastEmitPositions[key] = position;
-
-        if (m_BirdTrailActiveDotCount >= m_BirdTrailDots.size())
-        {
-            continue;
-        }
-
-        auto dot = std::dynamic_pointer_cast<BirdTrailDotObject>(
-            m_BirdTrailDots[m_BirdTrailActiveDotCount]);
-        ++m_BirdTrailActiveDotCount;
-        if (dot)
-        {
-            dot->Activate(position, dotScaleVec, 1.0f);
-        }
-    }
-}
-
-void GameScene::UpdateHudPositions()
-{
-    if (!m_LeftTopButton093 && !m_LeftTopButton031 && !m_ScoreLabel && !m_ScoreValue)
-    {
-        return;
-    }
-
-    const glm::vec2 cameraPos = Util::GetCameraPosition();
-    const glm::vec2 viewportSize = Util::GetViewportSize();
-    const float zoom = Util::GetCameraZoom();
-    const float hudScale = GetHudScale();
-    const glm::vec2 topLeftAnchor = cameraPos +
-                                    glm::vec2{
-                                        -viewportSize.x * 0.5f / zoom + (kGameHudLeftPadding * hudScale) / zoom,
-                                        viewportSize.y * 0.5f / zoom - (kGameHudTopPadding * hudScale) / zoom};
-
-    if (m_LeftTopButton093)
-    {
-        m_LeftTopButton093->SetPosition(topLeftAnchor);
-        m_LeftTopButton093->SetScale({kGameHudButtonScale * hudScale / zoom, kGameHudButtonScale * hudScale / zoom});
-    }
-
-    if (m_LeftTopButton031)
-    {
-        m_LeftTopButton031->SetPosition(topLeftAnchor + glm::vec2{(kGameHudButtonSpacing * hudScale) / zoom, 0.0f});
-        m_LeftTopButton031->SetScale({kGameHudButtonScale * hudScale / zoom, kGameHudButtonScale * hudScale / zoom});
-    }
-
-    // High score positioned at top right
-    const glm::vec2 topRightAnchor = cameraPos +
-                                     glm::vec2{
-                                         viewportSize.x * 0.5f / zoom - (kGameHudLeftPadding * hudScale) / zoom,
-                                         viewportSize.y * 0.5f / zoom - (kGameHudTopPadding * hudScale) / zoom};
-
-    const glm::vec2 scoreAnchor = topRightAnchor + glm::vec2{(kGameHudScoreOffsetX * hudScale) / zoom, 0.0f};
-    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, (kGameHudScoreLabelOffsetY * hudScale) / zoom},
-                                m_ScoreLabelOutline,
-                                m_ScoreLabel,
-                                zoom);
-    if (m_ScoreLabel) { m_ScoreLabel->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-    for (auto &o : m_ScoreLabelOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-
-    PositionOutlinedTextObjects(scoreAnchor + glm::vec2{0.0f, (kGameHudScoreValueOffsetY * hudScale) / zoom},
-                                m_ScoreValueOutline,
-                                m_ScoreValue,
-                                zoom);
-    if (m_ScoreValue) { m_ScoreValue->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-    for (auto &o : m_ScoreValueOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-
-    const glm::vec2 highScoreAnchor = topRightAnchor + glm::vec2{(kGameHudHighScoreOffsetX * hudScale) / zoom, 0.0f};
-    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, (kGameHudHighScoreLabelOffsetY * hudScale) / zoom},
-                                m_HighScoreLabelOutline,
-                                m_HighScoreLabel,
-                                zoom);
-    if (m_HighScoreLabel) { m_HighScoreLabel->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-    for (auto &o : m_HighScoreLabelOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-
-    PositionOutlinedTextObjects(highScoreAnchor + glm::vec2{0.0f, (kGameHudHighScoreValueOffsetY * hudScale) / zoom},
-                                m_HighScoreValueOutline,
-                                m_HighScoreValue,
-                                zoom);
-    if (m_HighScoreValue) { m_HighScoreValue->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-    for (auto &o : m_HighScoreValueOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
-
-    if (m_PauseMenu)
-    {
-        m_PauseMenu->UpdateLayout(cameraPos, viewportSize, hudScale, zoom);
-    }
-}
-
-void GameScene::SetPauseMenuVisible(const bool visible)
-{
-    m_IsPauseMenuVisible = visible;
-
-    if (m_LeftTopButton093)
-    {
-        m_LeftTopButton093->SetVisible(!visible);
-    }
-    if (m_LeftTopButton031)
-    {
-        m_LeftTopButton031->SetVisible(!visible);
-    }
-
-    if (m_PauseMenu)
-    {
-        const int levelNumber = m_LevelManager ? m_LevelManager->GetLevel() : 0;
-        m_PauseMenu->SetVisible(visible, m_IsMusicMuted, levelNumber);
-    }
-
-    if (visible)
-    {
-        m_PauseMenuInputBlockedUntilRelease = true;
-        if (m_PauseMenu)
-        {
-            m_PauseMenu->SetButtonsInputEnabled(false);
-        }
-    }
-    else
-    {
-        m_PauseMenuInputBlockedUntilRelease = false;
-        if (m_PauseMenu)
-        {
-            m_PauseMenu->SetButtonsInputEnabled(true);
-        }
-    }
-}
-
-void GameScene::UpdateScoreHud()
-{
-    const std::string scoreText = FormatScore(m_ScoringSystem.GetScore());
-    if (m_ScoreValueDrawable)
-    {
-        m_ScoreValueDrawable->SetText(scoreText);
-    }
-    for (const auto &drawable : m_ScoreValueOutlineDrawables)
-    {
-        if (drawable)
-        {
-            drawable->SetText(scoreText);
-        }
-    }
-
-    const std::string highScoreText = FormatScore(m_HudHighScore);
-    if (m_HighScoreValueDrawable)
-    {
-        m_HighScoreValueDrawable->SetText(highScoreText);
-    }
-    for (const auto &drawable : m_HighScoreValueOutlineDrawables)
-    {
-        if (drawable)
-        {
-            drawable->SetText(highScoreText);
-        }
-    }
-}
-
-void GameScene::ResetScoreState()
-{
-    m_ScoringSystem.Reset();
-    m_RemainingPigCount = 0;
-    m_LevelCleared = false;
+void GameScene::Update() {
+  if (Util::Input::IsKeyUp(Util::Keycode::C)) {
+    m_LevelCleared = true;
     m_LevelFailed = false;
-    m_LeftoverBirdsAwarded = false;
-    m_PendingLeftoverBirdAwards = 0;
-    m_PendingLeftoverBirdAwardPositions.clear();
-    m_LeftoverBirdAwardTimer = 0.0f;
-    m_LevelClearAnimationTime = 0.0f;
-    m_IsLevelClearScreenVisible = false;
-    m_IsLevelFailedScreenVisible = false;
+  }
 
-    if (m_LevelClearBackdrop)
-    {
-        m_LevelClearBackdrop->SetVisible(false);
-    }
-    if (m_LevelClearTitle)
-    {
-        m_LevelClearTitle->SetVisible(false);
-    }
-    for (const auto &star : m_LevelClearStars)
-    {
-        if (star)
-        {
-            star->SetVisible(false);
-        }
-    }
-    for (const auto &star : m_LevelClearEarnedStars)
-    {
-        if (star)
-        {
-            star->SetVisible(false);
-        }
-    }
-    for (const auto &outline : m_LevelClearScoreOutline)
-    {
-        if (outline)
-        {
-            outline->SetVisible(false);
-        }
-    }
-    if (m_LevelClearScore)
-    {
-        m_LevelClearScore->SetVisible(false);
-    }
-    for (const auto &outline : m_LevelClearHighScoreOutline)
-    {
-        if (outline)
-        {
-            outline->SetVisible(false);
-        }
-    }
-    if (m_LevelClearHighScore)
-    {
-        m_LevelClearHighScore->SetVisible(false);
-    }
-    for (const auto &star : m_LevelClearBestStars)
-    {
-        if (star)
-        {
-            star->SetVisible(false);
-        }
-    }
-    if (m_LevelClearMenuButton)
-    {
-        m_LevelClearMenuButton->SetVisible(false);
-    }
-    if (m_LevelClearRestartButton)
-    {
-        m_LevelClearRestartButton->SetVisible(false);
-    }
-    if (m_LevelClearNextButton)
-    {
-        m_LevelClearNextButton->SetVisible(false);
-    }
+  const bool isBirdHolding =
+      m_BirdLaunchController && m_BirdLaunchController->IsHoldingBird();
 
-    if (m_LevelFailedBackdrop)
-    {
-        m_LevelFailedBackdrop->SetVisible(false);
-    }
-    if (m_LevelFailedTitle)
-    {
-        m_LevelFailedTitle->SetVisible(false);
-    }
-    if (m_LevelFailedPig)
-    {
-        m_LevelFailedPig->SetVisible(false);
-    }
-    if (m_LevelFailedMenuButton)
-    {
-        m_LevelFailedMenuButton->SetVisible(false);
-    }
-    if (m_LevelFailedRestartButton)
-    {
-        m_LevelFailedRestartButton->SetVisible(false);
-    }
-    if (m_LevelFailedNextButton)
-    {
-        m_LevelFailedNextButton->SetVisible(false);
-    }
+  if (Util::Input::IsKeyPressed(Util::Keycode::F1)) {
+    SetDebugRenderEnabled(!IsDebugRenderEnabled());
+    LOG_DEBUG("Physics render {}",
+              IsDebugRenderEnabled() ? "enabled" : "disabled");
+  }
 
-    for (const auto &object : m_LevelManager->GetGameObjects())
+  if (Util::Input::IsKeyPressed(Util::Keycode::P)) {
+    SetPhysicsPaused(!IsPhysicsPaused());
+    LOG_DEBUG("Physics {}", IsPhysicsPaused() ? "paused" : "resumed");
+  }
+
+  if (IsPhysicsPaused() && Util::Input::IsKeyPressed(Util::Keycode::L)) {
+    RequestPhysicsSingleStep();
+    LOG_DEBUG("Physics single step dt=0.016");
+  }
+
+  // Output damage stats to console periodically during test level
+  if (m_ShowDamageHud && m_LevelManager) {
+    m_DamageOutputTimer += Util::Time::GetDeltaTimeMs() / 1000.0f;
+    if (m_DamageOutputTimer >= 2.0f) // Output every 2 seconds
     {
-        if (!object)
-        {
-            continue;
-        }
-
-        object->SetDestroyed(false);
-        object->ResetHealth();
-        object->SetVisible(true);
-        // Only set physics participation for objects that should participate
-        // DECOR (Unknown kind) and Slingshot should not participate in physics
-        if (object->GetEntityKind() == Character::EntityKind::Environment ||
-            object->GetEntityKind() == Character::EntityKind::Pig)
-        {
-            object->SetParticipatesInPhysics(true);
-        }
-
-        if (object->GetEntityKind() == Character::EntityKind::Pig ||
-            IsLevelThreeSmileTarget(m_LevelManager.get(), object))
-        {
-            ++m_RemainingPigCount;
-        }
-
-        if (object->GetEntityKind() == Character::EntityKind::Environment && !object->IsSpecialItem())
-        {
-            object->SetScoreBudgetRemaining(m_ScoringSystem.GetDamageBudget(object->GetMaterialType()));
-            object->SetOnDamageCallback([this](Character *c, float appliedDamage) {
-                const float damageRatio = appliedDamage / std::max(0.0001f, c->GetMaxHealth());
-                const int estimated = std::max(
-                    10,
-                    static_cast<int>(std::lround(static_cast<float>(m_ScoringSystem.GetDamageBudget(c->GetMaterialType())) * std::clamp(damageRatio, 0.0f, 1.0f))));
-                const int awarded = c->DrainScoreBudget(estimated);
-                if (awarded > 0)
-                {
-                    const int actualScore = m_ScoringSystem.AwardBlockDamage(c->GetMaterialType(), damageRatio, awarded);
-                    SpawnFloatingScore(c->GetPosition(), actualScore, Util::Color::FromRGB(255, 255, 255));
-                    UpdateScoreHud();
-                }
-            });
-        }
-        else
-        {
-            object->SetScoreBudgetRemaining(0);
-            object->SetOnDamageCallback(nullptr);
-        }
+      m_DamageOutputTimer = 0.0f;
+      LOG_DEBUG("Damage Status:\n{}",
+                BuildDamageHudText(m_LevelManager->GetGameObjects()));
     }
+  }
+
+  if (m_IsIntroAnimating) {
+    float deltaTime = Util::Time::GetDeltaTimeMs() / 1000.0f;
+    m_IntroTimer += deltaTime;
+
+    if (m_IntroTimer > m_IntroWaitDuration) {
+      float progress = (m_IntroTimer - m_IntroWaitDuration) / m_IntroDuration;
+      if (progress >= 1.0f) {
+        progress = 1.0f;
+        m_IsIntroAnimating = false;
+      }
+
+      // Smoothstep easing
+      float t = progress;
+      float smoothProgress = t * t * (3.0f - 2.0f * t);
+
+      float startX = std::max(0.0f, m_IntroCameraTargetX - 600.0f);
+      float currentX = startX * (1.0f - smoothProgress);
+      Util::SetCameraPosition({currentX, 0.0f});
+    }
+  }
+
+  if (m_BirdLaunchController && !IsPhysicsPaused() && !m_IsIntroAnimating) {
+    m_BirdLaunchController->Update();
+
+    // Keep structures immune to self-inflicted collision damage until the
+    // player actually fires the first bird. This prevents stacked levels
+    // from breaking during initial settling.
+    if (!m_BirdLaunchController->HasAnyBirdBeenLaunched()) {
+      m_DamageImmunityTimer = std::max(m_DamageImmunityTimer, 0.1f);
+    } else {
+      m_DamageImmunityTimer = 0.0f;
+    }
+  }
+  m_BirdTrail.Update(m_BirdLaunchController);
+
+  if (m_SceneInputController && !m_IsIntroAnimating) {
+    m_SceneInputController->Update(isBirdHolding);
+  }
+
+  if (m_PauseMenuInputBlockedUntilRelease &&
+      !Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB)) {
+    m_PauseMenuInputBlockedUntilRelease = false;
+    if (m_PauseMenu) {
+      m_PauseMenu->SetButtonsInputEnabled(true);
+    }
+  }
+
+  // Handle mouse wheel zoom with mouse position as pivot
+  if (Util::Input::IfScroll() && !m_IsIntroAnimating) {
+    const glm::vec2 mousePos = Util::Input::GetCursorPosition();
+    const float oldZoom = Util::GetCameraZoom();
+    const glm::vec2 oldCameraPos = Util::GetCameraPosition();
+    const glm::vec2 scrollDist = Util::Input::GetScrollDistance();
+    const float normalizedScroll = std::clamp(scrollDist.y, -1.0f, 1.0f);
+    m_ZoomScrollAccumulator += normalizedScroll;
+
+    const int zoomSteps = static_cast<int>(m_ZoomScrollAccumulator);
+    if (zoomSteps != 0) {
+      m_ZoomScrollAccumulator -= static_cast<float>(zoomSteps);
+
+      // Calculate world position of mouse before zoom
+      const glm::vec2 worldMousePos = mousePos / oldZoom + oldCameraPos;
+
+      constexpr float zoomStep = 0.01f;
+      const float stepScale =
+          zoomSteps > 0 ? (1.0f + zoomStep) : (1.0f - zoomStep);
+      const float newZoom = oldZoom * std::pow(stepScale, std::abs(zoomSteps));
+      Util::SetCameraZoom(newZoom);
+
+      // Get actual zoom after clamp
+      const float actualZoom = Util::GetCameraZoom();
+
+      // Only adjust camera position if zoom actually changed (not clamped)
+      if (actualZoom != oldZoom) {
+        const glm::vec2 newCameraPos = worldMousePos - mousePos / actualZoom;
+        glm::vec2 clampedCameraPos = newCameraPos;
+        // Keep background bottom aligned with viewport bottom.
+        clampedCameraPos.y = 0.0f;
+        Util::SetCameraPosition(clampedCameraPos);
+      }
+    }
+  }
+
+  UpdateHudPositions();
+  Scene::Update();
+  RefreshRemainingPigCount();
+  UpdateWinState();
+  UpdateFailState();
 }
 
-void GameScene::RefreshRemainingPigCount()
-{
-    if (!m_LevelManager)
-    {
-        m_RemainingPigCount = 0;
-        return;
+void GameScene::BuildLevelHud() {
+  m_GameHud.SetOnTogglePause([this]() { TogglePauseMenu(); });
+  m_GameHud.SetOnRestart([this]() {
+    SetPauseMenuVisible(false);
+    if (m_OnRestartLevel) {
+      m_OnRestartLevel();
+    }
+  });
+  m_GameHud.Build(
+      [this](const std::shared_ptr<Util::GameObject> &element) {
+        AddElements(element);
+      },
+      GetHudScale());
+
+  if (!m_PauseMenu) {
+    m_PauseMenu = std::make_shared<PauseMenu>();
+    m_PauseMenu->SetOnClose([this]() { SetPauseMenuVisible(false); });
+    m_PauseMenu->SetOnRestart([this]() {
+      SetPauseMenuVisible(false);
+      if (m_OnRestartLevel) {
+        m_OnRestartLevel();
+      }
+    });
+    m_PauseMenu->SetOnOpenLevelSelect([this]() {
+      SetPauseMenuVisible(false);
+      if (m_OnOpenLevelSelect) {
+        m_OnOpenLevelSelect();
+      }
+    });
+    m_PauseMenu->SetOnToggleMute([this]() { ToggleMusicMute(); });
+    m_PauseMenu->Build(
+        [this](const std::shared_ptr<Util::GameObject> &element) {
+          AddElements(element);
+        },
+        GetHudScale());
+  }
+
+  m_LevelResultPanel.SetOnOpenLevelSelect([this]() {
+    if (m_OnOpenLevelSelect) {
+      m_OnOpenLevelSelect();
+    }
+  });
+  m_LevelResultPanel.SetOnRestart([this]() {
+    if (m_OnRestartLevel) {
+      m_OnRestartLevel();
+    }
+  });
+  m_LevelResultPanel.SetOnNextLevel([this]() {
+    if (m_OnNextLevel) {
+      m_OnNextLevel();
+    }
+  });
+  m_LevelResultPanel.Build(
+      [this](const std::shared_ptr<Util::GameObject> &element) {
+        AddElements(element);
+      },
+      GetHudScale());
+
+  SetPauseMenuVisible(false);
+}
+
+void GameScene::UpdateHudPositions() {
+  const glm::vec2 cameraPos = Util::GetCameraPosition();
+  const glm::vec2 viewportSize = Util::GetViewportSize();
+  const float zoom = Util::GetCameraZoom();
+  const float hudScale = GetHudScale();
+  m_GameHud.UpdateLayout(cameraPos, viewportSize, hudScale, zoom);
+
+  if (m_PauseMenu) {
+    m_PauseMenu->UpdateLayout(cameraPos, viewportSize, hudScale, zoom);
+  }
+}
+
+void GameScene::SetPauseMenuVisible(const bool visible) {
+  m_IsPauseMenuVisible = visible;
+  m_GameHud.SetControlsVisible(!visible && !m_IsLevelClearScreenVisible &&
+                               !m_IsLevelFailedScreenVisible);
+
+  if (m_PauseMenu) {
+    const int levelNumber = m_LevelManager ? m_LevelManager->GetLevel() : 0;
+    m_PauseMenu->SetVisible(visible, m_IsMusicMuted, levelNumber);
+  }
+
+  if (visible) {
+    m_PauseMenuInputBlockedUntilRelease = true;
+    if (m_PauseMenu) {
+      m_PauseMenu->SetButtonsInputEnabled(false);
+    }
+  } else {
+    m_PauseMenuInputBlockedUntilRelease = false;
+    if (m_PauseMenu) {
+      m_PauseMenu->SetButtonsInputEnabled(true);
+    }
+  }
+}
+
+void GameScene::UpdateScoreHud() {
+  m_GameHud.SetScore(m_ScoringSystem.GetScore());
+  m_GameHud.SetHighScore(m_HudHighScore);
+}
+
+void GameScene::ResetScoreState() {
+  m_ScoringSystem.Reset();
+  m_RemainingPigCount = 0;
+  m_LevelCleared = false;
+  m_LevelFailed = false;
+  m_LeftoverBirdsAwarded = false;
+  m_PendingLeftoverBirdAwards = 0;
+  m_PendingLeftoverBirdAwardPositions.clear();
+  m_LeftoverBirdAwardTimer = 0.0f;
+  m_LevelClearAnimationTime = 0.0f;
+  m_IsLevelClearScreenVisible = false;
+  m_IsLevelFailedScreenVisible = false;
+  m_LevelResultPanel.Reset();
+
+  for (const auto &object : m_LevelManager->GetGameObjects()) {
+    if (!object) {
+      continue;
     }
 
-    int alivePigCount = 0;
-    for (const auto &object : m_LevelManager->GetGameObjects())
-    {
-        if (!object)
-        {
-            continue;
-        }
-
-        if (object->GetEntityKind() != Character::EntityKind::Pig &&
-            !IsLevelThreeSmileTarget(m_LevelManager.get(), object))
-        {
-            continue;
-        }
-
-        if (object->GetHealth() > 0.0f && !object->IsDestroyed())
-        {
-            ++alivePigCount;
-        }
+    object->SetDestroyed(false);
+    object->ResetHealth();
+    object->SetVisible(true);
+    // Only set physics participation for objects that should participate
+    // DECOR (Unknown kind) and Slingshot should not participate in physics
+    if (object->GetEntityKind() == Character::EntityKind::Environment ||
+        object->GetEntityKind() == Character::EntityKind::Pig) {
+      object->SetParticipatesInPhysics(true);
     }
 
-    m_RemainingPigCount = alivePigCount;
-    if (m_RemainingPigCount == 0)
-    {
-        m_LevelCleared = true;
-        m_LevelFailed = false;
+    if (object->GetEntityKind() == Character::EntityKind::Pig ||
+        IsLevelThreeSmileTarget(m_LevelManager.get(), object)) {
+      ++m_RemainingPigCount;
     }
+
+    if (object->GetEntityKind() == Character::EntityKind::Environment &&
+        !object->IsSpecialItem()) {
+      object->SetScoreBudgetRemaining(
+          m_ScoringSystem.GetDamageBudget(object->GetMaterialType()));
+      object->SetOnDamageCallback([this](Character *c, float appliedDamage) {
+        const float damageRatio =
+            appliedDamage / std::max(0.0001f, c->GetMaxHealth());
+        const int estimated =
+            std::max(10, static_cast<int>(std::lround(
+                             static_cast<float>(m_ScoringSystem.GetDamageBudget(
+                                 c->GetMaterialType())) *
+                             std::clamp(damageRatio, 0.0f, 1.0f))));
+        const int awarded = c->DrainScoreBudget(estimated);
+        if (awarded > 0) {
+          const int actualScore = m_ScoringSystem.AwardBlockDamage(
+              c->GetMaterialType(), damageRatio, awarded);
+          SpawnFloatingScore(c->GetPosition(), actualScore,
+                             Util::Color::FromRGB(255, 255, 255));
+          UpdateScoreHud();
+        }
+      });
+    } else {
+      object->SetScoreBudgetRemaining(0);
+      object->SetOnDamageCallback(nullptr);
+    }
+  }
+}
+
+void GameScene::RefreshRemainingPigCount() {
+  if (!m_LevelManager) {
+    m_RemainingPigCount = 0;
+    return;
+  }
+
+  int alivePigCount = 0;
+  for (const auto &object : m_LevelManager->GetGameObjects()) {
+    if (!object) {
+      continue;
+    }
+
+    if (object->GetEntityKind() != Character::EntityKind::Pig &&
+        !IsLevelThreeSmileTarget(m_LevelManager.get(), object)) {
+      continue;
+    }
+
+    if (object->GetHealth() > 0.0f && !object->IsDestroyed()) {
+      ++alivePigCount;
+    }
+  }
+
+  m_RemainingPigCount = alivePigCount;
+  if (m_RemainingPigCount == 0) {
+    m_LevelCleared = true;
+    m_LevelFailed = false;
+  }
 }
 
 void GameScene::UpdateWinState()
@@ -1389,7 +569,7 @@ void GameScene::UpdateWinState()
                 SpawnOutlinedFloatingScore(popupPosition + popupOffset,
                                            FormatScore(awarded),
                                            Util::Color::FromRGB(214, 54, 54),
-                                            42,
+                                           42,
                                            1.65f,
                                            glm::vec2{0.0f, 34.0f});
                 --m_PendingLeftoverBirdAwards;
@@ -1407,164 +587,25 @@ void GameScene::UpdateWinState()
     }
 
     m_LevelClearAnimationTime += std::max(0.0f, Util::Time::GetDeltaTimeMs() / 1000.0f);
+    m_GameHud.SetControlsVisible(false);
 
-    // Hide game HUD buttons
-    if (m_LeftTopButton093)
-    {
-        m_LeftTopButton093->SetVisible(false);
-    }
-    if (m_LeftTopButton031)
-    {
-        m_LeftTopButton031->SetVisible(false);
-    }
     const glm::vec2 cameraPos = Util::GetCameraPosition();
     const glm::vec2 viewportSize = Util::GetViewportSize();
     const float zoom = Util::GetCameraZoom();
+    const float hudScale = GetHudScale();
     const int score = m_ScoringSystem.GetScore();
     const int stars = m_ScoringSystem.GetStarCount(score);
     const int highScore = m_ScoringSystem.GetHighScore();
     const int highScoreStars = m_ScoringSystem.GetStarCount(highScore);
-    const float hudScale = GetHudScale();
-    if (m_LevelClearBackdrop)
-    {
-        m_LevelClearBackdrop->SetVisible(true);
-        m_LevelClearBackdrop->m_Transform.translation = cameraPos;
-        m_LevelClearBackdrop->m_Transform.scale = {
-            (kLevelClearPanelWidth * hudScale) / zoom,
-            viewportSize.y * kLevelClearPanelHeightRatio / zoom};
-    }
-    if (m_LevelClearTitle)
-    {
-        m_LevelClearTitle->SetVisible(true);
-        m_LevelClearTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelClearTitleOffsetY * hudScale) / zoom};
-    }
-    const float starStartX = -((kLevelClearStarSpacing * hudScale) / zoom);
-    const float baseStarScale = (kLevelClearStarScale * hudScale) / zoom;
-    for (int i = 0; i < 3; ++i)
-    {
-        if (!m_LevelClearStars[i])
-        {
-            continue;
-        }
-        const glm::vec2 baseStarPosition = cameraPos + glm::vec2{
-            starStartX + static_cast<float>(i) * ((kLevelClearStarSpacing * hudScale) / zoom),
-            (kLevelClearStarsOffsetY * hudScale) / zoom};
-        const bool earnedStar = i < stars;
-        m_LevelClearStars[i]->SetVisible(true);
-        m_LevelClearStars[i]->m_Transform.scale = {baseStarScale, baseStarScale};
-        m_LevelClearStars[i]->m_Transform.translation = baseStarPosition;
-
-        if (!m_LevelClearEarnedStars[i])
-        {
-            continue;
-        }
-
-        if (earnedStar)
-        {
-            const float starElapsedTime = m_LevelClearAnimationTime - static_cast<float>(i) * kLevelClearStarPopDelay;
-            const float popScale = ComputeStarPopScale(starElapsedTime);
-            if (popScale > 0.0f)
-            {
-                const float normalizedProgress = std::clamp(starElapsedTime / kLevelClearStarPopDuration, 0.0f, 1.0f);
-                const float yOffset = (1.0f - normalizedProgress) * ((kLevelClearStarPopYOffset * hudScale) / zoom);
-                m_LevelClearEarnedStars[i]->SetVisible(true);
-                m_LevelClearEarnedStars[i]->m_Transform.scale = {
-                    baseStarScale * popScale,
-                    baseStarScale * popScale};
-                m_LevelClearEarnedStars[i]->m_Transform.translation = baseStarPosition + glm::vec2{0.0f, yOffset};
-            }
-            else
-            {
-                m_LevelClearEarnedStars[i]->SetVisible(false);
-                m_LevelClearEarnedStars[i]->m_Transform.scale = {0.0f, 0.0f};
-                m_LevelClearEarnedStars[i]->m_Transform.translation = baseStarPosition;
-            }
-        }
-        else
-        {
-            m_LevelClearEarnedStars[i]->SetVisible(false);
-            m_LevelClearEarnedStars[i]->m_Transform.scale = {0.0f, 0.0f};
-            m_LevelClearEarnedStars[i]->m_Transform.translation = baseStarPosition;
-        }
-    }
-    if (m_LevelClearScore && m_LevelClearScoreDrawable)
-    {
-        m_LevelClearScore->SetVisible(true);
-        const std::string scoreStr = FormatScore(score);
-        m_LevelClearScoreDrawable->SetText(scoreStr);
-        UpdateOutlineDrawables(&m_LevelClearScoreDrawable, &m_LevelClearScoreOutlineDrawables, scoreStr);
-        for (const auto &outline : m_LevelClearScoreOutline)
-        {
-            outline->SetVisible(true);
-        }
-        m_LevelClearScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelClearScoreOffsetY * hudScale) / zoom};
-        for (size_t i = 0; i < m_LevelClearScoreOutline.size(); ++i)
-        {
-            if (m_LevelClearScoreOutline[i])
-            {
-                m_LevelClearScoreOutline[i]->m_Transform.translation =
-                    m_LevelClearScore->m_Transform.translation + (kGameHudOutlineOffsets[i] * hudScale) / zoom;
-            }
-        }
-    }
-    if (m_LevelClearHighScore && m_LevelClearHighScoreDrawable)
-    {
-        m_LevelClearHighScore->SetVisible(true);
-        const std::string highScoreText = "BEST " + FormatScore(highScore);
-        m_LevelClearHighScoreDrawable->SetText(highScoreText);
-        UpdateOutlineDrawables(&m_LevelClearHighScoreDrawable, &m_LevelClearHighScoreOutlineDrawables, highScoreText);
-        for (const auto &outline : m_LevelClearHighScoreOutline)
-        {
-            outline->SetVisible(true);
-        }
-        m_LevelClearHighScore->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelClearHighScoreOffsetY * hudScale) / zoom};
-        for (size_t i = 0; i < m_LevelClearHighScoreOutline.size(); ++i)
-        {
-            if (m_LevelClearHighScoreOutline[i])
-            {
-                m_LevelClearHighScoreOutline[i]->m_Transform.translation =
-                    m_LevelClearHighScore->m_Transform.translation + (kGameHudOutlineOffsets[i] * hudScale) / zoom;
-            }
-        }
-    }
-    for (int i = 0; i < 3; ++i)
-    {
-        if (!m_LevelClearBestStars[i])
-        {
-            continue;
-        }
-        m_LevelClearBestStars[i]->SetVisible(true);
-        m_LevelClearBestStars[i]->m_Transform.scale = {(kLevelClearBestStarScale * hudScale) / zoom, (kLevelClearBestStarScale * hudScale) / zoom};
-        m_LevelClearBestStars[i]->m_Transform.translation = cameraPos + glm::vec2{
-            (kLevelClearBestStarsOffsetX * hudScale) / zoom + static_cast<float>(i) * ((kLevelClearBestStarSpacing * hudScale) / zoom),
-            (kLevelClearHighScoreOffsetY * hudScale) / zoom};
-        m_LevelClearBestStars[i]->SetDrawable(std::make_shared<Util::Image>(
-            i < highScoreStars ? Resource::Star_Filled : Resource::Star_Empty));
-    }
-    if (m_LevelClearMenuButton)
-    {
-        m_LevelClearMenuButton->SetVisible(true);
-        m_LevelClearMenuButton->SetPosition(cameraPos + glm::vec2{
-            -(kLevelClearButtonSpacing * hudScale) / zoom,
-            (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
-        m_LevelClearMenuButton->SetScale({kLevelClearButtonScale * hudScale / zoom, kLevelClearButtonScale * hudScale / zoom});
-    }
-    if (m_LevelClearRestartButton)
-    {
-        m_LevelClearRestartButton->SetVisible(true);
-        m_LevelClearRestartButton->SetPosition(cameraPos + glm::vec2{
-            0.0f,
-            (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
-        m_LevelClearRestartButton->SetScale({kLevelClearButtonScale * hudScale / zoom, kLevelClearButtonScale * hudScale / zoom});
-    }
-    if (m_LevelClearNextButton)
-    {
-        m_LevelClearNextButton->SetVisible(true);
-        m_LevelClearNextButton->SetPosition(cameraPos + glm::vec2{
-            (kLevelClearButtonSpacing * hudScale) / zoom,
-            (kLevelClearButtonBaseOffsetY * hudScale) / zoom});
-        m_LevelClearNextButton->SetScale({kLevelClearButtonScale * hudScale / zoom, kLevelClearButtonScale * hudScale / zoom});
-    }
+    m_LevelResultPanel.ShowClear(cameraPos,
+                                 viewportSize,
+                                 hudScale,
+                                 zoom,
+                                 score,
+                                 stars,
+                                 highScore,
+                                 highScoreStars,
+                                 m_LevelClearAnimationTime);
 }
 
 void GameScene::UpdateFailState()
@@ -1592,69 +633,13 @@ void GameScene::UpdateFailState()
 
     m_IsLevelFailedScreenVisible = true;
     SetPauseMenuVisible(false);
-
-    if (m_LeftTopButton093)
-    {
-        m_LeftTopButton093->SetVisible(false);
-    }
-    if (m_LeftTopButton031)
-    {
-        m_LeftTopButton031->SetVisible(false);
-    }
+    m_GameHud.SetControlsVisible(false);
 
     const glm::vec2 cameraPos = Util::GetCameraPosition();
     const glm::vec2 viewportSize = Util::GetViewportSize();
     const float zoom = Util::GetCameraZoom();
-
     const float hudScale = GetHudScale();
-    if (m_LevelFailedBackdrop)
-    {
-        m_LevelFailedBackdrop->SetVisible(true);
-        m_LevelFailedBackdrop->m_Transform.translation = cameraPos;
-        m_LevelFailedBackdrop->m_Transform.scale = {
-            (kLevelClearPanelWidth * hudScale) / zoom,
-            viewportSize.y * kLevelClearPanelHeightRatio / zoom};
-    }
-
-    if (m_LevelFailedTitle)
-    {
-        m_LevelFailedTitle->SetVisible(true);
-        m_LevelFailedTitle->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelFailedTitleOffsetY * hudScale) / zoom};
-    }
-
-    if (m_LevelFailedPig)
-    {
-        m_LevelFailedPig->SetVisible(true);
-        m_LevelFailedPig->m_Transform.translation = cameraPos + glm::vec2{0.0f, (kLevelFailedPigOffsetY * hudScale) / zoom};
-        m_LevelFailedPig->m_Transform.scale = {(kLevelFailedPigScale * hudScale) / zoom, (kLevelFailedPigScale * hudScale) / zoom};
-    }
-
-    if (m_LevelFailedMenuButton)
-    {
-        m_LevelFailedMenuButton->SetVisible(true);
-        m_LevelFailedMenuButton->SetPosition(cameraPos + glm::vec2{
-            -(kLevelFailedButtonSpacing * hudScale) / zoom,
-            (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
-        m_LevelFailedMenuButton->SetScale({kLevelFailedButtonScale * hudScale / zoom, kLevelFailedButtonScale * hudScale / zoom});
-    }
-
-    if (m_LevelFailedRestartButton)
-    {
-        m_LevelFailedRestartButton->SetVisible(true);
-        m_LevelFailedRestartButton->SetPosition(cameraPos + glm::vec2{
-            0.0f,
-            (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
-        m_LevelFailedRestartButton->SetScale({kLevelFailedButtonScale * hudScale / zoom, kLevelFailedButtonScale * hudScale / zoom});
-    }
-
-    if (m_LevelFailedNextButton)
-    {
-        m_LevelFailedNextButton->SetVisible(true);
-        m_LevelFailedNextButton->SetPosition(cameraPos + glm::vec2{
-            (kLevelFailedButtonSpacing * hudScale) / zoom,
-            (kLevelFailedButtonBaseOffsetY * hudScale) / zoom});
-        m_LevelFailedNextButton->SetScale({kLevelFailedButtonScale * hudScale / zoom, kLevelFailedButtonScale * hudScale / zoom});
-    }
+    m_LevelResultPanel.ShowFailed(cameraPos, viewportSize, hudScale, zoom);
 }
 
 void GameScene::SpawnOutlinedFloatingScore(const glm::vec2 &position,
@@ -1664,133 +649,86 @@ void GameScene::SpawnOutlinedFloatingScore(const glm::vec2 &position,
                                            const float lifeTime,
                                            const glm::vec2 &velocity)
 {
-    const Util::Color outlineColor = Util::Color::FromRGB(120, 70, 45, 255);
-    const std::array<glm::vec2, 4> offsets = {
-        glm::vec2{-2.5f, 0.0f},
-        glm::vec2{2.5f, 0.0f},
-        glm::vec2{0.0f, -2.5f},
-        glm::vec2{0.0f, 2.5f}};
-
-    for (const auto &offset : offsets)
-    {
-        auto shadowDrawable = std::make_shared<Util::Text>(kUIFont, fontSize, text, outlineColor);
-        auto shadowObject = std::make_shared<FloatingTextObject>(
-            shadowDrawable,
-            position + offset,
-            velocity,
-            outlineColor,
-            92.0f,
-            lifeTime);
-        AddDebugEntity(shadowObject, lifeTime);
-    }
-
-    auto frontDrawable = std::make_shared<Util::Text>(kUIFont, fontSize, text, frontColor);
-    auto frontObject = std::make_shared<FloatingTextObject>(
-        frontDrawable,
+    m_FloatingScoreManager.SpawnOutlinedText(
+        [this](const std::shared_ptr<Util::GameObject> &element, const float ttl) { AddDebugEntity(element, ttl); },
         position,
-        velocity + glm::vec2{0.0f, 6.0f},
+        text,
         frontColor,
-        93.0f,
-        lifeTime);
-    AddDebugEntity(frontObject, lifeTime);
+        fontSize,
+        lifeTime,
+        velocity);
 }
 
 void GameScene::SpawnFloatingScore(const glm::vec2 &position,
                                    const int points,
                                    const Util::Color &frontColor)
 {
-    if (points <= 0)
-    {
-        return;
-    }
-
-    const int fontSize = points >= 1000 ? 38 : (points >= 500 ? 34 : 28);
-    const float lifeTime = points >= 1000 ? 1.0f : 0.8f;
-    const glm::vec2 velocity = points >= 1000 ? glm::vec2{0.0f, 58.0f} : glm::vec2{0.0f, 44.0f};
-    SpawnOutlinedFloatingScore(position + glm::vec2{0.0f, 8.0f},
-                               FormatScore(points),
-                               frontColor,
-                               fontSize,
-                               lifeTime,
-                               velocity);
+    m_FloatingScoreManager.SpawnScore(
+        [this](const std::shared_ptr<Util::GameObject> &element, const float ttl) { AddDebugEntity(element, ttl); },
+        position,
+        points,
+        frontColor);
 }
 
-void GameScene::FinalizeScoreForCharacter(const std::shared_ptr<Character> &character, const glm::vec2 &atPosition)
-{
-    if (!character)
-    {
-        return;
-    }
+void GameScene::FinalizeScoreForCharacter(
+    const std::shared_ptr<Character> &character, const glm::vec2 &atPosition) {
+  if (!character) {
+    return;
+  }
 
-    if (m_IsLevelClearScreenVisible || m_IsLevelFailedScreenVisible)
-    {
-        return;
-    }
+  if (m_IsLevelClearScreenVisible || m_IsLevelFailedScreenVisible) {
+    return;
+  }
 
-    int awarded = 0;
-    if (character->GetEntityKind() == Character::EntityKind::Pig)
-    {
-        awarded = m_ScoringSystem.AwardPigDestroyed();
-        if (m_RemainingPigCount > 0)
-        {
-            --m_RemainingPigCount;
-        }
-        if (m_RemainingPigCount == 0)
-        {
-            m_LevelCleared = true;
-        }
+  int awarded = 0;
+  if (character->GetEntityKind() == Character::EntityKind::Pig) {
+    awarded = m_ScoringSystem.AwardPigDestroyed();
+    if (m_RemainingPigCount > 0) {
+      --m_RemainingPigCount;
     }
-    else if (IsLevelThreeSmileTarget(m_LevelManager.get(), character))
-    {
-        awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
-        if (m_RemainingPigCount > 0)
-        {
-            --m_RemainingPigCount;
-        }
-        if (m_RemainingPigCount == 0)
-        {
-            m_LevelCleared = true;
-        }
+    if (m_RemainingPigCount == 0) {
+      m_LevelCleared = true;
     }
-    else if (character->IsSpecialItem())
-    {
-        awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
+  } else if (IsLevelThreeSmileTarget(m_LevelManager.get(), character)) {
+    awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
+    if (m_RemainingPigCount > 0) {
+      --m_RemainingPigCount;
     }
-    else if (character->GetEntityKind() == Character::EntityKind::Environment)
-    {
-        awarded = m_ScoringSystem.AwardBlockDestroyed(character->GetMaterialType());
+    if (m_RemainingPigCount == 0) {
+      m_LevelCleared = true;
     }
+  } else if (character->IsSpecialItem()) {
+    awarded = m_ScoringSystem.AwardSpecialItemDestroyed();
+  } else if (character->GetEntityKind() == Character::EntityKind::Environment) {
+    awarded = m_ScoringSystem.AwardBlockDestroyed(character->GetMaterialType());
+  }
 
-    if (awarded > 0)
-    {
-        SpawnFloatingScore(atPosition, awarded, Util::Color::FromRGB(255, 255, 255));
-    }
+  if (awarded > 0) {
+    SpawnFloatingScore(atPosition, awarded,
+                       Util::Color::FromRGB(255, 255, 255));
+  }
 
-    UpdateScoreHud();
+  UpdateScoreHud();
 }
 
-void GameScene::OnCharacterDeath(const std::shared_ptr<Character> &character)
-{
-    FinalizeScoreForCharacter(character, character ? character->GetPosition() : glm::vec2{0.0f, 0.0f});
+void GameScene::OnCharacterDeath(const std::shared_ptr<Character> &character) {
+  FinalizeScoreForCharacter(character, character ? character->GetPosition()
+                                                 : glm::vec2{0.0f, 0.0f});
 }
 
-void GameScene::TogglePauseMenu()
-{
-    if (m_IsLevelClearScreenVisible || m_IsLevelFailedScreenVisible)
-    {
-        return;
-    }
+void GameScene::TogglePauseMenu() {
+  if (m_IsLevelClearScreenVisible || m_IsLevelFailedScreenVisible) {
+    return;
+  }
 
-    SetPauseMenuVisible(!m_IsPauseMenuVisible);
+  SetPauseMenuVisible(!m_IsPauseMenuVisible);
 }
 
-void GameScene::ToggleMusicMute()
-{
-    m_IsMusicMuted = !m_IsMusicMuted;
-    SoundEffect::SetMuted(m_IsMusicMuted);
+void GameScene::ToggleMusicMute() {
+  m_IsMusicMuted = !m_IsMusicMuted;
+  SoundEffect::SetMuted(m_IsMusicMuted);
 
-    if (m_PauseMenu)
-    {
-        m_PauseMenu->SetMusicMuted(m_IsMusicMuted);
-    }
+  if (m_PauseMenu) {
+    m_PauseMenu->SetMusicMuted(m_IsMusicMuted);
+  }
 }

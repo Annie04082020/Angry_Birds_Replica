@@ -7,14 +7,13 @@
 #include "ScoringSystem.hpp"
 #include "SceneInputController.hpp"
 #include "Scene.hpp"
-#include "Util/GameObject.hpp"
-#include "Util/Text.hpp"
-#include "ui/Button.hpp"
+#include "effects/BirdTrail.hpp"
+#include "effects/FloatingScoreManager.hpp"
+#include "ui/GameHud.hpp"
+#include "ui/LevelResultPanel.hpp"
 #include "ui/PauseMenu.hpp"
-#include <array>
 #include <functional>
 #include <deque>
-#include <unordered_map>
 
 class GameScene : public Scene
 {
@@ -52,9 +51,6 @@ private:
     void LoadLevelHighScore();
     void PersistLevelHighScore() const;
     void BuildLevelHud();
-    void BuildBirdTrail();
-    void UpdateBirdTrail();
-    void ResetBirdTrail();
     void UpdateHudPositions();
     void UpdateScoreHud();
     void ResetScoreState();
@@ -78,51 +74,12 @@ private:
     std::shared_ptr<BirdLaunchController> m_BirdLaunchController = std::make_shared<BirdLaunchController>();
     std::shared_ptr<SceneInputController> m_SceneInputController = nullptr;
     std::shared_ptr<DynamicBackground> m_DynamicBackground = nullptr;
-    std::vector<std::shared_ptr<Util::GameObject>> m_BirdTrailDots;
-    std::unordered_map<const Character *, glm::vec2> m_BirdTrailLastEmitPositions;
-    size_t m_BirdTrailActiveDotCount = 0;
-    int m_LastBirdTrailLaunchSequence = 0;
-    std::array<std::shared_ptr<Util::GameObject>, 4> m_ScoreLabelOutline{};
-    std::shared_ptr<Util::GameObject> m_ScoreLabel = nullptr;
-    std::array<std::shared_ptr<Util::GameObject>, 4> m_ScoreValueOutline{};
-    std::shared_ptr<Util::GameObject> m_ScoreValue = nullptr;
-    std::array<std::shared_ptr<Util::Text>, 4> m_ScoreValueOutlineDrawables{};
-    std::array<std::shared_ptr<Util::GameObject>, 4> m_HighScoreLabelOutline{};
-    std::shared_ptr<Util::Text> m_ScoreValueDrawable = nullptr;
-    std::shared_ptr<Util::GameObject> m_HighScoreLabel = nullptr;
-    std::array<std::shared_ptr<Util::GameObject>, 4> m_HighScoreValueOutline{};
-    std::shared_ptr<Util::GameObject> m_HighScoreValue = nullptr;
-    std::array<std::shared_ptr<Util::Text>, 4> m_HighScoreValueOutlineDrawables{};
-    std::shared_ptr<Util::Text> m_HighScoreValueDrawable = nullptr;
-    std::shared_ptr<Button> m_LeftTopButton093 = nullptr;
-    std::shared_ptr<Button> m_LeftTopButton031 = nullptr;
+    GameHud m_GameHud;
+    LevelResultPanel m_LevelResultPanel;
+    BirdTrail m_BirdTrail;
+    FloatingScoreManager m_FloatingScoreManager;
     std::shared_ptr<PauseMenu> m_PauseMenu = nullptr;
-    
-    // Level Clear Screen UI
-    std::shared_ptr<Util::GameObject> m_LevelClearBackdrop = nullptr;
-    std::shared_ptr<Util::GameObject> m_LevelClearTitle = nullptr;
-    std::array<std::shared_ptr<Util::GameObject>, 3> m_LevelClearStars{};
-    std::array<std::shared_ptr<Util::GameObject>, 3> m_LevelClearEarnedStars{};
-    std::array<std::shared_ptr<Util::GameObject>, 4> m_LevelClearScoreOutline{};
-    std::shared_ptr<Util::GameObject> m_LevelClearScore = nullptr;
-    std::shared_ptr<Util::Text> m_LevelClearScoreDrawable = nullptr;
-    std::array<std::shared_ptr<Util::Text>, 4> m_LevelClearScoreOutlineDrawables{};
-    std::array<std::shared_ptr<Util::GameObject>, 4> m_LevelClearHighScoreOutline{};
-    std::shared_ptr<Util::GameObject> m_LevelClearHighScore = nullptr;
-    std::shared_ptr<Util::Text> m_LevelClearHighScoreDrawable = nullptr;
-    std::array<std::shared_ptr<Util::Text>, 4> m_LevelClearHighScoreOutlineDrawables{};
-    std::array<std::shared_ptr<Util::GameObject>, 3> m_LevelClearBestStars{};
-    std::shared_ptr<Button> m_LevelClearMenuButton = nullptr;
-    std::shared_ptr<Button> m_LevelClearRestartButton = nullptr;
-    std::shared_ptr<Button> m_LevelClearNextButton = nullptr;
     bool m_IsLevelClearScreenVisible = false;
-    
-    std::shared_ptr<Util::GameObject> m_LevelFailedBackdrop = nullptr;
-    std::shared_ptr<Util::GameObject> m_LevelFailedTitle = nullptr;
-    std::shared_ptr<Util::GameObject> m_LevelFailedPig = nullptr;
-    std::shared_ptr<Button> m_LevelFailedMenuButton = nullptr;
-    std::shared_ptr<Button> m_LevelFailedRestartButton = nullptr;
-    std::shared_ptr<Button> m_LevelFailedNextButton = nullptr;
     bool m_IsLevelFailedScreenVisible = false;
 
     std::function<void()> m_OnRestartLevel = nullptr;
