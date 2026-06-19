@@ -119,6 +119,8 @@ graph TD
     CollisionUtils
     CollisionResponse
     ContactManifold
+    ScoringSystem
+    JsonParseUtils
     BGM
     SoundEffect
     Resource
@@ -132,7 +134,7 @@ graph TD
     - `IntroScene` - 介紹場景，包含主選單與設定介面
     - `LevelSelectScene` - 關卡選擇場景
   - `Character` - 遊戲角色類別，包含物理狀態、材質類型、傷害狀態
-  - `Button` - UI 按鈕類別，處理滑鼠懸停與點擊事件
+  - `Button` - UI 按鈕類別，處理滑鼠懸停與點擊事件，並支援透明度、染色與灰階顯示切換
     - `AnimatedButton` - 動畫按鈕，支援縮放動畫效果
   - `DynamicBackground` - 動態背景，可設定移動速度實現視差效果
 
@@ -140,16 +142,18 @@ graph TD
   1. 狀態包含：START（初始化）、UPDATE（主選單）、GAME（遊戲中）、END（結束）
   2. 管理 `m_loadingScene`、`m_introScene`、`m_levelSelectScene`、`m_gameScene`
   3. 處理關卡載入、重新開始、返回選單等操作
+  4. 負責紀錄與管理關卡的解鎖進度，包含讀寫進度存檔與作弊模式 (F10 鍵) 切換
 
 - `LevelManager` - 關卡管理器，負責解析 JSON 關卡資料並管理遊戲物件
   1. 從 JSON 檔案讀取關卡資訊（物件位置、縮放、旋轉等）
   2. 提供 `GetGameObjects()` 取得關卡中的所有物件
 
 - `BirdLaunchController` - 鳥類發射控制器，處理彈弓拖曳與發射邏輯
-  1. 管理鳥類隊列 (`m_BirdQueue`)
+  1. 管理鳥類隊列 (`m_BirdQueue`)，並控制鳥類與豬隻的待機動作（如跳躍、翻滾）與發聲音效
   2. 處理滑鼠拖曳，限制最大拉曳距離 (`maxPullDistance = 140.0f`)
   3. 根據鳥類質量調整發射速度以保持一致動能
-  4. 當鳥類停止時自動切換到下一隻
+  4. 實作特殊鳥類技能（如藍鳥飛行中分裂）
+  5. 當鳥類停止時自動清理休眠物件並切換到下一隻
 
 - `SceneInputController` - 場景輸入控制器，處理相機平移與縮放
   1. 將滑鼠拖拉轉換為相機位移
@@ -176,6 +180,13 @@ graph TD
 - `ContactManifold` - 接觸流形，儲存碰撞接觸點資訊
   1. 包含法線向量、切線向量、穿透深度
   2. 累積法向衝量與切向衝量
+
+- `ScoringSystem` - 計分系統，負責管理分數與星級評等
+  1. 根據 JSON 設定計算破壞物件與剩餘鳥類的分數
+  2. 處理過關時的星星結算與浮動分數顯示
+
+- `JsonParseUtils` - JSON 解析工具類別
+  1. 封裝 JSON 讀寫邏輯，供關卡、樣板與解鎖進度存取
 
 - `BGM` - 背景音樂管理器
 - `SoundEffect` - 音效播放器
