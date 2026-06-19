@@ -27,16 +27,24 @@ public:
     bool GetExit() const { return m_Exit; }
     unsigned int GetWindowWidth() const { return m_WindowWidth; }
     unsigned int GetWindowHeight() const { return m_WindowHeight; }
+    unsigned int GetViewportWidth() const { return m_ViewportWidth; }
+    unsigned int GetViewportHeight() const { return m_ViewportHeight; }
+    int GetViewportX() const { return m_ViewportX; }
+    int GetViewportY() const { return m_ViewportY; }
 
     void SetExit(bool exit) { m_Exit = exit; }
-    void SetWindowWidth(unsigned int width) { m_WindowWidth = width; }
-    void SetWindowHeight(unsigned int height) { m_WindowHeight = height; }
+    void SetWindowWidth(unsigned int width);
+    void SetWindowHeight(unsigned int height);
     void SetWindowIcon(const std::string &path);
+    void RefreshWindowSize();
+    void ToggleFullscreen();
 
     void Setup();
     void Update();
 
 private:
+    void UpdateViewportBounds();
+
     SDL_Window *m_Window;
     SDL_GLContext m_GlContext;
 
@@ -45,6 +53,10 @@ private:
 
     unsigned int m_WindowWidth = WINDOW_WIDTH;
     unsigned int m_WindowHeight = WINDOW_HEIGHT;
+    unsigned int m_ViewportWidth = WINDOW_WIDTH;
+    unsigned int m_ViewportHeight = WINDOW_HEIGHT;
+    int m_ViewportX = 0;
+    int m_ViewportY = 0;
 
     // Can't access Time::s_Now, so using this variable to track time.
     Util::ms_t m_BeforeUpdateTime = Util::Time::GetElapsedTimeMs();

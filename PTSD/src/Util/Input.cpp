@@ -3,6 +3,7 @@
 #include <SDL_events.h> // for SDL_Event
 
 #include "config.hpp"
+#include "Core/Context.hpp"
 
 namespace Util {
 
@@ -81,9 +82,19 @@ void Input::Update() {
     s_CursorPosition.x = static_cast<float>(x);
     s_CursorPosition.y = static_cast<float>(y);
 
-    s_CursorPosition.x -= static_cast<float>(WINDOW_WIDTH) / 2;
-    s_CursorPosition.y =
-        -(s_CursorPosition.y - static_cast<float>(WINDOW_HEIGHT) / 2);
+    auto context = Core::Context::GetInstance();
+    const float viewWidth = static_cast<float>(context->GetViewportWidth());
+    const float viewHeight = static_cast<float>(context->GetViewportHeight());
+    const float viewX = static_cast<float>(context->GetViewportX());
+    const float viewY = static_cast<float>(context->GetViewportY());
+
+    if (viewWidth > 0.0f && viewHeight > 0.0f) {
+        const float logicalX = (static_cast<float>(x) - viewX) / viewWidth * viewWidth;
+        const float logicalY = (static_cast<float>(y) - viewY) / viewHeight * viewHeight;
+
+        s_CursorPosition.x = logicalX - viewWidth / 2.0f;
+        s_CursorPosition.y = -(logicalY - viewHeight / 2.0f);
+    }
 
     s_Scroll = s_MouseMoving = false;
 
@@ -98,6 +109,18 @@ void Input::Update() {
             ImGui_ImplSDL2_ProcessEvent(&s_Event);
             continue;
         }
+
+        if (s_Event.type == SDL_WINDOWEVENT) {
+            if (s_Event.window.event == SDL_WINDOWEVENT_RESIZED ||
+                s_Event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                auto context = Core::Context::GetInstance();
+                context->SetWindowWidth(s_Event.window.data1);
+                context->SetWindowHeight(s_Event.window.data2);
+            }
+        }
+
+
+
         if (s_Event.type == SDL_KEYDOWN || s_Event.type == SDL_KEYUP) {
             UpdateKeyState(&s_Event);
         } else if (s_Event.type == SDL_MOUSEBUTTONDOWN ||

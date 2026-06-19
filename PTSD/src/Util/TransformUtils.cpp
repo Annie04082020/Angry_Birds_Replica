@@ -21,9 +21,18 @@ Core::Matrices ConvertToUniformBufferData(const Util::Transform &transform,
 
     auto projection =
         glm::ortho<float>(0.0F, 1.0F, 0.0F, 1.0F, nearClip, farClip);
+
+    const auto context = Core::Context::GetInstance();
+    const float viewportWidth = context && context->GetViewportWidth() > 0
+                                    ? static_cast<float>(context->GetViewportWidth())
+                                    : static_cast<float>(WINDOW_WIDTH);
+    const float viewportHeight = context && context->GetViewportHeight() > 0
+                                     ? static_cast<float>(context->GetViewportHeight())
+                                     : static_cast<float>(WINDOW_HEIGHT);
+
     auto view =
-        glm::scale(eye, {1.F / WINDOW_WIDTH, 1.F / WINDOW_HEIGHT, 1.F}) *
-        glm::translate(eye, {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0}) *
+        glm::scale(eye, {1.F / viewportWidth, 1.F / viewportHeight, 1.F}) *
+        glm::translate(eye, {viewportWidth / 2.0f, viewportHeight / 2.0f, 0}) *
         glm::scale(eye, {g_CameraZoom, g_CameraZoom, 1.F}) *
         glm::translate(eye, {-g_CameraPosition.x, -g_CameraPosition.y, 0.0f});
 
@@ -63,8 +72,8 @@ glm::vec2 GetViewportSize() {
     }
 
     return {
-        static_cast<float>(context->GetWindowWidth()),
-        static_cast<float>(context->GetWindowHeight()),
+        static_cast<float>(context->GetViewportWidth()),
+        static_cast<float>(context->GetViewportHeight()),
     };
 }
 

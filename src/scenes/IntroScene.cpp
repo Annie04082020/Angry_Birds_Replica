@@ -14,6 +14,7 @@
 #include "Util/AnimationUtils.hpp"
 #include "Util/LayoutUtils.hpp"
 #include "Util/MouseUtils.hpp"
+#include "Core/Context.hpp"
 
 #include <cmath>
 
@@ -357,6 +358,11 @@ void IntroScene::Update()
             if (GetBGM()) GetBGM()->Play_BGM();
         }
         m_muteOverlay->SetVisible(newMuteState);
+    }
+
+    if (m_settingMenuOpen && !m_menuItemsAnimating && Util::MouseUtils::IsClickedOver(mousePos, m_menuItem043, Util::Keycode::MOUSE_LB))
+    {
+        Core::Context::GetInstance()->ToggleFullscreen();
     }
 
     if (m_exitPanelVisible && m_exitButton95 && m_exitButton105)
