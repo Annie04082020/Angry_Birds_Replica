@@ -29,9 +29,12 @@ public:
   void Translate(const glm::vec2 &delta);
 
 private:
+  void ReflowForViewport(float viewportWidth);
+
   std::shared_ptr<BackgroundImage> m_BG1; // 第一張背景圖（初始在螢幕內）
   std::shared_ptr<BackgroundImage> m_BG2; // 第二張背景圖（初始在螢幕右側外）
   float m_Speed = 100.0f;                 // 滾動速度（像素/秒）
+  float m_LastViewportWidth = 0.0f;
 };
 
 #endif // DYNAMICBACKGROUND_HPP

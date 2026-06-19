@@ -360,7 +360,7 @@ void IntroScene::Update()
         m_muteOverlay->SetVisible(newMuteState);
     }
 
-    if (m_additionalMenuOpen && !m_additionalMenuItemsAnimating && Util::MouseUtils::IsClickedOver(mousePos, m_additionalMenuItem041, Util::Keycode::MOUSE_LB))
+    if (m_settingMenuOpen && !m_menuItemsAnimating && Util::MouseUtils::IsClickedOver(mousePos, m_menuItem043, Util::Keycode::MOUSE_LB))
     {
         Core::Context::GetInstance()->ToggleFullscreen();
     }

@@ -3,10 +3,12 @@
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
 #include "config.hpp"
+#include <cmath>
 
 DynamicBackground::DynamicBackground(const std::string &path)
 {
   const float viewportWidth = Util::GetViewportSize().x;
+  m_LastViewportWidth = viewportWidth;
 
   // 創建兩個背景實例，使用相同的圖片
   m_BG1 = std::make_shared<BackgroundImage>(path);
@@ -35,6 +37,22 @@ void DynamicBackground::Translate(const glm::vec2 &delta)
   m_BG2->SetPosition(pos2 + delta);
 }
 
+void DynamicBackground::ReflowForViewport(float viewportWidth)
+{
+  if (viewportWidth <= 0.0f || !m_BG1 || !m_BG2)
+  {
+    return;
+  }
+
+  auto pos1 = m_BG1->GetPosition();
+  const float wrappedX = std::fmod(pos1.x, viewportWidth);
+  pos1.x = wrappedX > 0.0f ? wrappedX - viewportWidth : wrappedX;
+
+  m_BG1->SetPosition(pos1);
+  m_BG2->SetPosition({pos1.x + viewportWidth, pos1.y});
+  m_LastViewportWidth = viewportWidth;
+}
+
 void DynamicBackground::Update()
 {
   float dt = Util::Time::GetDeltaTimeMs() /
@@ -42,6 +60,13 @@ void DynamicBackground::Update()
   float movement = m_Speed * dt;
 
   const float viewportWidth = Util::GetViewportSize().x;
+  m_BG1->Update();
+  m_BG2->Update();
+
+  if (std::abs(viewportWidth - m_LastViewportWidth) > 0.5f)
+  {
+    ReflowForViewport(viewportWidth);
+  }
 
   // 獲取當前兩張圖的位置
   auto pos1 = m_BG1->GetPosition();

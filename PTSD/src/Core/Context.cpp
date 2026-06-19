@@ -43,12 +43,13 @@ Context::Context() {
 
     m_Window =
         SDL_CreateWindow(TITLE, WINDOW_POS_X, WINDOW_POS_Y, WINDOW_WIDTH,
-                         WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+                         WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
     if (m_Window == nullptr) {
         LOG_ERROR("Failed to create window");
         LOG_ERROR(SDL_GetError());
     }
+    RefreshWindowSize();
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
@@ -120,25 +121,12 @@ void Context::Setup() {
 }
 
 void Context::Update() {
+    RefreshWindowSize();
     Util::Input::Update();
 
-    float targetAspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
-    float windowAspect = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
-
-    int viewWidth = m_WindowWidth;
-    int viewHeight = m_WindowHeight;
-    int viewX = 0;
-    int viewY = 0;
-
-    if (windowAspect > targetAspect) {
-        viewWidth = static_cast<int>(m_WindowHeight * targetAspect);
-        viewX = (m_WindowWidth - viewWidth) / 2;
-    } else {
-        viewHeight = static_cast<int>(m_WindowWidth / targetAspect);
-        viewY = (m_WindowHeight - viewHeight) / 2;
-    }
-
-    glViewport(viewX, viewY, viewWidth, viewHeight);
+    glViewport(m_ViewportX, m_ViewportY,
+               static_cast<GLsizei>(m_ViewportWidth),
+               static_cast<GLsizei>(m_ViewportHeight));
 
     SDL_GL_SwapWindow(m_Window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -180,5 +168,72 @@ std::shared_ptr<Context> Context::GetInstance() {
 void Context::SetWindowIcon(const std::string &path) {
     SDL_Surface *image = IMG_Load(path.c_str());
     SDL_SetWindowIcon(m_Window, image);
+}
+
+void Context::SetWindowWidth(unsigned int width) {
+    m_WindowWidth = width;
+    UpdateViewportBounds();
+}
+
+void Context::SetWindowHeight(unsigned int height) {
+    m_WindowHeight = height;
+    UpdateViewportBounds();
+}
+
+void Context::RefreshWindowSize() {
+    if (!m_Window) {
+        return;
+    }
+
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSize(m_Window, &width, &height);
+    if (width > 0 && height > 0) {
+        m_WindowWidth = static_cast<unsigned int>(width);
+        m_WindowHeight = static_cast<unsigned int>(height);
+        UpdateViewportBounds();
+    }
+}
+
+void Context::ToggleFullscreen() {
+    if (!m_Window) {
+        return;
+    }
+
+    const Uint32 flags = SDL_GetWindowFlags(m_Window);
+    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+        SDL_SetWindowFullscreen(m_Window, 0);
+    } else {
+        SDL_SetWindowFullscreen(m_Window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    }
+    RefreshWindowSize();
+}
+
+void Context::UpdateViewportBounds() {
+    if (m_WindowWidth == 0 || m_WindowHeight == 0) {
+        m_ViewportWidth = WINDOW_WIDTH;
+        m_ViewportHeight = WINDOW_HEIGHT;
+        m_ViewportX = 0;
+        m_ViewportY = 0;
+        return;
+    }
+
+    const float targetAspect =
+        static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
+    const float windowAspect =
+        static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+
+    m_ViewportWidth = m_WindowWidth;
+    m_ViewportHeight = m_WindowHeight;
+    m_ViewportX = 0;
+    m_ViewportY = 0;
+
+    if (windowAspect > targetAspect) {
+        m_ViewportWidth = static_cast<unsigned int>(m_WindowHeight * targetAspect);
+        m_ViewportX = static_cast<int>((m_WindowWidth - m_ViewportWidth) / 2);
+    } else {
+        m_ViewportHeight = static_cast<unsigned int>(m_WindowWidth / targetAspect);
+        m_ViewportY = static_cast<int>((m_WindowHeight - m_ViewportHeight) / 2);
+    }
 }
 } // namespace Core
