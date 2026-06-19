@@ -3,6 +3,7 @@
 #include <SDL_events.h> // for SDL_Event
 
 #include "config.hpp"
+#include "Core/Context.hpp"
 
 namespace Util {
 
@@ -81,9 +82,31 @@ void Input::Update() {
     s_CursorPosition.x = static_cast<float>(x);
     s_CursorPosition.y = static_cast<float>(y);
 
-    s_CursorPosition.x -= static_cast<float>(WINDOW_WIDTH) / 2;
-    s_CursorPosition.y =
-        -(s_CursorPosition.y - static_cast<float>(WINDOW_HEIGHT) / 2);
+    auto context = Core::Context::GetInstance();
+    float currentWindowWidth = static_cast<float>(context->GetWindowWidth());
+    float currentWindowHeight = static_cast<float>(context->GetWindowHeight());
+
+    float targetAspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
+    float windowAspect = currentWindowWidth / currentWindowHeight;
+
+    float viewWidth = currentWindowWidth;
+    float viewHeight = currentWindowHeight;
+    float viewX = 0;
+    float viewY = 0;
+
+    if (windowAspect > targetAspect) {
+        viewWidth = currentWindowHeight * targetAspect;
+        viewX = (currentWindowWidth - viewWidth) / 2.0f;
+    } else {
+        viewHeight = currentWindowWidth / targetAspect;
+        viewY = (currentWindowHeight - viewHeight) / 2.0f;
+    }
+
+    float logicalX = (static_cast<float>(x) - viewX) / viewWidth * static_cast<float>(WINDOW_WIDTH);
+    float logicalY = (static_cast<float>(y) - viewY) / viewHeight * static_cast<float>(WINDOW_HEIGHT);
+
+    s_CursorPosition.x = logicalX - static_cast<float>(WINDOW_WIDTH) / 2.0f;
+    s_CursorPosition.y = -(logicalY - static_cast<float>(WINDOW_HEIGHT) / 2.0f);
 
     s_Scroll = s_MouseMoving = false;
 
@@ -98,6 +121,21 @@ void Input::Update() {
             ImGui_ImplSDL2_ProcessEvent(&s_Event);
             continue;
         }
+
+        if (s_Event.type == SDL_WINDOWEVENT) {
+            if (s_Event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                auto context = Core::Context::GetInstance();
+                context->SetWindowWidth(s_Event.window.data1);
+                context->SetWindowHeight(s_Event.window.data2);
+            }
+        }
+
+        if (s_Event.type == SDL_KEYDOWN) {
+            if (s_Event.key.keysym.scancode == SDL_SCANCODE_F11) {
+                Core::Context::GetInstance()->ToggleFullscreen();
+            }
+        }
+
         if (s_Event.type == SDL_KEYDOWN || s_Event.type == SDL_KEYUP) {
             UpdateKeyState(&s_Event);
         } else if (s_Event.type == SDL_MOUSEBUTTONDOWN ||

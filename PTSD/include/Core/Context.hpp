@@ -32,6 +32,17 @@ public:
     void SetWindowWidth(unsigned int width) { m_WindowWidth = width; }
     void SetWindowHeight(unsigned int height) { m_WindowHeight = height; }
     void SetWindowIcon(const std::string &path);
+    
+    void ToggleFullscreen() {
+        if (m_Window) {
+            Uint32 flags = SDL_GetWindowFlags(m_Window);
+            if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+                SDL_SetWindowFullscreen(m_Window, 0);
+            } else {
+                SDL_SetWindowFullscreen(m_Window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            }
+        }
+    }
 
     void Setup();
     void Update();

@@ -43,7 +43,7 @@ Context::Context() {
 
     m_Window =
         SDL_CreateWindow(TITLE, WINDOW_POS_X, WINDOW_POS_Y, WINDOW_WIDTH,
-                         WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                         WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (m_Window == nullptr) {
         LOG_ERROR("Failed to create window");
@@ -121,6 +121,25 @@ void Context::Setup() {
 
 void Context::Update() {
     Util::Input::Update();
+
+    float targetAspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
+    float windowAspect = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+
+    int viewWidth = m_WindowWidth;
+    int viewHeight = m_WindowHeight;
+    int viewX = 0;
+    int viewY = 0;
+
+    if (windowAspect > targetAspect) {
+        viewWidth = static_cast<int>(m_WindowHeight * targetAspect);
+        viewX = (m_WindowWidth - viewWidth) / 2;
+    } else {
+        viewHeight = static_cast<int>(m_WindowWidth / targetAspect);
+        viewY = (m_WindowHeight - viewHeight) / 2;
+    }
+
+    glViewport(viewX, viewY, viewWidth, viewHeight);
+
     SDL_GL_SwapWindow(m_Window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
