@@ -10,6 +10,7 @@
 #include "Util/GameObject.hpp"
 #include "Util/Text.hpp"
 #include "ui/Button.hpp"
+#include "ui/PauseMenu.hpp"
 #include <array>
 #include <functional>
 #include <deque>
@@ -72,7 +73,6 @@ private:
     void SetPauseMenuVisible(bool visible);
     void TogglePauseMenu();
     void ToggleMusicMute();
-    void SetPauseMenuButtonsInputEnabled(bool enabled);
 
     std::shared_ptr<LevelManager> m_LevelManager = std::make_shared<LevelManager>();
     std::shared_ptr<BirdLaunchController> m_BirdLaunchController = std::make_shared<BirdLaunchController>();
@@ -96,14 +96,7 @@ private:
     std::shared_ptr<Util::Text> m_HighScoreValueDrawable = nullptr;
     std::shared_ptr<Button> m_LeftTopButton093 = nullptr;
     std::shared_ptr<Button> m_LeftTopButton031 = nullptr;
-    std::shared_ptr<Button> m_PauseMenu069 = nullptr;
-    std::shared_ptr<Button> m_PauseMenu082 = nullptr;
-    std::shared_ptr<Button> m_PauseMenu073 = nullptr;
-    std::shared_ptr<Button> m_PauseMenu005 = nullptr;
-    std::shared_ptr<Button> m_PauseMenu063 = nullptr;
-    std::shared_ptr<Util::GameObject> m_PauseMenu040Overlay = nullptr;
-    std::shared_ptr<Util::GameObject> m_PauseMenuBackdrop = nullptr;
-    std::shared_ptr<Util::GameObject> m_PauseMenuLevelTitle = nullptr;
+    std::shared_ptr<PauseMenu> m_PauseMenu = nullptr;
     
     // Level Clear Screen UI
     std::shared_ptr<Util::GameObject> m_LevelClearBackdrop = nullptr;

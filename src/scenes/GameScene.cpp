@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <iostream>
 #include <sstream>
 #include <unordered_map>
 
@@ -15,10 +14,10 @@
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include "Util/Logger.hpp"
 #include "Util/Text.hpp"
 #include "Util/Time.hpp"
 #include "Util/TransformUtils.hpp"
-#include <SDL_mixer.h>
 
 namespace
 {
@@ -115,32 +114,6 @@ namespace
         glm::vec2{2.5f, 0.0f},
         glm::vec2{0.0f, -2.5f},
         glm::vec2{0.0f, 2.5f}};
-    constexpr float kGamePauseMenuBackdropWidth = 500.0f;
-    constexpr float kGamePauseMenuBackdropHeightRatio = 0.99f;
-    constexpr float kGamePauseMenuBackdropCenterOffsetX = 100.0f;
-    constexpr float kGamePauseMenuBackdropCenterOffsetY = 10.0f;
-    constexpr float kGamePauseMenu069OffsetX = 5.0f;
-    constexpr float kGamePauseMenu069OffsetY = 5.0f;
-    constexpr float kGamePauseMenu069Scale = 1.2f;
-    constexpr float kGamePauseMenu082OffsetX = 125.0f;
-    constexpr float kGamePauseMenu082OffsetY = 250.0f;
-    constexpr float kGamePauseMenu082Scale = 1.25f;
-    constexpr float kGamePauseMenu073OffsetX = 125.0f;
-    constexpr float kGamePauseMenu073OffsetY = 400.0f;
-    constexpr float kGamePauseMenu073Scale = 1.25f;
-    constexpr float kGamePauseMenu005OffsetX = 90.0f;
-    constexpr float kGamePauseMenu005OffsetY = 900.0f;
-    constexpr float kGamePauseMenu005Scale = 1.2f;
-    constexpr float kGamePauseMenu040OffsetX = 90.0f;
-    constexpr float kGamePauseMenu040OffsetY = 895.0f;
-    constexpr float kGamePauseMenu040Scale = 1.2f;
-    constexpr float kGamePauseMenu063OffsetX = 180.0f;
-    constexpr float kGamePauseMenu063OffsetY = 900.0f;
-    constexpr float kGamePauseMenu063Scale = 1.2f;
-    constexpr float kGamePauseMenuLevelTitleOffsetX = 280.0f;
-    constexpr float kGamePauseMenuLevelTitleOffsetY = 450.0f;
-    constexpr float kGamePauseMenuLevelTitleScale = 0.5f;
-
     // Level Clear Screen Constants
     constexpr int kLevelClearTitleSize = 80;
     constexpr int kLevelClearScoreValueSize = 64;
@@ -386,91 +359,6 @@ namespace
         }
     }
 
-    float ComputeImpactSpeed(const std::shared_ptr<Character> &a,
-                             const std::shared_ptr<Character> &b,
-                             const glm::vec2 &contactNormal)
-    {
-        if (!(a && b))
-        {
-            return 0.0f;
-        }
-
-        const glm::vec2 relativeVelocity = b->GetVelocity() - a->GetVelocity();
-        return std::max(0.0f, std::fabs(glm::dot(relativeVelocity, contactNormal)));
-    }
-
-    float GetDamageScale(const std::shared_ptr<Character> &target,
-                         const std::shared_ptr<Character> &other)
-    {
-        if (!(target && other))
-        {
-            return 0.0f;
-        }
-
-        if (target->GetEntityKind() == Character::EntityKind::Pig)
-        {
-            return 0.22f;
-        }
-
-        float scale = 0.08f;
-        switch (target->GetMaterialType())
-        {
-        case Character::MaterialType::Glass:
-        case Character::MaterialType::Ice:
-            scale = 0.12f;
-            break;
-        case Character::MaterialType::Wood:
-            scale = 0.09f;
-            break;
-        case Character::MaterialType::Stone:
-            scale = 0.05f;
-            break;
-        default:
-            break;
-        }
-
-        if (other->GetEntityKind() == Character::EntityKind::Bird)
-        {
-            scale *= 1.2f;
-
-            const std::string &baseId = other->GetBaseImageId();
-            const std::string &path = other->GetImagePath();
-            if ((baseId.find("BIRD_BLUE") != std::string::npos || path.find("blue") != std::string::npos) &&
-                target->GetMaterialType() == Character::MaterialType::Stone)
-            {
-                scale *= 0.45f;
-            }
-            else if ((baseId.find("BIRD_YELLOW") != std::string::npos || path.find("yellow") != std::string::npos) &&
-                     target->GetMaterialType() == Character::MaterialType::Wood)
-            {
-                scale *= 1.35f;
-            }
-        }
-        else if (other->GetEntityKind() == Character::EntityKind::Environment)
-        {
-            scale *= 1.1f;
-        }
-
-        return scale;
-    }
-
-    bool IsDestructible(const std::shared_ptr<Character> &character)
-    {
-        if (!character || character->IsDestroyed() || !character->ParticipatesInPhysics())
-        {
-            return false;
-        }
-
-        if (character->GetEntityKind() == Character::EntityKind::Pig)
-        {
-            return true;
-        }
-
-        return character->GetEntityKind() == Character::EntityKind::Environment &&
-               character->GetMaterialType() != Character::MaterialType::None &&
-               character->GetMaxHealth() < 9000.0f;
-    }
-
     bool IsLevelThreeSmileTarget(const LevelManager *levelManager,
                                  const std::shared_ptr<Character> &character)
     {
@@ -546,9 +434,7 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     if (isDamageTestLevel)
     {
         m_ShowDamageHud = true;
-        // Output damage info to console instead of on-screen HUD
-        std::cout << "\n=== Test Level Loaded: " << m_LevelManager->GetLevelName() << " ===\n";
-        std::cout << BuildDamageHudText(objects) << std::endl;
+        LOG_DEBUG("Test Level Loaded: {}\n{}", m_LevelManager->GetLevelName(), BuildDamageHudText(objects));
     }
 
     m_ScoringSystem.LoadConfig(RESOURCE_DIR "/scoring_config.json");
@@ -602,21 +488,19 @@ void GameScene::Update()
     if (Util::Input::IsKeyPressed(Util::Keycode::F1))
     {
         SetDebugRenderEnabled(!IsDebugRenderEnabled());
-        std::cout << "[Debug] Physics render "
-                  << (IsDebugRenderEnabled() ? "enabled" : "disabled") << std::endl;
+        LOG_DEBUG("Physics render {}", IsDebugRenderEnabled() ? "enabled" : "disabled");
     }
 
     if (Util::Input::IsKeyPressed(Util::Keycode::P))
     {
         SetPhysicsPaused(!IsPhysicsPaused());
-        std::cout << "[Debug] Physics "
-                  << (IsPhysicsPaused() ? "paused" : "resumed") << std::endl;
+        LOG_DEBUG("Physics {}", IsPhysicsPaused() ? "paused" : "resumed");
     }
 
     if (IsPhysicsPaused() && Util::Input::IsKeyPressed(Util::Keycode::L))
     {
         RequestPhysicsSingleStep();
-        std::cout << "[Debug] Physics single step dt=0.016" << std::endl;
+        LOG_DEBUG("Physics single step dt=0.016");
     }
 
     // Output damage stats to console periodically during test level
@@ -626,8 +510,7 @@ void GameScene::Update()
         if (m_DamageOutputTimer >= 2.0f) // Output every 2 seconds
         {
             m_DamageOutputTimer = 0.0f;
-            std::cout << "\n=== Damage Status ===\n"
-                      << BuildDamageHudText(m_LevelManager->GetGameObjects()) << std::endl;
+            LOG_DEBUG("Damage Status:\n{}", BuildDamageHudText(m_LevelManager->GetGameObjects()));
         }
     }
 
@@ -682,7 +565,10 @@ void GameScene::Update()
         !Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB))
     {
         m_PauseMenuInputBlockedUntilRelease = false;
-        SetPauseMenuButtonsInputEnabled(true);
+        if (m_PauseMenu)
+        {
+            m_PauseMenu->SetButtonsInputEnabled(true);
+        }
     }
 
     // Handle mouse wheel zoom with mouse position as pivot
@@ -827,74 +713,30 @@ void GameScene::BuildLevelHud()
                                                } });
     AddElements(m_LeftTopButton031);
 
-    m_PauseMenuBackdrop = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::DebugBox>(glm::vec4{0.0f, 0.0f, 0.0f, 0.58f}, 1.0f), 95.0f);
-    m_PauseMenuBackdrop->SetVisible(false);
-    AddElements(m_PauseMenuBackdrop);
-
-    m_PauseMenu069 = std::make_shared<Button>(Resource::Game_Menu_Item_069);
-    m_PauseMenu069->SetZIndex(96.0f);
-    m_PauseMenu069->SetScale({kGamePauseMenu069Scale * GetHudScale(), kGamePauseMenu069Scale * GetHudScale()});
-    m_PauseMenu069->SetVisible(false);
-    m_PauseMenu069->SetSFX(Resource::SETTING_SFX);
-    m_PauseMenu069->SetOnClickFunction([this]()
-                                       { SetPauseMenuVisible(false); });
-    AddElements(m_PauseMenu069);
-
-    m_PauseMenu082 = std::make_shared<Button>(Resource::Game_Menu_Item_082);
-    m_PauseMenu082->SetZIndex(96.0f);
-    m_PauseMenu082->SetScale({kGamePauseMenu082Scale * GetHudScale(), kGamePauseMenu082Scale * GetHudScale()});
-    m_PauseMenu082->SetVisible(false);
-    m_PauseMenu082->SetSFX(Resource::SETTING_SFX);
-    m_PauseMenu082->SetOnClickFunction([this]()
-                                       {
-                                           SetPauseMenuVisible(false);
-                                           if (m_OnRestartLevel)
-                                           {
-                                               m_OnRestartLevel();
-                                           } });
-    AddElements(m_PauseMenu082);
-
-    m_PauseMenu073 = std::make_shared<Button>(Resource::Game_Menu_Item_073);
-    m_PauseMenu073->SetZIndex(96.0f);
-    m_PauseMenu073->SetScale({kGamePauseMenu073Scale * GetHudScale(), kGamePauseMenu073Scale * GetHudScale()});
-    m_PauseMenu073->SetVisible(false);
-    m_PauseMenu073->SetSFX(Resource::SETTING_SFX);
-    m_PauseMenu073->SetOnClickFunction([this]()
-                                       {
-                                           SetPauseMenuVisible(false);
-                                           if (m_OnOpenLevelSelect)
-                                           {
-                                               m_OnOpenLevelSelect();
-                                           } });
-    AddElements(m_PauseMenu073);
-
-    m_PauseMenu005 = std::make_shared<Button>(Resource::Game_Menu_Item_005);
-    m_PauseMenu005->SetZIndex(96.0f);
-    m_PauseMenu005->SetScale({kGamePauseMenu005Scale * GetHudScale(), kGamePauseMenu005Scale * GetHudScale()});
-    m_PauseMenu005->SetVisible(false);
-    m_PauseMenu005->SetSFX(Resource::SETTING_SFX);
-    m_PauseMenu005->SetOnClickFunction([this]()
-                                       { ToggleMusicMute(); });
-    AddElements(m_PauseMenu005);
-
-    m_PauseMenu040Overlay = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Image>(Resource::Game_Menu_Item_040), 97.0f);
-    m_PauseMenu040Overlay->m_Transform.scale = {kGamePauseMenu040Scale * GetHudScale(), kGamePauseMenu040Scale * GetHudScale()};
-    m_PauseMenu040Overlay->SetVisible(false);
-    AddElements(m_PauseMenu040Overlay);
-
-    m_PauseMenu063 = std::make_shared<Button>(Resource::Game_Menu_Item_063);
-    m_PauseMenu063->SetZIndex(96.0f);
-    m_PauseMenu063->SetScale({kGamePauseMenu063Scale * GetHudScale(), kGamePauseMenu063Scale * GetHudScale()});
-    m_PauseMenu063->SetVisible(false);
-    AddElements(m_PauseMenu063);
-
-    m_PauseMenuLevelTitle = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Image>(Resource::Level_Title_1_1), 96.0f);
-    m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale * GetHudScale(), kGamePauseMenuLevelTitleScale * GetHudScale()};
-    m_PauseMenuLevelTitle->SetVisible(false);
-    AddElements(m_PauseMenuLevelTitle);
+    m_PauseMenu = std::make_shared<PauseMenu>();
+    m_PauseMenu->SetOnClose([this]()
+                            { SetPauseMenuVisible(false); });
+    m_PauseMenu->SetOnRestart([this]()
+                              {
+                                  SetPauseMenuVisible(false);
+                                  if (m_OnRestartLevel)
+                                  {
+                                      m_OnRestartLevel();
+                                  }
+                              });
+    m_PauseMenu->SetOnOpenLevelSelect([this]()
+                                      {
+                                          SetPauseMenuVisible(false);
+                                          if (m_OnOpenLevelSelect)
+                                          {
+                                              m_OnOpenLevelSelect();
+                                          }
+                                      });
+    m_PauseMenu->SetOnToggleMute([this]()
+                                { ToggleMusicMute(); });
+    m_PauseMenu->Build([this](const std::shared_ptr<Util::GameObject> &element)
+                       { AddElements(element); },
+                       GetHudScale());
 
     // Build Level Clear Screen UI
     m_LevelClearBackdrop = std::make_shared<Util::GameObject>(
@@ -1248,80 +1090,9 @@ void GameScene::UpdateHudPositions()
     if (m_HighScoreValue) { m_HighScoreValue->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
     for (auto &o : m_HighScoreValueOutline) { if (o) o->m_Transform.scale = {1.0f / zoom, 1.0f / zoom}; }
 
-    if (m_PauseMenu069)
+    if (m_PauseMenu)
     {
-        m_PauseMenu069->SetPosition(topLeftAnchor +
-                                    glm::vec2{
-                                        (kGamePauseMenu069OffsetX * hudScale) / zoom,
-                                        -(kGamePauseMenu069OffsetY * hudScale) / zoom});
-        m_PauseMenu069->SetScale({kGamePauseMenu069Scale * hudScale / zoom, kGamePauseMenu069Scale * hudScale / zoom});
-    }
-
-    if (m_PauseMenu082)
-    {
-        m_PauseMenu082->SetPosition(topLeftAnchor +
-                                    glm::vec2{
-                                        (kGamePauseMenu082OffsetX * hudScale) / zoom,
-                                        -(kGamePauseMenu082OffsetY * hudScale) / zoom});
-        m_PauseMenu082->SetScale({kGamePauseMenu082Scale * hudScale / zoom, kGamePauseMenu082Scale * hudScale / zoom});
-    }
-
-    if (m_PauseMenu073)
-    {
-        m_PauseMenu073->SetPosition(topLeftAnchor +
-                                    glm::vec2{
-                                        (kGamePauseMenu073OffsetX * hudScale) / zoom,
-                                        -(kGamePauseMenu073OffsetY * hudScale) / zoom});
-        m_PauseMenu073->SetScale({kGamePauseMenu073Scale * hudScale / zoom, kGamePauseMenu073Scale * hudScale / zoom});
-    }
-
-    if (m_PauseMenu005)
-    {
-        m_PauseMenu005->SetPosition(topLeftAnchor +
-                                    glm::vec2{
-                                        (kGamePauseMenu005OffsetX * hudScale) / zoom,
-                                        -(kGamePauseMenu005OffsetY * hudScale) / zoom});
-        m_PauseMenu005->SetScale({kGamePauseMenu005Scale * hudScale / zoom, kGamePauseMenu005Scale * hudScale / zoom});
-    }
-
-    if (m_PauseMenu040Overlay)
-    {
-        m_PauseMenu040Overlay->m_Transform.translation = topLeftAnchor +
-                                                         glm::vec2{
-                                                             (kGamePauseMenu040OffsetX * hudScale) / zoom,
-                                                             -(kGamePauseMenu040OffsetY * hudScale) / zoom};
-        m_PauseMenu040Overlay->m_Transform.scale = {
-            kGamePauseMenu040Scale * hudScale / zoom,
-            kGamePauseMenu040Scale * hudScale / zoom};
-    }
-
-    if (m_PauseMenu063)
-    {
-        m_PauseMenu063->SetPosition(topLeftAnchor +
-                                    glm::vec2{
-                                        (kGamePauseMenu063OffsetX * hudScale) / zoom,
-                                        -(kGamePauseMenu063OffsetY * hudScale) / zoom});
-        m_PauseMenu063->SetScale({kGamePauseMenu063Scale * hudScale / zoom, kGamePauseMenu063Scale * hudScale / zoom});
-    }
-
-    if (m_PauseMenuBackdrop)
-    {
-        m_PauseMenuBackdrop->m_Transform.translation = cameraPos +
-                                                       glm::vec2{
-                                                           -viewportSize.x * 0.5f / zoom + (kGamePauseMenuBackdropCenterOffsetX * hudScale) / zoom,
-                                                           (kGamePauseMenuBackdropCenterOffsetY * hudScale) / zoom};
-        m_PauseMenuBackdrop->m_Transform.scale = {
-            (kGamePauseMenuBackdropWidth * hudScale) / zoom,
-            viewportSize.y * kGamePauseMenuBackdropHeightRatio / zoom};
-    }
-
-    if (m_PauseMenuLevelTitle)
-    {
-        m_PauseMenuLevelTitle->m_Transform.translation = cameraPos +
-                                                         glm::vec2{
-                                                             -viewportSize.x * 0.5f / zoom + (kGamePauseMenuLevelTitleOffsetX * hudScale) / zoom,
-                                                             (kGamePauseMenuLevelTitleOffsetY * hudScale) / zoom};
-        m_PauseMenuLevelTitle->m_Transform.scale = {kGamePauseMenuLevelTitleScale * hudScale / zoom, kGamePauseMenuLevelTitleScale * hudScale / zoom};
+        m_PauseMenu->UpdateLayout(cameraPos, viewportSize, hudScale, zoom);
     }
 }
 
@@ -1338,80 +1109,27 @@ void GameScene::SetPauseMenuVisible(const bool visible)
         m_LeftTopButton031->SetVisible(!visible);
     }
 
-    if (m_PauseMenuBackdrop)
+    if (m_PauseMenu)
     {
-        m_PauseMenuBackdrop->SetVisible(visible);
-    }
-    if (m_PauseMenu069)
-    {
-        m_PauseMenu069->SetVisible(visible);
-    }
-    if (m_PauseMenu082)
-    {
-        m_PauseMenu082->SetVisible(visible);
-    }
-    if (m_PauseMenu073)
-    {
-        m_PauseMenu073->SetVisible(visible);
-    }
-    if (m_PauseMenu005)
-    {
-        m_PauseMenu005->SetVisible(visible);
-    }
-    if (m_PauseMenu040Overlay)
-    {
-        m_PauseMenu040Overlay->SetVisible(visible && m_IsMusicMuted);
-    }
-    if (m_PauseMenu063)
-    {
-        m_PauseMenu063->SetVisible(visible);
-    }
-
-    if (m_PauseMenuLevelTitle)
-    {
-        m_PauseMenuLevelTitle->SetVisible(visible);
-        if (visible && m_LevelManager)
-        {
-            int levelNum = m_LevelManager->GetLevel();
-            std::string levelTitleResource;
-
-            if (levelNum == 1)
-                levelTitleResource = Resource::Level_Title_1_1;
-            else if (levelNum == 2)
-                levelTitleResource = Resource::Level_Title_1_2;
-            else if (levelNum == 3)
-                levelTitleResource = Resource::Level_Title_1_3;
-            else if (levelNum == 4)
-                levelTitleResource = Resource::Level_Title_1_4;
-            else if (levelNum == 5)
-                levelTitleResource = Resource::Level_Title_1_5;
-            else if (levelNum == 6)
-                levelTitleResource = Resource::Level_Title_1_6;
-            else if (levelNum == 7)
-                levelTitleResource = Resource::Level_Title_1_7;
-            else if (levelNum == 8)
-                levelTitleResource = Resource::Level_Title_1_8;
-            else if (levelNum == 9)
-                levelTitleResource = Resource::Level_Title_1_9;
-            else if (levelNum == 10)
-                levelTitleResource = Resource::Level_Title_1_10;
-
-            if (!levelTitleResource.empty())
-            {
-                m_PauseMenuLevelTitle->SetDrawable(std::make_shared<Util::Image>(levelTitleResource));
-            }
-        }
+        const int levelNumber = m_LevelManager ? m_LevelManager->GetLevel() : 0;
+        m_PauseMenu->SetVisible(visible, m_IsMusicMuted, levelNumber);
     }
 
     if (visible)
     {
         m_PauseMenuInputBlockedUntilRelease = true;
-        SetPauseMenuButtonsInputEnabled(false);
+        if (m_PauseMenu)
+        {
+            m_PauseMenu->SetButtonsInputEnabled(false);
+        }
     }
     else
     {
         m_PauseMenuInputBlockedUntilRelease = false;
-        SetPauseMenuButtonsInputEnabled(true);
+        if (m_PauseMenu)
+        {
+            m_PauseMenu->SetButtonsInputEnabled(true);
+        }
     }
 }
 
@@ -2071,32 +1789,8 @@ void GameScene::ToggleMusicMute()
     m_IsMusicMuted = !m_IsMusicMuted;
     SoundEffect::SetMuted(m_IsMusicMuted);
 
-    if (m_PauseMenu040Overlay)
+    if (m_PauseMenu)
     {
-        m_PauseMenu040Overlay->SetVisible(m_IsPauseMenuVisible && m_IsMusicMuted);
-    }
-}
-
-void GameScene::SetPauseMenuButtonsInputEnabled(const bool enabled)
-{
-    if (m_PauseMenu069)
-    {
-        m_PauseMenu069->SetInputEnabled(enabled);
-    }
-    if (m_PauseMenu082)
-    {
-        m_PauseMenu082->SetInputEnabled(enabled);
-    }
-    if (m_PauseMenu073)
-    {
-        m_PauseMenu073->SetInputEnabled(enabled);
-    }
-    if (m_PauseMenu005)
-    {
-        m_PauseMenu005->SetInputEnabled(enabled);
-    }
-    if (m_PauseMenu063)
-    {
-        m_PauseMenu063->SetInputEnabled(enabled);
+        m_PauseMenu->SetMusicMuted(m_IsMusicMuted);
     }
 }

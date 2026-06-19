@@ -7,6 +7,7 @@ set(SRC_FILES
     graphics/DynamicBackground.cpp
     ui/Button.cpp
     ui/AnimatedButton.cpp
+    ui/PauseMenu.cpp
     scenes/Scene.cpp
     scenes/CollisionUtils.cpp
     scenes/CollisionResponse.cpp
@@ -38,6 +39,7 @@ set(INCLUDE_FILES
     graphics/DynamicBackground.hpp
     ui/Button.hpp
     ui/AnimatedButton.hpp
+    ui/PauseMenu.hpp
     scenes/Scene.hpp
     scenes/CollisionUtils.hpp
     scenes/CollisionResponse.hpp
