@@ -9,6 +9,7 @@
 #include "Util/Image.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Time.hpp"
+#include "Util/TransformUtils.hpp"
 #include "config.hpp"
 #include <memory>
 
@@ -100,6 +101,8 @@ void App::ShowIntroScene() {
     m_levelSelectScene->SetVisible(false);
     m_levelSelectScene->SetSceneVisible(false);
   }
+  Util::SetCameraZoom(1.0f);
+  Util::SetCameraPosition({0.0f, 0.0f});
 }
 
 void App::ShowLevelSelectScene() {
@@ -111,6 +114,8 @@ void App::ShowLevelSelectScene() {
     m_levelSelectScene->SetVisible(true);
     m_levelSelectScene->SetSceneVisible(true);
   }
+  Util::SetCameraZoom(1.0f);
+  Util::SetCameraPosition({0.0f, 0.0f});
 }
 
 bool App::TransitionToGame(const int levelNumber) {
