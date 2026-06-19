@@ -345,25 +345,12 @@ void Scene::StepPhysics(float dt)
 
     if (ch->GetPosition().y - worldHalfY < this->m_WorldFloorY)
     {
-      const float impactSpeed = std::max(0.0f, -ch->GetVelocity().y);
       glm::vec2 pos = ch->GetPosition();
       pos.y = this->m_WorldFloorY + worldHalfY;
       ch->SetPosition(pos);
 
-      glm::vec2 vel = ch->GetVelocity();
-      if (vel.y < 0.0f)
-        vel.y = 0.0f;
-
-      // Apply ground friction when sliding on the global floor
-      // (since it's a hardcoded boundary, not an OBB with friction)
-      vel.x *= 0.95f;
-
-      ch->SetVelocity(vel);
-
-      // ── Floor contact torque ────────────────────────────────────
-      // The floor pushes upward at the lowest corner(s) of the OBB,
-      // not at the center.  This offset creates a torque that makes
-      // tilted blocks tip toward a stable orientation (flat or upright).
+      // Find the lowest corner(s) and compute the contact lever arm
+      float leverArm = 0.0f;
       {
           const float cosR = std::cos(rot);
           const float sinR = std::sin(rot);
@@ -382,8 +369,6 @@ void Scene::StepPhysics(float dt)
               lowestY = std::min(lowestY, corners[ci].y);
 
           // Average X of all corners near the lowest Y.
-          // When the bottom edge is flat (two corners at same Y),
-          // their X values cancel out → zero torque (correct for stable rest).
           constexpr float kContactTol = 2.0f;
           float sumX = 0.0f;
           int contactCount = 0;
@@ -395,29 +380,58 @@ void Scene::StepPhysics(float dt)
                   ++contactCount;
               }
           }
-
           if (contactCount > 0)
           {
-              const float leverArm = sumX / static_cast<float>(contactCount);
-              const float floorImpulse = ch->GetMass() * impactSpeed;
-              const float angularImpulse = leverArm * floorImpulse;
-
-              float I = ch->GetMass() * (size.x * size.x + size.y * size.y) / 12.0f;
-              I = std::max(ch->GetInertia(), I);
-
-              ch->SetAngularVelocity(ch->GetAngularVelocity() + angularImpulse / I);
+              leverArm = sumX / static_cast<float>(contactCount);
           }
+      }
+
+      // Calculate relative normal velocity at the contact point (floor normal is (0, 1))
+      const float velN = ch->GetVelocity().y + ch->GetAngularVelocity() * leverArm;
+      float Jn = 0.0f;
+
+      if (velN < 0.0f)
+      {
+          // Calculate physical impulse using contact mass and restitution
+          float e = CollisionUtils::GetRestitution(ch->GetMaterialType());
+          if (std::fabs(velN) < 30.0f)
+              e = 0.0f; // Zero out restitution for slow contact
+
+          const float invM = 1.0f / std::max(0.0001f, ch->GetMass());
+          float I = ch->GetMass() * (size.x * size.x + size.y * size.y) / 12.0f;
+          I = std::max(ch->GetInertia(), I);
+          const float invI = 1.0f / std::max(0.0001f, I);
+
+          const float denom = invM + leverArm * leverArm * invI;
+          Jn = - (1.0f + e) * velN / denom;
+          Jn = std::max(0.0f, Jn);
+
+          // Apply physical impulse (linear and angular)
+          glm::vec2 vel = ch->GetVelocity();
+          vel.y += Jn * invM;
+          // Apply floor friction to horizontal sliding
+          vel.x *= 0.95f;
+          ch->SetVelocity(vel);
+
+          ch->SetAngularVelocity(ch->GetAngularVelocity() + leverArm * Jn * invI);
+      }
+      else
+      {
+          // Just apply floor friction on horizontal velocity if it's already separating/resting
+          glm::vec2 vel = ch->GetVelocity();
+          vel.x *= 0.95f;
+          ch->SetVelocity(vel);
       }
 
       if (!IsDamageImmune() &&
           ch->GetEntityKind() != Character::EntityKind::Bird &&
           ch->GetMaterialType() != Character::MaterialType::Earth)
       {
-        constexpr float kFloorDamageImpulseThreshold = 150.0f;
-        constexpr float kFloorDamageFactor = 0.05f;
+        constexpr float kFloorDamageImpulseThreshold = 350.0f;
+        constexpr float kFloorDamageFactor = 0.025f;
         
         // Un-scale the impulse to make damage resolution-independent
-        const float estimatedImpulse = (ch->GetMass() * impactSpeed) / (m_PhysicsScale > 0.0f ? m_PhysicsScale : 1.0f);
+        const float estimatedImpulse = Jn / (m_PhysicsScale > 0.0f ? m_PhysicsScale : 1.0f);
         if (estimatedImpulse > kFloorDamageImpulseThreshold)
         {
           const float resistance = CollisionUtils::GetDamageResistance(ch->GetMaterialType());

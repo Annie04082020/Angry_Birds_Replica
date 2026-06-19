@@ -327,16 +327,16 @@ void CollisionResponse::ApplyAccumulatedDamage(ContactManifold &cm, float physic
             return;
         }
 
-        float damageThreshold = 150.0f;
-        float damageFactor = 0.05f;
+        float damageThreshold = 350.0f; // was 150.0f
+        float damageFactor = 0.025f; // was 0.05f
 
         if (c->GetEntityKind() == Character::EntityKind::Pig || c->IsSpecialItem())
         {
             // Pigs and the level 3 smile target should reliably die from
             // meaningful impacts, even when the collision only topples them
             // instead of producing a huge structure-on-structure impulse.
-            damageThreshold = 70.0f;
-            damageFactor = 0.11f;
+            damageThreshold = 180.0f; // was 70.0f
+            damageFactor = 0.05f; // was 0.11f
         }
 
         if (absJn <= damageThreshold)

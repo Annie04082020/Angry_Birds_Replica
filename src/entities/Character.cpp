@@ -121,6 +121,10 @@ void Character::IntegratePhysics(float deltaTimeSeconds)
     m_Transform.translation += m_PhysicsState.velocity * deltaTimeSeconds;
     m_Transform.rotation += m_PhysicsState.angularVelocity * deltaTimeSeconds;
 
+    // Apply linear damping to simulate air resistance and reduce explosive runaway velocities.
+    constexpr float kLinearDamping = 0.25f; // per second
+    m_PhysicsState.velocity *= std::exp(-kLinearDamping * deltaTimeSeconds);
+
     // Apply angular damping to reduce runaway spinning (exponential decay).
     // Reduced from 8.0f to 0.5f since the SI solver handles stability now.
     // 8.0f was actively killing all natural torque, preventing objects from tipping over!
