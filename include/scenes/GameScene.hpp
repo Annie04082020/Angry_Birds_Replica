@@ -151,6 +151,13 @@ private:
     std::deque<glm::vec2> m_PendingLeftoverBirdAwardPositions;
     float m_LeftoverBirdAwardTimer = 0.0f;
     float m_LevelClearAnimationTime = 0.0f;
+    
+    // Intro Animation State
+    bool m_IsIntroAnimating = false;
+    float m_IntroTimer = 0.0f;
+    float m_IntroCameraTargetX = 0.0f;
+    float m_IntroDuration = 2.0f;
+    float m_IntroWaitDuration = 1.0f;
 };
 
 #endif // GAME_SCENE_HPP

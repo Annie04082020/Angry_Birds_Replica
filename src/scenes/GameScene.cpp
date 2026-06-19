@@ -489,6 +489,12 @@ bool GameScene::LoadLevel(const std::string &levelPath)
     m_ShowDamageHud = false;
     m_DamageImmunityTimer = 2.0f;
 
+    m_IsIntroAnimating = true;
+    m_IntroTimer = 0.0f;
+    m_IntroCameraTargetX = 0.0f;
+    m_IntroWaitDuration = 1.0f;
+    m_IntroDuration = 2.0f;
+
     Util::SetCameraZoom(1.0f);
     Util::SetCameraPosition({0.0f, 0.0f});
 
@@ -506,10 +512,21 @@ bool GameScene::LoadLevel(const std::string &levelPath)
 
     const auto &objects = m_LevelManager->GetGameObjects();
 
+    m_IntroCameraTargetX = 0.0f;
     for (const auto &obj : objects)
     {
+        if (obj && (obj->GetEntityKind() == Character::EntityKind::Pig || obj->GetEntityKind() == Character::EntityKind::Environment)) {
+            float x = obj->GetTransform().translation.x;
+            if (x > m_IntroCameraTargetX) {
+                m_IntroCameraTargetX = x;
+            }
+        }
         AddElements(obj);
     }
+
+    // Set initial camera to look at the pigs on the right
+    float initialCameraX = std::max(0.0f, m_IntroCameraTargetX - 600.0f);
+    Util::SetCameraPosition({initialCameraX, 0.0f});
 
     const glm::vec2 viewportSize = Util::GetViewportSize();
     const float floorCandidate = (0.5f - kGrassTopRatio) * viewportSize.y;
@@ -614,7 +631,31 @@ void GameScene::Update()
         }
     }
 
-    if (m_BirdLaunchController && !IsPhysicsPaused())
+    if (m_IsIntroAnimating)
+    {
+        float deltaTime = Util::Time::GetDeltaTimeMs() / 1000.0f;
+        m_IntroTimer += deltaTime;
+
+        if (m_IntroTimer > m_IntroWaitDuration)
+        {
+            float progress = (m_IntroTimer - m_IntroWaitDuration) / m_IntroDuration;
+            if (progress >= 1.0f)
+            {
+                progress = 1.0f;
+                m_IsIntroAnimating = false;
+            }
+
+            // Smoothstep easing
+            float t = progress;
+            float smoothProgress = t * t * (3.0f - 2.0f * t);
+
+            float startX = std::max(0.0f, m_IntroCameraTargetX - 600.0f);
+            float currentX = startX * (1.0f - smoothProgress);
+            Util::SetCameraPosition({currentX, 0.0f});
+        }
+    }
+
+    if (m_BirdLaunchController && !IsPhysicsPaused() && !m_IsIntroAnimating)
     {
         m_BirdLaunchController->Update();
 
@@ -632,7 +673,7 @@ void GameScene::Update()
     }
     UpdateBirdTrail();
 
-    if (m_SceneInputController)
+    if (m_SceneInputController && !m_IsIntroAnimating)
     {
         m_SceneInputController->Update(isBirdHolding);
     }
@@ -645,7 +686,7 @@ void GameScene::Update()
     }
 
     // Handle mouse wheel zoom with mouse position as pivot
-    if (Util::Input::IfScroll())
+    if (Util::Input::IfScroll() && !m_IsIntroAnimating)
     {
         const glm::vec2 mousePos = Util::Input::GetCursorPosition();
         const float oldZoom = Util::GetCameraZoom();
