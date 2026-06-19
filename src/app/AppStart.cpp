@@ -118,6 +118,7 @@ void App::Start() {
 }
 
 void App::ShowIntroScene() {
+  m_currentLevelStartedFromCheatMode = false;
   if (m_introScene) {
     m_introScene->SetVisible(true);
     m_introScene->SetMenuVisible(true);
@@ -131,6 +132,7 @@ void App::ShowIntroScene() {
 }
 
 void App::ShowLevelSelectScene() {
+  m_currentLevelStartedFromCheatMode = false;
   RefreshLevelSelectProgress();
   ApplyLevelSelectProgress();
 
@@ -166,6 +168,13 @@ void App::ToggleLevelSelectCheatMode() {
 
 void App::SaveUnlockedProgress(const int clearedLevel) const {
   if (clearedLevel <= 0 || clearedLevel > kTotalLevels) {
+    return;
+  }
+
+  if (m_currentLevelStartedFromCheatMode) {
+    LOG_INFO("Skip saving unlock progress for level {} because it was started "
+             "from cheat mode",
+             clearedLevel);
     return;
   }
 
@@ -212,9 +221,11 @@ bool App::TransitionToGame(const int levelNumber) {
 
   m_currentLevelNumber = levelNumber;
   m_currentLevelPath = levelPath;
+  m_currentLevelStartedFromCheatMode = m_isLevelSelectCheatMode;
 
   if (!LoadLevel(levelPath)) {
     LOG_ERROR("Failed to load level {}", levelNumber);
+    m_currentLevelStartedFromCheatMode = false;
     return false;
   }
 

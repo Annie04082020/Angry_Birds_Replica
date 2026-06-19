@@ -70,6 +70,7 @@ private:
   bool m_isSplashDone = false;
   int m_highestSequentialClearedLevel = 0;
   bool m_isLevelSelectCheatMode = false;
+  bool m_currentLevelStartedFromCheatMode = false;
   Util::Renderer m_Root;
 };
 
