@@ -25,9 +25,8 @@ brew install cmake ninja
 ## Quick Start
 
 1. **Clone the repository**
-   Make sure to include the `--recursive` flag to fetch the required submodules (such as the PTSD framework).
    ```bash
-   git clone <YOUR_GIT_URL> --recursive
+   git clone <YOUR_GIT_URL>
    cd Angry_Birds_Replica
    ```
 
