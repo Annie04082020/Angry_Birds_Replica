@@ -28,16 +28,18 @@ OOPL 2026 Spring Semester
 # Game Introduction
 Angry Birds 是一款 2D 多關卡益智遊戲，玩家透過彈弓發射不同種類的 Angry Bird 來攻擊豬的防禦堡壘。豬會用木頭、石頭、冰塊等不同材料建造防禦，而不同種類的 Angry Bird 也各有獨特的異能和特效，玩家需要策略性地選擇使用。
 
-[遊戲連結](https://www.angrybirds.com/)
-[遊玩畫面](https://www.youtube.com/watch?v=tmcG-vbI6DQ)
-[期中成果](https://youtu.be/V9pe8lg6LLU)
+- [遊戲連結](https://www.angrybirds.com/)
+- [遊玩畫面](https://www.youtube.com/watch?v=tmcG-vbI6DQ)
 
 ----
+- [期中成果](https://youtu.be/V9pe8lg6LLU)
+----
 
-[期末成果](https://youtu.be/aVP6Vbt74fo)
-- cc subtitles included
-[Final Report](./2026OOPL_Final.md)
-[Source Code Release (v1.0)](../../releases/tag/v1.0)
+- [期末成果](https://youtu.be/aVP6Vbt74fo) (cc subtitles included)
+
+- [Final Report](./2026OOPL_Final.md)
+
+- [Source Code Release (v1.0)](../../releases/tag/v1.0)
 
 # Developing Tool
 
