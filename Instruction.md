@@ -9,7 +9,7 @@ Before building the project, ensure you have the necessary C++ tools and compile
 ### Ubuntu / Debian
 ```bash
 sudo apt update
-sudo apt install -y build-essential g++ clang cmake git ninja-build
+sudo apt install -y build-essential g++ clang cmake git
 ```
 
 > [!NOTE]
@@ -19,7 +19,7 @@ sudo apt install -y build-essential g++ clang cmake git ninja-build
 You can install the required tools using [Homebrew](https://brew.sh/):
 ```bash
 xcode-select --install
-brew install cmake ninja
+brew install cmake
 ```
 
 ## Quick Start
@@ -37,9 +37,8 @@ brew install cmake ninja
    > [!WARNING]
    > Please build your project in `Debug` mode because the `Release` path might be broken.
    ```bash
-   cmake -DCMAKE_BUILD_TYPE=Debug -B build -G Ninja
+   cmake -DCMAKE_BUILD_TYPE=Debug -B build
    ```
-   *(If you don't use Ninja, you can simply run `cmake -DCMAKE_BUILD_TYPE=Debug -B build` instead)*
 
 3. **Build the project**
    ```bash
